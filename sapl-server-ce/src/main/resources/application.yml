@@ -1,0 +1,9 @@
+spring:
+  profiles.active: demo
+
+logging.level:
+  org.atmosphere: WARN
+  web: INFO
+
+vaadin:
+  blacklisted-packages: org/eclipse
