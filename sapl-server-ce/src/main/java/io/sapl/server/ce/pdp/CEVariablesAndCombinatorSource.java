@@ -58,7 +58,7 @@ public class CEVariablesAndCombinatorSource implements VariablesAndCombinatorSou
 	public Flux<Optional<Map<String, JsonNode>>> getVariables() {
 		//@formatter:off
 		return variablesProcessorSink.asFlux()
-				.map(CEVariablesAndCombinatorSource::variablesCollentionToMap)
+				.map(CEVariablesAndCombinatorSource::variablesCollectionToMap)
 				.map(Optional::of);
 		//@formatter:on
 	}
@@ -87,7 +87,7 @@ public class CEVariablesAndCombinatorSource implements VariablesAndCombinatorSou
 	public void dispose() {
 	}
 
-	private static Map<String, JsonNode> variablesCollentionToMap(@NonNull Collection<Variable> variables) {
+	private static Map<String, JsonNode> variablesCollectionToMap(@NonNull Collection<Variable> variables) {
 		Map<String, JsonNode> variablesAsMap = Maps.newHashMapWithExpectedSize(variables.size());
 		for (Variable variable : variables) {
 			variablesAsMap.put(variable.getName(), JSON.textNode(variable.getJsonValue()));

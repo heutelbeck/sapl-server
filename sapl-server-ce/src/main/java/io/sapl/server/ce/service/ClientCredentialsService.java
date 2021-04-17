@@ -52,7 +52,7 @@ public class ClientCredentialsService implements UserDetailsService, Serializabl
 		}
 
 		if (clientCredentialsWithKey.size() > 1) {
-			log.warn("more than one client credentials with key \"{}\" not existing", username);
+			log.warn("more than one client credentials with key \"{}\" existing", username);
 		}
 
 		ClientCredentials relevantClientCredentials = Iterables.get(clientCredentialsWithKey, 0);
