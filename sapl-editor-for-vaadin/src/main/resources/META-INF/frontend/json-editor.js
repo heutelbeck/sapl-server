@@ -25,11 +25,15 @@ class JSONEditor extends LitElement {
     var shadowRoot = self.shadowRoot;
 
     require(["codemirror",
+      "codemirror/mode/javascript/javascript",
+      "./jsonlint",
       "codemirror/addon/lint/lint",
       "codemirror/addon/lint/json-lint",
-      "codemirror/mode/javascript/javascript"], 
-      function (codemirror, lint, jsonlint, mode) {
+      ], 
+      function (codemirror, mode, jsonlint, cmlint, cmjsonlint) {
         
+        window.jsonlint = jsonlint;
+
         self.editor = codemirror(shadowRoot, {
           value: self.document,
           mode: "application/json",
@@ -37,7 +41,9 @@ class JSONEditor extends LitElement {
           lineNumbers: self.hasLineNumbers,
           showCursorWhenSelecting: true,
           textUpdateDelay: self.textUpdateDelay,
-          lint: false,
+          lint: {
+            selfContain: true
+          },
         });
 
         self.editor.on("change", function(cm, changeObj) {
