@@ -30,6 +30,7 @@ import elemental.json.JsonObject;
 @Tag("sapl-editor")
 @JavaScript("jquery/dist/jquery.min.js")
 @JavaScript("./sapl-editor.js")
+@JavaScript("./shared-styles.js")
 @NpmPackage(value = "jquery", version = "3.4.1")
 @NpmPackage(value = "codemirror", version = "5.59.4")
 public class SaplEditor extends BaseEditor {
