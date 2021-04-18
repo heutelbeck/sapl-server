@@ -31,7 +31,7 @@ import elemental.json.JsonObject;
 @JavaScript("jquery/dist/jquery.min.js")
 @JavaScript("./sapl-editor.js")
 @NpmPackage(value = "jquery", version = "3.4.1")
-@NpmPackage(value = "codemirror", version = "5.51.0")
+@NpmPackage(value = "codemirror", version = "5.59.4")
 public class SaplEditor extends BaseEditor {
 
 	private final List<ValidationFinishedListener> validationFinishedListeners;

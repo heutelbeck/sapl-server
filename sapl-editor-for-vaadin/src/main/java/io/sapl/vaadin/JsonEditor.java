@@ -24,7 +24,7 @@ import com.vaadin.flow.dom.Element;
 @JavaScript("jquery/dist/jquery.min.js")
 @JavaScript("./json-editor.js")
 @NpmPackage(value = "jquery", version = "3.4.1")
-@NpmPackage(value = "codemirror", version = "5.51.0")
+@NpmPackage(value = "codemirror", version = "5.59.4")
 public class JsonEditor extends BaseEditor {
 
 	public JsonEditor(JsonEditorConfiguration config) {
