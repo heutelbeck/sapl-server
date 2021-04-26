@@ -36,6 +36,7 @@ public class BaseEditor extends Component {
 		element.setProperty("autoCloseBrackets", config.isAutoCloseBrackets());
 		element.setProperty("matchBrackets", config.isMatchBrackets());
 		element.setProperty("textUpdateDelay", config.getTextUpdateDelay());
+		element.setProperty("isReadOnly", config.isReadOnly());
     }
 
     @ClientCallable

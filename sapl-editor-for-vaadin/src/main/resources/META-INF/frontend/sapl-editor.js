@@ -12,6 +12,7 @@ class SAPLEditor extends LitElement {
   static get properties() {
     return {
       document: { type: String },
+      isReadOnly: { type: Boolean },
       hasLineNumbers: { type: Boolean },
       autoCloseBrackets: { type: Boolean },
       matchBrackets: { type: Boolean },
@@ -47,6 +48,7 @@ class SAPLEditor extends LitElement {
           xtextLang: self.xtextLang,
           sendFullText: true,
           syntaxDefinition: mode,
+          readOnly: self.isReadOnly,
           lineNumbers: self.hasLineNumbers,
           showCursorWhenSelecting: true,
           enableValidationService: true,

@@ -11,6 +11,7 @@ class JSONEditor extends LitElement {
   static get properties() {
     return {
       document: { type: String },
+      isReadOnly: { type: Boolean }, 
       hasLineNumbers: { type: Boolean },
       autoCloseBrackets: { type: Boolean },
       matchBrackets: { type: Boolean },
@@ -47,6 +48,7 @@ class JSONEditor extends LitElement {
           value: self.document,
           mode: "application/json",
           gutters: ["CodeMirror-lint-markers"],
+          readOnly: self.isReadOnly,
           lineNumbers: self.hasLineNumbers,
           showCursorWhenSelecting: true,
           textUpdateDelay: self.textUpdateDelay,
