@@ -24,6 +24,8 @@ import com.vaadin.flow.dom.Element;
 
 public class BaseEditor extends Component {
 
+	private static final String IsReadOnlyKey = "isReadOnly";
+	
     private String document;
     private final List<DocumentChangedListener> documentChangedListeners;
 
@@ -36,7 +38,7 @@ public class BaseEditor extends Component {
 		element.setProperty("autoCloseBrackets", config.isAutoCloseBrackets());
 		element.setProperty("matchBrackets", config.isMatchBrackets());
 		element.setProperty("textUpdateDelay", config.getTextUpdateDelay());
-		element.setProperty("isReadOnly", config.isReadOnly());
+		element.setProperty(IsReadOnlyKey, config.isReadOnly());
     }
 
     @ClientCallable
@@ -84,5 +86,15 @@ public class BaseEditor extends Component {
 	 */
 	public void removeDocumentChangedListener(DocumentChangedListener listener) {
 		this.documentChangedListeners.remove(listener);
+	}
+	
+	public void setReadOnly(Boolean isReadOnly) {
+		Element element = getElement();
+		element.setProperty(IsReadOnlyKey, isReadOnly);
+	}
+	
+	public Boolean isReadOnly() {
+		Element element = getElement();
+		return element.getProperty(IsReadOnlyKey, false);
 	}
 }

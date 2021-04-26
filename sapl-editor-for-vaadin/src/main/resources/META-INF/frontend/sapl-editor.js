@@ -32,6 +32,14 @@ class SAPLEditor extends LitElement {
     ]
   }
 
+  set isReadOnly(value) {
+    let oldVal = this._isReadOnly;
+    this._isReadOnly = value;
+    console.debug('set - property change: ', 'isReadOnly', oldVal, value);
+    this.requestUpdate('isReadOnly', oldVal);
+    this.setEditorOption('readOnly', value);
+  }
+
   connectedCallback() {
     super.connectedCallback();
 
@@ -105,6 +113,13 @@ class SAPLEditor extends LitElement {
     this.document = document;
     if(element.editor !== undefined) {
       element.editor.doc.setValue(document);
+    }
+  }
+
+  setEditorOption(option, value) {
+    console.debug('setEditorOption', option, value);
+    if(this.editor !== undefined) {
+      this.editor.setOption(option, value);  
     }
   }
 
