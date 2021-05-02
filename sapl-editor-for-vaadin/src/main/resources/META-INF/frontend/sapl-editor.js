@@ -32,12 +32,28 @@ class SAPLEditor extends LitElement {
     ]
   }
 
+  set editor(value) {
+    let oldVal = this._editor;
+    this._editor = value;
+    console.debug('SaplEditor: set editor', oldVal, value);
+    this.requestUpdate('editor', oldVal);
+    this.onEditorChangeCheckOptions(value);
+  }
+
+  get editor() {
+    return this._editor;
+  }
+
   set isReadOnly(value) {
     let oldVal = this._isReadOnly;
     this._isReadOnly = value;
-    console.debug('set - property change: ', 'isReadOnly', oldVal, value);
+    console.debug('SaplEditor: set isReadOnly', oldVal, value);
     this.requestUpdate('isReadOnly', oldVal);
     this.setEditorOption('readOnly', value);
+  }
+
+  get isReadOnly() { 
+    return this._isReadOnly; 
   }
 
   connectedCallback() {
@@ -117,9 +133,20 @@ class SAPLEditor extends LitElement {
   }
 
   setEditorOption(option, value) {
-    console.debug('setEditorOption', option, value);
+    let isEditorSet = this.editor !== undefined;
+    console.debug('SaplEditor: setEditorOption', option, value, isEditorSet);
+
     if(this.editor !== undefined) {
       this.editor.setOption(option, value);  
+    }
+  }
+
+  onEditorChangeCheckOptions(editor) {
+    let isEditorSet = editor !== undefined;
+    console.debug('SaplEditor: onEditorChangeCheckOptions', isEditorSet);
+
+    if(isEditorSet) {
+      editor.setOption('readonly', this.isReadOnly);
     }
   }
 
