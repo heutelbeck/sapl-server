@@ -547,3 +547,9 @@ export const AutocompleteWidgetStyle = css`
     height: 1px;
 }
 `
+
+export const HeightFix = css`
+.CodeMirror {
+  height: 100%;
+}
+`

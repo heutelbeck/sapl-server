@@ -1,5 +1,5 @@
 import { LitElement, html } from 'lit-element';
-import { CodeMirrorStyles, CodeMirrorLintStyles, CodeMirrorHintStyles } from './shared-styles.js';
+import { CodeMirrorStyles, CodeMirrorLintStyles, CodeMirrorHintStyles, HeightFix } from './shared-styles.js';
 
 class JSONEditor extends LitElement {
 
@@ -25,6 +25,7 @@ class JSONEditor extends LitElement {
       CodeMirrorStyles,
       CodeMirrorLintStyles,
       CodeMirrorHintStyles,
+      HeightFix,
     ]
   }
 
