@@ -6,4 +6,4 @@ logging.level:
   web: INFO
 
 vaadin:
-  blacklisted-packages: org/eclipse
+  whitelisted-packages: io/sapl/vaadin,io/sapl/server/ui,org/vaadin
