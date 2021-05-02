@@ -172,6 +172,25 @@
 				<version>3.1.0</version>
 				<executions>
 					<execution>
+						<id>copy-resources-js</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/classes/META-INF/frontend</outputDirectory>
+							<resources>
+								<resource>
+									<directory>${project.build.directory}/xtext/META-INF/resources/xtext/${xtext.version}</directory>
+									<includes>
+										<include>xtext-codemirror.min.js</include>
+									</includes>
+									<filtering>false</filtering>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+					<execution>
 						<id>copy-resources-sapl</id>
 						<phase>prepare-package</phase>
 						<goals>

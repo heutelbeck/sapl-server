@@ -32,7 +32,7 @@ import elemental.json.JsonObject;
 @JavaScript("./sapl-editor.js")
 @JavaScript("./shared-styles.js")
 @NpmPackage(value = "jquery", version = "3.4.1")
-@NpmPackage(value = "codemirror", version = "5.59.4")
+@NpmPackage(value = "codemirror", version = "5.52.2")
 public class SaplEditor extends BaseEditor {
 
 	private final List<ValidationFinishedListener> validationFinishedListeners;
