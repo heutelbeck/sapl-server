@@ -191,13 +191,13 @@ public class SaplDocumentService implements PrpUpdateEventSource {
 	 * 
 	 */
 	@Transactional(rollbackFor = Throwable.class)
-	public void publishVersion(long saplDocumentId, int versionToPublish)
+	public void publishPolicyVersion(long saplDocumentId, int versionToPublish)
 			throws PublishedDocumentNameCollisionException {
 		SaplDocument saplDocument = getById(saplDocumentId);
 
 		// unpublish other version if published
 		if (saplDocument.getPublishedVersion() != null) {
-			unpublishVersion(saplDocumentId);
+			unpublishPolicy(saplDocumentId);
 		}
 
 		SaplDocumentVersion saplDocumentVersionToPublish = saplDocument.getVersion(versionToPublish);
@@ -223,7 +223,7 @@ public class SaplDocumentService implements PrpUpdateEventSource {
 	 * @param saplDocumentId the id of the {@link SaplDocument}
 	 */
 	@Transactional
-	public void unpublishVersion(long saplDocumentId) {
+	public void unpublishPolicy(long saplDocumentId) {
 		SaplDocument saplDocumentToUnpublish = getById(saplDocumentId);
 
 		SaplDocumentVersion publishedVersion = saplDocumentToUnpublish.getPublishedVersion();
@@ -245,24 +245,32 @@ public class SaplDocumentService implements PrpUpdateEventSource {
 		notifyAboutChangedPublicationOfSaplDocument(PrpUpdateEvent.Type.UNPUBLISH, deletedPublishedSaplDocument);
 	}
 
+	public Collection<PublishedSaplDocument> getPublishedSaplDocuments() {
+		return publishedSaplDocumentRepository.findAll();
+	}
+
+	public long getPublishedAmount() {
+		return publishedSaplDocumentRepository.count();
+	}
+
 	private String getCurrentTimestampAsString() {
 		return dateFormatter.format(Instant.now());
 	}
 
 	private PrpUpdateEvent generateInitialPrpUpdateEvent() {
-		// @formatter:off
 		List<PrpUpdateEvent.Update> updates = publishedSaplDocumentRepository.findAll()
 				.stream()
 				.map(publishedSaplDocument -> convertSaplDocumentToUpdateOfPrpUpdateEvent(publishedSaplDocument, PrpUpdateEvent.Type.PUBLISH))
 				.collect(Collectors.toList());
-		// @formatter:on
 		return new PrpUpdateEvent(updates);
 	}
 
 	private PrpUpdateEvent.Update convertSaplDocumentToUpdateOfPrpUpdateEvent(
 			@NonNull PublishedSaplDocument publishedSaplDocument, @NonNull PrpUpdateEvent.Type prpUpdateEventType) {
-		SAPL sapl = saplInterpreter.parse(publishedSaplDocument.getValue());
-		return new Update(prpUpdateEventType, sapl, publishedSaplDocument.getValue());
+		String document = publishedSaplDocument.getDocument();
+
+		SAPL sapl = saplInterpreter.parse(document);
+		return new Update(prpUpdateEventType, sapl, document);
 	}
 
 	/**
@@ -272,7 +280,7 @@ public class SaplDocumentService implements PrpUpdateEventSource {
 	 * @return the deleted instances of {@link PublishedSaplDocument}
 	 */
 	private Iterable<PublishedSaplDocument> deletePersistedPublishedSaplDocumentsByName(@NonNull String name) {
-		Collection<PublishedSaplDocument> publishedDocumentsWithName = publishedSaplDocumentRepository.findByName(name);
+		Collection<PublishedSaplDocument> publishedDocumentsWithName = publishedSaplDocumentRepository.findByDocumentName(name);
 		publishedSaplDocumentRepository.deleteAll(publishedDocumentsWithName);
 
 		return publishedDocumentsWithName;

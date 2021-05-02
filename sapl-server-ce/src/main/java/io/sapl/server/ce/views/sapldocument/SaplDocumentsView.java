@@ -40,7 +40,7 @@ import io.sapl.server.ce.views.MainView;
 @Tag("list-sapl-documents")
 @Route(value = SaplDocumentsView.ROUTE, layout = MainView.class)
 @JsModule("./list-sapl-documents.js")
-@PageTitle("SAPL Documents")
+@PageTitle("Digital Policies")
 public class SaplDocumentsView extends PolymerTemplate<SaplDocumentsView.ListSaplDocumentsModel> {
 	public static final String ROUTE = "";
 

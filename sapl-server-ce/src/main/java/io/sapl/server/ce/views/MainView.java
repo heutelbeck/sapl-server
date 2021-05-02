@@ -40,6 +40,7 @@ import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 import io.sapl.server.ce.views.documentation.ListFunctionsAndPipsView;
 import io.sapl.server.ce.views.pdpconfiguration.ConfigurePdp;
+import io.sapl.server.ce.views.publishedpolicies.PublishedPoliciesView;
 import io.sapl.server.ce.views.sapldocument.SaplDocumentsView;
 import lombok.NonNull;
 import lombok.Value;
@@ -82,7 +83,8 @@ public class MainView extends AppLayout implements RouterLayout, PageConfigurato
 
 	private static List<MenuItem> initMenuItems() {
 		return Lists.newArrayList(
-				new MenuItem("SAPL Documents", SaplDocumentsView.class, SaplDocumentsView.ROUTE, VaadinIcon.FILE),
+				new MenuItem("Digital Policies", SaplDocumentsView.class, SaplDocumentsView.ROUTE, VaadinIcon.FILE),
+				new MenuItem("Published Policies", PublishedPoliciesView.class, SaplDocumentsView.ROUTE, VaadinIcon.FILE_TEXT),
 				new MenuItem("PDP Configuration", ConfigurePdp.class, ConfigurePdp.ROUTE, VaadinIcon.COG),
 				new MenuItem("Functions & Attributes", ListFunctionsAndPipsView.class, ListFunctionsAndPipsView.ROUTE,
 						VaadinIcon.BOOK),

@@ -12,9 +12,6 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.experimental.Accessors;
 
-/**
- * A published SAPL document.
- */
 @Data
 @Entity
 @NoArgsConstructor
@@ -22,34 +19,23 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 @Table(name = "PublishedSaplDocument")
 public class PublishedSaplDocument {
-	/**
-	 * The unique identifier of the SAPL document.
-	 */
 	@Id
-	@GeneratedValue
-	@Column(name = "Id", nullable = false)
-	private Long id;
+	@Column(name = "saplDocumentId", nullable = false)
+	private Long saplDocumentId;
 
-	/**
-	 * The value / text of the published SAPL document.
-	 */
-	@Column(length = 2000)
-	private String value;
+	@Column(name = "version", nullable = false)
+	private Integer version;
 
-	/**
-	 * The name included in the value / text of the SAPL document version
-	 * (redundancy for better query performance).
-	 */
-	@Column(length = 250, unique = true)
-	private String name;
+	@Column(length = 250, unique = true, nullable = false)
+	private String documentName;
 
-	/**
-	 * Imports a {@link SaplDocumentVersion} to the entity.
-	 * 
-	 * @param saplDocumentVersion the {@link SaplDocumentVersion} to import
-	 */
+	@Column(length = 10000, nullable = false)
+	private String document;
+
 	public void importSaplDocumentVersion(@NonNull SaplDocumentVersion saplDocumentVersion) {
-		setValue(saplDocumentVersion.getValue());
-		setName(saplDocumentVersion.getName());
+		setSaplDocumentId(saplDocumentVersion.getSaplDocument().getId());
+		setVersion(saplDocumentVersion.getVersionNumber());
+		setDocumentName(saplDocumentVersion.getName());
+		setDocument(saplDocumentVersion.getValue());
 	}
 }

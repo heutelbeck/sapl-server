@@ -17,20 +17,9 @@ import io.sapl.server.ce.model.sapldocument.SaplDocument;
  */
 @Repository
 public interface PublishedSaplDocumentRepository extends CrudRepository<PublishedSaplDocument, Long>, Serializable {
-	/**
-	 * Returns all instances of the {@link SaplDocument}s.
-	 * 
-	 * @return the instances
-	 */
 	@Override
 	Collection<PublishedSaplDocument> findAll();
 
-	/**
-	 * Gets the {@link PublishedSaplDocument}s with a specific name.
-	 * 
-	 * @param name the name
-	 * @return the {@link PublishedSaplDocument}s
-	 */
-	@Query(value = "SELECT s FROM PublishedSaplDocument s WHERE s.name = :name")
-	Collection<PublishedSaplDocument> findByName(@Param(value = "name") String name);
+	@Query(value = "SELECT s FROM PublishedSaplDocument s WHERE s.documentName = :documentName")
+	Collection<PublishedSaplDocument> findByDocumentName(@Param(value = "documentName") String documentName);
 }

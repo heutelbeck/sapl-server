@@ -160,7 +160,7 @@ public class EditSaplDocumentView extends PolymerTemplate<EditSaplDocumentView.E
 			}
 
 			try {
-				saplDocumentService.publishVersion(saplDocumentId, selectedVersionNumberAsOptional.get());
+				saplDocumentService.publishPolicyVersion(saplDocumentId, selectedVersionNumberAsOptional.get());
 			} catch (PublishedDocumentNameCollisionException ex) {
 				ErrorNotificationUtils.show(ex.getMessage());
 				return;
@@ -170,7 +170,7 @@ public class EditSaplDocumentView extends PolymerTemplate<EditSaplDocumentView.E
 		});
 
 		unpublishButton.addClickListener(clickEvent -> {
-			saplDocumentService.unpublishVersion(saplDocumentId);
+			saplDocumentService.unpublishPolicy(saplDocumentId);
 			reloadSaplDocument();
 		});
 	}
