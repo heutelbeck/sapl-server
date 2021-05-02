@@ -38,6 +38,7 @@ import com.vaadin.flow.router.*;
 import com.vaadin.flow.server.*;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
+import io.sapl.server.ce.views.client.ListClientCredentials;
 import io.sapl.server.ce.views.documentation.ListFunctionsAndPipsView;
 import io.sapl.server.ce.views.pdpconfiguration.ConfigurePdp;
 import io.sapl.server.ce.views.publishedpolicies.PublishedPoliciesView;
@@ -223,7 +224,7 @@ public class MainView extends AppLayout implements RouterLayout, PageConfigurato
 		RouteConfiguration routeConfiguration = RouteConfiguration.forSessionScope();
 		for (RouteData routeData : routeConfiguration.getAvailableRoutes()) {
 			if (routeData.getNavigationTarget().equals(clazz)) {
-				return routeData.getUrl();
+				return routeData.getTemplate();
 			}
 		}
 

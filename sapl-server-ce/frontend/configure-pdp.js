@@ -34,7 +34,7 @@ class ConfigurePdp extends PolymerElement {
  <h1>Combining Algorithm</h1>
  <div style="margin: var(--lumo-space-s);">
    The combining algorithm describes how to come to the final decision while evaluating policies 
-  <a href="https://sapl.io/sapl-reference.html#combining-algorithm-2">(↗documentation)</a>. 
+  <a href="https://sapl.io/docs/sapl-reference.html#combining-algorithm-2">(↗documentation)</a>. 
  </div>
  <vaadin-horizontal-layout style="margin: var(--lumo-space-s);">
   <label style="align-self: center;">Global selection:</label>

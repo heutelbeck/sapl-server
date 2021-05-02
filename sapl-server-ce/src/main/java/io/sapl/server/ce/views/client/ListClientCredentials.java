@@ -13,34 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.sapl.server.ce.views;
-
-import java.util.Optional;
-
-import javax.annotation.PostConstruct;
+package io.sapl.server.ce.views.client;
 
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.JsModule;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.polymertemplate.Id;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
-import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.CallbackDataProvider;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.templatemodel.TemplateModel;
-
 import io.sapl.server.ce.model.ClientCredentials;
 import io.sapl.server.ce.service.ClientCredentialsService;
+import io.sapl.server.ce.views.MainView;
 import io.sapl.server.ce.views.utils.confirm.ConfirmUtils;
+import io.sapl.server.ce.views.utils.error.ErrorNotificationUtils;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import reactor.util.function.Tuple2;
+
+import javax.annotation.PostConstruct;
+import java.util.Comparator;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * A Designer generated component for the list-client-credentials template.
@@ -57,21 +59,10 @@ public class ListClientCredentials extends PolymerTemplate<ListClientCredentials
 	public static final String ROUTE = "clients";
 
 	private final ClientCredentialsService clientCredentialsService;
+	private final PasswordEncoder passwordEncoder;
 
 	@Id(value = "clientCredentialsGrid")
 	private Grid<ClientCredentials> clientCredentialsGrid;
-
-	@Id(value = "keyTextField")
-	private TextField keyTextField;
-
-	@Id(value = "secretTextField")
-	private TextField secretTextField;
-
-	@Id(value = "secretHintDiv")
-	private Div secretHintDiv;
-
-	@Id(value = "showCurrentClientCredentialsLayout")
-	private VerticalLayout showCurrentClientCredentialsLayout;
 
 	@Id(value = "createButton")
 	private Button createButton;
@@ -82,40 +73,64 @@ public class ListClientCredentials extends PolymerTemplate<ListClientCredentials
 	}
 
 	private void initUi() {
-		showCurrentClientCredentialsLayout.setVisible(false);
-
 		createButton.addClickListener((clickEvent) -> {
-			Tuple2<ClientCredentials, String> createdClientCredentialsWithNonEncodedSecret = clientCredentialsService
-					.createDefault();
-			refreshClientCredentialsGrid();
+			Tuple2<ClientCredentials, String> clientCredentialsWithSecret;
+			try {
+				clientCredentialsWithSecret = clientCredentialsService.createDefault();
+			} catch (Throwable throwable) {
+				getUI().ifPresent((ui) -> {
+					ui.access(() -> {
+						ErrorNotificationUtils.show("The client cannot be created due to an internal error.");
+					});
+				});
+				return;
+			}
 
-			ClientCredentials createdClientCredentials = createdClientCredentialsWithNonEncodedSecret.getT1();
-			clientCredentialsGrid.select(createdClientCredentials);
-
-			keyTextField.setValue(createdClientCredentials.getKey());
-			secretTextField.setValue(createdClientCredentialsWithNonEncodedSecret.getT2());
-			setVisibilityOfComponentsForSecret(true);
+			getUI().ifPresent((ui) -> {
+				ui.access(() -> {
+					showDialogForCreatedVariable(
+							clientCredentialsWithSecret.getT1().getKey(),
+							clientCredentialsWithSecret.getT2());
+					clientCredentialsGrid.getDataProvider().refreshAll();
+				});
+			});
 		});
 
 		initClientCredentialsGrid();
 	}
 
 	private void initClientCredentialsGrid() {
-		clientCredentialsGrid.addColumn(ClientCredentials::getKey).setHeader("Key");
+		clientCredentialsGrid
+				.addColumn(ClientCredentials::getKey)
+				.setHeader("Key")
+				.setSortable(true);
 
 		clientCredentialsGrid.addComponentColumn(currentClientCredential -> {
 			Button deleteButton = new Button("Remove", VaadinIcon.FILE_REMOVE.create());
 			deleteButton.setThemeName("primary");
 			deleteButton.addClickListener(clickEvent -> {
-				//@formatter:off
 				ConfirmUtils.letConfirm(
 						String.format("Should the client credentials with key \"%s\" really be deleted?", currentClientCredential.getKey()),
 						() -> {
-							clientCredentialsService.delete(currentClientCredential.getId());
-							refreshClientCredentialsGrid();
+							long idOfClientToRemove = currentClientCredential.getId();
+							try {
+								clientCredentialsService.delete(idOfClientToRemove);
+							} catch (Throwable throwable) {
+								getUI().ifPresent((ui) -> {
+									ui.access(() -> {
+										ErrorNotificationUtils.show("The client cannot be deleted due to an internal error.");
+									});
+								});
+								return;
+							}
+
+							getUI().ifPresent((ui) -> {
+								ui.access(() -> {
+									clientCredentialsGrid.getDataProvider().refreshAll();
+								});
+							});
 						},
 						null);
-				//@formatter:on
 			});
 
 			HorizontalLayout componentsForEntry = new HorizontalLayout();
@@ -124,42 +139,34 @@ public class ListClientCredentials extends PolymerTemplate<ListClientCredentials
 			return componentsForEntry;
 		});
 
-		clientCredentialsGrid.addSelectionListener(selection -> {
-			Optional<ClientCredentials> firstSelectedItemAsOptional = selection.getFirstSelectedItem();
-			firstSelectedItemAsOptional.ifPresentOrElse(clientCredentials -> {
-				showCurrentClientCredentialsLayout.setVisible(true);
-
-				keyTextField.setValue(clientCredentials.getKey());
-				setVisibilityOfComponentsForSecret(false);
-			}, () -> {
-				showCurrentClientCredentialsLayout.setVisible(false);
-			});
-		});
-
 		// set data provider
 		CallbackDataProvider<ClientCredentials, Void> dataProvider = DataProvider.fromCallbacks(query -> {
-			int offset = query.getOffset();
-			int limit = query.getLimit();
+			Stream<ClientCredentials> stream = clientCredentialsService.getAll().stream();
 
-			return clientCredentialsService.getAll().stream().skip(offset).limit(limit);
+			Optional<Comparator<ClientCredentials>> optionalCompatator = query.getSortingComparator();
+			if (optionalCompatator.isPresent()) {
+				stream = stream.sorted(optionalCompatator.get());
+			}
+
+			return stream.skip(query.getOffset()).limit(query.getLimit());
 		}, query -> (int) clientCredentialsService.getAmount());
 		clientCredentialsGrid.setDataProvider(dataProvider);
 	}
 
-	private void refreshClientCredentialsGrid() {
-		clientCredentialsGrid.getDataProvider().refreshAll();
-		showCurrentClientCredentialsLayout.setVisible(false);
+	private void showDialogForCreatedVariable(@NonNull String key, @NonNull String secret) {
+		ShowClientSecret dialogContent = new ShowClientSecret(key, secret);
+
+		Dialog dialog = new Dialog(dialogContent);
+		dialog.setWidth("600px");
+		dialog.setModal(true);
+		dialog.setCloseOnEsc(false);
+		dialog.setCloseOnOutsideClick(false);
+
+		dialogContent.setOnClosingListener(dialog::close);
+
+		dialog.open();
 	}
 
-	private void setVisibilityOfComponentsForSecret(boolean isVisible) {
-		secretTextField.setVisible(isVisible);
-		secretHintDiv.setVisible(isVisible);
-	}
-
-	/**
-	 * This model binds properties between ListClientCredentials and
-	 * list-client-credentials
-	 */
 	public interface ListClientCredentialsModel extends TemplateModel {
 	}
 }
