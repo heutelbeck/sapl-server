@@ -85,7 +85,7 @@ public class MainView extends AppLayout implements RouterLayout, PageConfigurato
 	private static List<MenuItem> initMenuItems() {
 		return Lists.newArrayList(
 				new MenuItem("Digital Policies", SaplDocumentsView.class, SaplDocumentsView.ROUTE, VaadinIcon.FILE),
-				new MenuItem("Published Policies", PublishedPoliciesView.class, SaplDocumentsView.ROUTE, VaadinIcon.FILE_TEXT),
+				new MenuItem("Published Policies", PublishedPoliciesView.class, PublishedPoliciesView.ROUTE, VaadinIcon.FILE_TEXT),
 				new MenuItem("PDP Configuration", ConfigurePdp.class, ConfigurePdp.ROUTE, VaadinIcon.COG),
 				new MenuItem("Functions & Attributes", ListFunctionsAndPipsView.class, ListFunctionsAndPipsView.ROUTE,
 						VaadinIcon.BOOK),
