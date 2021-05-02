@@ -167,17 +167,17 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
 
 .CodeMirror-scroll {
   overflow: scroll !important; /* Things will break if this is overridden */
-  /* 50px is the magic margin used to hide the element's real scrollbars */
+  /* 30px is the magic margin used to hide the element's real scrollbars */
   /* See overflow: hidden in .CodeMirror */
-  margin-bottom: -50px; margin-right: -50px;
-  padding-bottom: 50px;
+  margin-bottom: -30px; margin-right: -30px;
+  padding-bottom: 30px;
   height: 100%;
   outline: none; /* Prevent dragging from highlighting the element */
   position: relative;
 }
 .CodeMirror-sizer {
   position: relative;
-  border-right: 50px solid transparent;
+  border-right: 30px solid transparent;
 }
 
 /* The fake, visible scrollbars. Used to force redraw during scrolling
@@ -187,7 +187,6 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
   position: absolute;
   z-index: 6;
   display: none;
-  outline: none;
 }
 .CodeMirror-vscrollbar {
   right: 0; top: 0;
@@ -216,7 +215,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
   height: 100%;
   display: inline-block;
   vertical-align: top;
-  margin-bottom: -50px;
+  margin-bottom: -30px;
 }
 .CodeMirror-gutter-wrapper {
   position: absolute;
@@ -381,20 +380,22 @@ export const CodeMirrorLintStyles = css`
   -ms-transition: opacity .4s;
 }
 
-.CodeMirror-lint-mark {
+.CodeMirror-lint-mark-error, .CodeMirror-lint-mark-warning {
   background-position: left bottom;
   background-repeat: repeat-x;
+}
+
+.CodeMirror-lint-mark-error {
+  background-image:
+  url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAYAAAC09K7GAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9sJDw4cOCW1/KIAAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAAAHElEQVQI12NggIL/DAz/GdA5/xkY/qPKMDAwAADLZwf5rvm+LQAAAABJRU5ErkJggg==")
+  ;
 }
 
 .CodeMirror-lint-mark-warning {
   background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAYAAAC09K7GAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9sJFhQXEbhTg7YAAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAAAMklEQVQI12NkgIIvJ3QXMjAwdDN+OaEbysDA4MPAwNDNwMCwiOHLCd1zX07o6kBVGQEAKBANtobskNMAAAAASUVORK5CYII=");
 }
 
-.CodeMirror-lint-mark-error {
-  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAYAAAC09K7GAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9sJDw4cOCW1/KIAAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAAAHElEQVQI12NggIL/DAz/GdA5/xkY/qPKMDAwAADLZwf5rvm+LQAAAABJRU5ErkJggg==");
-}
-
-.CodeMirror-lint-marker {
+.CodeMirror-lint-marker-error, .CodeMirror-lint-marker-warning {
   background-position: center center;
   background-repeat: no-repeat;
   cursor: pointer;
@@ -405,18 +406,18 @@ export const CodeMirrorLintStyles = css`
   position: relative;
 }
 
-.CodeMirror-lint-message {
+.CodeMirror-lint-message-error, .CodeMirror-lint-message-warning {
   padding-left: 18px;
   background-position: top left;
   background-repeat: no-repeat;
 }
 
-.CodeMirror-lint-marker-warning, .CodeMirror-lint-message-warning {
-  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAANlBMVEX/uwDvrwD/uwD/uwD/uwD/uwD/uwD/uwD/uwD6twD/uwAAAADurwD2tQD7uAD+ugAAAAD/uwDhmeTRAAAADHRSTlMJ8mN1EYcbmiixgACm7WbuAAAAVklEQVR42n3PUQqAIBBFUU1LLc3u/jdbOJoW1P08DA9Gba8+YWJ6gNJoNYIBzAA2chBth5kLmG9YUoG0NHAUwFXwO9LuBQL1giCQb8gC9Oro2vp5rncCIY8L8uEx5ZkAAAAASUVORK5CYII=");
-}
-
 .CodeMirror-lint-marker-error, .CodeMirror-lint-message-error {
   background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAHlBMVEW7AAC7AACxAAC7AAC7AAAAAAC4AAC5AAD///+7AAAUdclpAAAABnRSTlMXnORSiwCK0ZKSAAAATUlEQVR42mWPOQ7AQAgDuQLx/z8csYRmPRIFIwRGnosRrpamvkKi0FTIiMASR3hhKW+hAN6/tIWhu9PDWiTGNEkTtIOucA5Oyr9ckPgAWm0GPBog6v4AAAAASUVORK5CYII=");
+}
+
+.CodeMirror-lint-marker-warning, .CodeMirror-lint-message-warning {
+  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAANlBMVEX/uwDvrwD/uwD/uwD/uwD/uwD/uwD/uwD/uwD6twD/uwAAAADurwD2tQD7uAD+ugAAAAD/uwDhmeTRAAAADHRSTlMJ8mN1EYcbmiixgACm7WbuAAAAVklEQVR42n3PUQqAIBBFUU1LLc3u/jdbOJoW1P08DA9Gba8+YWJ6gNJoNYIBzAA2chBth5kLmG9YUoG0NHAUwFXwO9LuBQL1giCQb8gC9Oro2vp5rncCIY8L8uEx5ZkAAAAASUVORK5CYII=");
 }
 
 .CodeMirror-lint-marker-multiple {
@@ -428,29 +429,29 @@ export const CodeMirrorLintStyles = css`
 `
 
 export const CodeMirrorHintStyles = css`
-.CodeMirror-hints {
+  .CodeMirror-hints {
     position: absolute;
     z-index: 10;
     overflow: hidden;
     list-style: none;
-  
+
     margin: 0;
     padding: 2px;
-  
+
     -webkit-box-shadow: 2px 3px 5px rgba(0,0,0,.2);
     -moz-box-shadow: 2px 3px 5px rgba(0,0,0,.2);
     box-shadow: 2px 3px 5px rgba(0,0,0,.2);
     border-radius: 3px;
     border: 1px solid silver;
-  
+
     background: white;
     font-size: 90%;
     font-family: monospace;
-  
+
     max-height: 20em;
     overflow-y: auto;
   }
-  
+
   .CodeMirror-hint {
     margin: 0;
     padding: 0 4px;
@@ -459,7 +460,7 @@ export const CodeMirrorHintStyles = css`
     color: black;
     cursor: pointer;
   }
-  
+
   li.CodeMirror-hint-active {
     background: #08f;
     color: white;
@@ -467,75 +468,55 @@ export const CodeMirrorHintStyles = css`
   `
 
   export const XTextAnnotationsStyles = css`
-  .xtext-annotation_error {
-    background-position: center center;
-    background-repeat: no-repeat;
-    cursor: pointer;
-    display: inline-block;
-    height: 16px;
-    width: 16px;
-    vertical-align: middle;
-    position: relative;
-    background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAHlBMVEW7AAC7AACxAAC7AAC7AAAAAAC4AAC5AAD///+7AAAUdclpAAAABnRSTlMXnORSiwCK0ZKSAAAATUlEQVR42mWPOQ7AQAgDuQLx/z8csYRmPRIFIwRGnosRrpamvkKi0FTIiMASR3hhKW+hAN6/tIWhu9PDWiTGNEkTtIOucA5Oyr9ckPgAWm0GPBog6v4AAAAASUVORK5CYII=");
-  }
-  
-  .xtext-annotation_warning {
-    background-position: center center;
-    background-repeat: no-repeat;
-    cursor: pointer;
-    display: inline-block;
-    height: 16px;
-    width: 16px;
-    vertical-align: middle;
-    position: relative;
-    background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAHlBMVEW7AAC7AACxAAC7AAC7AAAAAAC4AAC5AAD///+7AAAUdclpAAAABnRSTlMXnORSiwCK0ZKSAAAATUlEQVR42mWPOQ7AQAgDuQLx/z8csYRmPRIFIwRGnosRrpamvkKi0FTIiMASR3hhKW+hAN6/tIWhu9PDWiTGNEkTtIOucA5Oyr9ckPgAWm0GPBog6v4AAAAASUVORK5CYII=");
-  }
-  
-  .xtext-annotation_info {
-    background-position: center center;
-    background-repeat: no-repeat;
-    cursor: pointer;
-    display: inline-block;
-    height: 16px;
-    width: 16px;
-    vertical-align: middle;
-    position: relative;
-    background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHCAMAAADzjKfhAAAACVBMVEUAAAAAAAC/v7914kyHAAAAAXRSTlMAQObYZgAAACNJREFUeNo1ioEJAAAIwmz/H90iFFSGJgFMe3gaLZ0od+9/AQZ0ADosbYraAAAAAElFTkSuQmCC");
-  }
-  
-  .annotations-gutter {
-      width: 16px;
-      background: #f0f0f0;
-  }
-
-  .xtext-marker_error {
+.CodeMirror {
+  height: 100%;
+}
+.annotations-gutter {
+  width: 12px;
+  background: #f0f0f0;
+}
+.xtext-annotation_error {
+  width: 12px;
+  height: 12px;
+  background-image: url('images/error_an.gif');
+  background-repeat: no-repeat;
+}
+.xtext-annotation_warning {
+  width: 12px;
+  height: 12px;
+  background-image: url('images/warning_an.gif');
+  background-repeat: no-repeat;
+}
+.xtext-annotation_info {
+  width: 12px;
+  height: 12px;
+  background-image: url('images/info_an.gif');
+  background-repeat: no-repeat;
+}
+.xtext-marker_error {
 	z-index: 30;
-	background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAYAAAC09K7GAAAABmJLR0QA/wD/AP+gvaeTAAAAHElEQVQI12NggIL/DAz/GdA5/xkY/qPKMDAwAADLZwf5rvm+LQAAAABJRU5ErkJggg==");
-	background-repeat: repeat-x;
-	background-position: left bottom;
+  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAYAAAC09K7GAAAABmJLR0QA/wD/AP+gvaeTAAAAHElEQVQI12NggIL/DAz/GdA5/xkY/qPKMDAwAADLZwf5rvm+LQAAAABJRU5ErkJggg==");
+  background-repeat: repeat-x;
+  background-position: left bottom;
 }
-
 .xtext-marker_warning {
-	z-index: 20;
-	background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAYAAAC09K7GAAAABmJLR0QA/wD/AP+gvaeTAAAAMklEQVQI12NkgIIvJ3QXMjAwdDN+OaEbysDA4MPAwNDNwMCwiOHLCd1zX07o6kBVGQEAKBANtobskNMAAAAASUVORK5CYII=");
-	background-repeat: repeat-x;
-	background-position: left bottom;
+  z-index: 20;
+  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAYAAAC09K7GAAAABmJLR0QA/wD/AP+gvaeTAAAAMklEQVQI12NkgIIvJ3QXMjAwdDN+OaEbysDA4MPAwNDNwMCwiOHLCd1zX07o6kBVGQEAKBANtobskNMAAAAASUVORK5CYII=");
+  background-repeat: repeat-x;
+  background-position: left bottom;
 }
-
 .xtext-marker_info {
-	z-index: 10;
-	background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAYAAAC09K7GAAAABmJLR0QA/wD/AP+gvaeTAAAANklEQVQI12NkgIIVRx8tZGBg6GZccfRRKAMDgw8DA0M3AwPDIiYGBoZKBgaG7ghruSsMDAwpABH5CoqwzCoTAAAAAElFTkSuQmCC");
-	background-repeat: repeat-x;
-	background-position: left bottom;
+  z-index: 10;
+  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAYAAAC09K7GAAAABmJLR0QA/wD/AP+gvaeTAAAANklEQVQI12NkgIIVRx8tZGBg6GZccfRRKAMDgw8DA0M3AwPDIiYGBoZKBgaG7ghruSsMDAwpABH5CoqwzCoTAAAAAElFTkSuQmCC");
+  background-repeat: repeat-x;
+  background-position: left bottom;
 }
-
 .xtext-marker_read {
-	background-color: #ddd;
+  background-color: #ddd;
 }
-
 .xtext-marker_write {
-	background-color: yellow;
-}
+  background-color: yellow;
+}  
 `
 
 export const AutocompleteWidgetStyle = css`
