@@ -125,9 +125,7 @@ class JSONEditor extends LitElement {
   }
 
   render() {
-    return html`
-<div id="xtext-editor" data-editor-xtext-lang="${this.xtextLang}"></div>
-		      `;
+    return html``;
   }
 }
 
