@@ -42,7 +42,7 @@ import io.sapl.server.ce.views.MainView;
 @JsModule("./list-sapl-documents.js")
 @PageTitle("SAPL Documents")
 public class SaplDocumentsView extends PolymerTemplate<SaplDocumentsView.ListSaplDocumentsModel> {
-	public static final String ROUTE = "documents";
+	public static final String ROUTE = "";
 
 	private final SaplDocumentService saplDocumentService;
 

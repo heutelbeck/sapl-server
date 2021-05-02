@@ -57,8 +57,8 @@ import java.util.Optional;
  */
 @Push
 @Slf4j
-@JsModule("./styles/shared-styles.js")
 @Theme(value = Lumo.class, variant = Lumo.DARK)
+@JsModule("./styles/shared-styles.js")
 @CssImport("./styles/views/main/main-view.css")
 public class MainView extends AppLayout implements RouterLayout, PageConfigurator {
 	private static final List<MenuItem> menuItems = initMenuItems();
@@ -81,7 +81,7 @@ public class MainView extends AppLayout implements RouterLayout, PageConfigurato
 	}
 
 	private static List<MenuItem> initMenuItems() {
-		return Lists.newArrayList(new MenuItem("Home", ShowHome.class, ShowHome.ROUTE, VaadinIcon.HOME),
+		return Lists.newArrayList(
 				new MenuItem("SAPL Documents", SaplDocumentsView.class, SaplDocumentsView.ROUTE, VaadinIcon.FILE),
 				new MenuItem("PDP Configuration", ConfigurePdp.class, ConfigurePdp.ROUTE, VaadinIcon.COG),
 				new MenuItem("Functions & Attributes", ListFunctionsAndPipsView.class, ListFunctionsAndPipsView.ROUTE,
