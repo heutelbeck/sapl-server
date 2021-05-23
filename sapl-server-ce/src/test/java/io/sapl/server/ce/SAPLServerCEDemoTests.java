@@ -7,9 +7,7 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest
 @ActiveProfiles(profiles = { "demo", "quiet" })
 public class SAPLServerCEDemoTests {
-
 	@Test
 	void contextLoads() {
 	}
-
 }

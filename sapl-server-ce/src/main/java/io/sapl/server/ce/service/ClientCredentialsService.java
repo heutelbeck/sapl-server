@@ -59,13 +59,11 @@ public class ClientCredentialsService implements UserDetailsService, Serializabl
 
 		String encodedPassword = relevantClientCredentials.getEncodedSecret();
 
-		// @formatter:off
 		return org.springframework.security.core.userdetails.User
 				.withUsername(relevantClientCredentials.getKey())
 				.password(encodedPassword)
 				.roles(SecurityConfiguration.PDP_CLIENT_ROLE)
 				.build();
-		// @formatter:on
 	}
 
 	/**

@@ -56,20 +56,16 @@ public class CEVariablesAndCombinatorSource implements VariablesAndCombinatorSou
 
 	@Override
 	public Flux<Optional<Map<String, JsonNode>>> getVariables() {
-		//@formatter:off
 		return variablesProcessorSink.asFlux()
 				.map(CEVariablesAndCombinatorSource::variablesCollectionToMap)
 				.map(Optional::of);
-		//@formatter:on
 	}
 
 	@Override
 	public Flux<Optional<CombiningAlgorithm>> getCombiningAlgorithm() {
-		//@formatter:off
 		return combiningAlgorithmSink.asFlux()
 				.map(CombiningAlgorithmFactory::getCombiningAlgorithm)
 				.map(Optional::of);
-		//@formatter:on
 	}
 
 	@Override

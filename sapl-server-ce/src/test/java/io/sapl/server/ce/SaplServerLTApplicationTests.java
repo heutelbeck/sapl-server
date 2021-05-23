@@ -8,7 +8,6 @@ import org.mockito.MockedStatic;
 import org.springframework.boot.SpringApplication;
 
 class SaplServerLTApplicationTests {
-
 	@Test
 	void main() {
 		try (MockedStatic<SpringApplication> theMock = mockStatic(SpringApplication.class)) {
@@ -21,5 +20,4 @@ class SaplServerLTApplicationTests {
 	private void runNoArgs() {
 		SpringApplication.run(PdpServerApplication.class, new String[] {});
 	}
-
 }
