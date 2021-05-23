@@ -33,20 +33,17 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-/**
- * Service for {@link Variable}.
- */
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class VariablesService {
 	public static final int MIN_NAME_LENGTH = 1;
 	public static final int MAX_NAME_LENGTH = 100;
+	public static final String DEFAULT_JSON_VALUE = "{}";
 
 	private static final ObjectMapper objectMapper = new ObjectMapper()
 			.enable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
 			.enable(DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY);
-	private static final String DEFAULT_JSON_VALUE = "{}";
 
 	private final VariablesRepository variableRepository;
 	private final PDPConfigurationPublisher pdpConfigurationPublisher;
@@ -157,7 +154,7 @@ public class VariablesService {
 
 		publishVariables();
 
-		return oldVariable;
+		return editedVariable;
 	}
 
 	/**
@@ -165,8 +162,12 @@ public class VariablesService {
 	 * 
 	 * @param id the id of the {@link Variable}
 	 */
-	public void delete(Long id) {
+	public void delete(@NonNull Long id) {
 		Optional<Variable> variableToDelete = variableRepository.findById(id);
+		if (variableToDelete.isEmpty()) {
+			throw new IllegalArgumentException(String.format("variable with id %d is not existing", id));
+		}
+
 		variableRepository.deleteById(id);
 		log.info("deleted variable {}: {}", variableToDelete.get().getName(), variableToDelete.get().getJsonValue());
 		publishVariables();

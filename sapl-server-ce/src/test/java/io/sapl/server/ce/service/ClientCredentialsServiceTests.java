@@ -2,7 +2,6 @@ package io.sapl.server.ce.service;
 
 import io.sapl.server.ce.model.ClientCredentials;
 import io.sapl.server.ce.persistence.ClientCredentialsRepository;
-import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,11 +15,8 @@ import reactor.util.function.Tuple2;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
