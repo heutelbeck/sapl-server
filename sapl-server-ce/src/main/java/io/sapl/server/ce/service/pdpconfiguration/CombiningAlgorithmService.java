@@ -38,7 +38,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 public class CombiningAlgorithmService {
-	private static final PolicyDocumentCombiningAlgorithm DEFAULT = PolicyDocumentCombiningAlgorithm.DENY_UNLESS_PERMIT;
+	public static final PolicyDocumentCombiningAlgorithm DEFAULT = PolicyDocumentCombiningAlgorithm.DENY_UNLESS_PERMIT;
 
 	private final SelectedCombiningAlgorithmRepository selectedCombiningAlgorithmRepository;
 	private final PDPConfigurationPublisher pdpConfigurationPublisher;

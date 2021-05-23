@@ -4,7 +4,6 @@ import io.sapl.server.ce.model.pdpconfiguration.Variable;
 import io.sapl.server.ce.pdp.PDPConfigurationPublisher;
 import io.sapl.server.ce.persistence.VariablesRepository;
 import org.apache.commons.lang3.StringUtils;
-import org.aspectj.weaver.ast.Var;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,7 +15,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -165,6 +164,9 @@ class VariablesServiceTests {
 
         Assertions.assertThrows(InvalidJsonException.class, () -> {
             variablesService.edit(1, "foo", "invalidJson");
+        });
+        Assertions.assertThrows(InvalidJsonException.class, () -> {
+            variablesService.edit(1, "foo", "");
         });
     }
 
