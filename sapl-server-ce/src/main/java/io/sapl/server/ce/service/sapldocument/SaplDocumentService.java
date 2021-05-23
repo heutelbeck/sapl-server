@@ -62,7 +62,7 @@ import reactor.core.publisher.Sinks.Many;
 @Service
 @RequiredArgsConstructor
 public class SaplDocumentService implements PrpUpdateEventSource {
-	private static final String DEFAULT_DOCUMENT_VALUE = "policy \"all deny\"\ndeny";
+	public static final String DEFAULT_DOCUMENT_VALUE = "policy \"all deny\"\ndeny";
 
 	private final SaplDocumentsRepository saplDocumentRepository;
 	private final SaplDocumentsVersionRepository saplDocumentVersionRepository;
@@ -75,7 +75,7 @@ public class SaplDocumentService implements PrpUpdateEventSource {
 	private Many<PrpUpdateEvent> prpUpdateEventSink;
 
 	@PostConstruct
-	public void postConstruct() {
+	public void init() {
 		prpUpdateEventSink = Sinks.many().replay().all();
 
 		// emit initial event
@@ -109,7 +109,7 @@ public class SaplDocumentService implements PrpUpdateEventSource {
 	 */
 	public SaplDocument getById(long id) {
 		Optional<SaplDocument> optionalEntity = saplDocumentRepository.findById(id);
-		if (!optionalEntity.isPresent()) {
+		if (optionalEntity.isEmpty()) {
 			throw new IllegalArgumentException(String.format("entity with id %d is not existing", id));
 		}
 
@@ -233,7 +233,7 @@ public class SaplDocumentService implements PrpUpdateEventSource {
 
 		// update persisted published documents
 		Iterable<PublishedSaplDocument> deletedPublishedSaplDocument = deletePersistedPublishedSaplDocumentsByName(
-				saplDocumentToUnpublish.getName());
+				publishedVersion.getName());
 
 		// update persisted document
 		saplDocumentToUnpublish.setPublishedVersion(null);
@@ -321,11 +321,9 @@ public class SaplDocumentService implements PrpUpdateEventSource {
 
 	private void notifyAboutChangedPublicationOfSaplDocument(PrpUpdateEvent.Type prpUpdateEventType,
 			@NonNull Iterable<PublishedSaplDocument> publishedSaplDocuments) {
-		// @formatter:off
 		List<PrpUpdateEvent.Update> updateEvents = Streamable.of(publishedSaplDocuments)
 				.map(publishedSaplDocument -> convertSaplDocumentToUpdateOfPrpUpdateEvent(publishedSaplDocument, prpUpdateEventType))
 				.toList();
-		// @formatter:on
 
 		PrpUpdateEvent prpUpdateEvent = new PrpUpdateEvent(updateEvents);
 		prpUpdateEventSink.emitNext(prpUpdateEvent, EmitFailureHandler.FAIL_FAST);

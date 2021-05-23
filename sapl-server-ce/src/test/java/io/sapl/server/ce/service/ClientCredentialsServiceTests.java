@@ -5,8 +5,8 @@ import io.sapl.server.ce.persistence.ClientCredentialsRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,19 +19,19 @@ import java.util.Collections;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
-@RunWith(MockitoJUnitRunner.class)
-class ClientCredentialsServiceTests {
+@ExtendWith(MockitoExtension.class)
+public class ClientCredentialsServiceTests {
     private ClientCredentialsRepository clientCredentialsRepository;
     private PasswordEncoder passwordEncoder;
 
     @BeforeEach
-    void beforeEach() {
+    public void beforeEach() {
         clientCredentialsRepository = mock(ClientCredentialsRepository.class);
         passwordEncoder = mock(PasswordEncoder.class);
     }
 
     @Test
-    void loadUserByUsername() {
+    public void loadUserByUsername() {
         final String userName = "user";
         final String encodedSecret = "encoded";
 
@@ -49,7 +49,7 @@ class ClientCredentialsServiceTests {
     }
 
     @Test
-    void loadUserByUsername_unknownUsername() {
+    public void loadUserByUsername_unknownUsername() {
         final String unknownUserName = "foo";
 
         when(clientCredentialsRepository.findByKey(unknownUserName)).thenReturn(Collections.emptyList());
@@ -61,7 +61,7 @@ class ClientCredentialsServiceTests {
     }
 
     @Test
-    void loadUserByUsername_moreThanOneMatchingClient() {
+    public void loadUserByUsername_moreThanOneMatchingClient() {
         final String userName = "user";
         final String encodedSecret = "encoded";
 
@@ -79,7 +79,7 @@ class ClientCredentialsServiceTests {
     }
 
     @Test
-    void getAll() {
+    public void getAll() {
         Collection<ClientCredentials> expectedClientCredentials, actualClientCredentials;
         ClientCredentialsService clientCredentialsService = getClientCredentialsService();
 
@@ -100,7 +100,7 @@ class ClientCredentialsServiceTests {
     }
 
     @Test
-    void getAmount() {
+    public void getAmount() {
         ClientCredentialsService clientCredentialsService = getClientCredentialsService();
 
         when(clientCredentialsRepository.count()).thenReturn(Long.valueOf(0));
@@ -114,7 +114,7 @@ class ClientCredentialsServiceTests {
     }
 
     @Test
-    void createDefault() {
+    public void createDefault() {
         final String encodedSecret = "encoded";
 
         Tuple2<ClientCredentials, String> clientCredentialsWithSecret;
@@ -130,7 +130,7 @@ class ClientCredentialsServiceTests {
     }
 
     @Test
-    void delete() {
+    public void delete() {
         final long id = 19;
 
         ClientCredentialsService clientCredentialsService = getClientCredentialsService();

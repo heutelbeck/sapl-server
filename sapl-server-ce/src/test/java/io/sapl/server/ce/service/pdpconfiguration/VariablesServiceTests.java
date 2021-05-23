@@ -7,8 +7,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -18,19 +18,19 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
-@RunWith(MockitoJUnitRunner.class)
-class VariablesServiceTests {
+@ExtendWith(MockitoExtension.class)
+public class VariablesServiceTests {
     private VariablesRepository variableRepository;
     private PDPConfigurationPublisher pdpConfigurationPublisher;
 
     @BeforeEach
-    void beforeEach() {
+    public void beforeEach() {
         variableRepository = mock(VariablesRepository.class);
         pdpConfigurationPublisher = mock(PDPConfigurationPublisher.class);
     }
 
     @Test
-    void init() {
+    public void init() {
         VariablesService variablesService = getVariablesService();
 
         Collection<Variable> availableVariables = Arrays.asList(
@@ -42,7 +42,7 @@ class VariablesServiceTests {
     }
 
     @Test
-    void getAll() {
+    public void getAll() {
         VariablesService variablesService = getVariablesService();
 
         Collection<Variable> expectedVariables = Arrays.asList(new Variable(), new Variable());
@@ -52,7 +52,7 @@ class VariablesServiceTests {
     }
 
     @Test
-    void getAmount() {
+    public void getAmount() {
         VariablesService variablesService = getVariablesService();
 
         when(variableRepository.count()).thenReturn((long)0);
@@ -66,7 +66,7 @@ class VariablesServiceTests {
     }
 
     @Test
-    void getById() {
+    public void getById() {
         final long available = 1;
         final long nonAvailable = 2;
         final Variable availableVariable = new Variable();
@@ -82,7 +82,7 @@ class VariablesServiceTests {
     }
 
     @Test
-    void create() throws DuplicatedVariableNameException, InvalidVariableNameException {
+    public void create() throws DuplicatedVariableNameException, InvalidVariableNameException {
         final String firstVariableName = "first";
         final String secondVariableName = "second";
 
@@ -100,7 +100,7 @@ class VariablesServiceTests {
     }
 
     @Test
-    void create_invalidName() {
+    public void create_invalidName() {
         VariablesService variablesService = getVariablesService();
 
         Assertions.assertThrows(InvalidVariableNameException.class, () -> {
@@ -112,7 +112,7 @@ class VariablesServiceTests {
     }
 
     @Test
-    void create_duplicatedName() {
+    public void create_duplicatedName() {
         final Variable conflictingVariable = new Variable()
                 .setId((long)1)
                 .setName("foo")
@@ -128,7 +128,7 @@ class VariablesServiceTests {
     }
 
     @Test
-    void edit() throws InvalidVariableNameException, InvalidJsonException, DuplicatedVariableNameException {
+    public void edit() throws InvalidVariableNameException, InvalidJsonException, DuplicatedVariableNameException {
         final Variable existingVariable = new Variable()
                 .setId((long)1)
                 .setName("foo")
@@ -147,7 +147,7 @@ class VariablesServiceTests {
     }
 
     @Test
-    void edit_variableNotExisting() {
+    public void edit_variableNotExisting() {
         final long nonExistingVariableId = 1;
 
         VariablesService variablesService = getVariablesService();
@@ -159,7 +159,7 @@ class VariablesServiceTests {
     }
 
     @Test
-    void edit_invalidJson() {
+    public void edit_invalidJson() {
         VariablesService variablesService = getVariablesService();
 
         Assertions.assertThrows(InvalidJsonException.class, () -> {
@@ -171,7 +171,7 @@ class VariablesServiceTests {
     }
 
     @Test
-    void edit_invalidName() {
+    public void edit_invalidName() {
         final long idOfVariableToEdit = 1;
 
         VariablesService variablesService = getVariablesService();
@@ -191,7 +191,7 @@ class VariablesServiceTests {
     }
 
     @Test
-    void edit_duplicatedName() {
+    public void edit_duplicatedName() {
         final long idOfVariableToEdit = 1;
         final Variable conflictingVariable = new Variable()
                 .setId((long)2)
@@ -209,7 +209,7 @@ class VariablesServiceTests {
     }
 
     @Test
-    void delete() {
+    public void delete() {
         final Variable variableToDelete = new Variable()
                 .setId((long)1)
                 .setName("foo")
@@ -223,7 +223,7 @@ class VariablesServiceTests {
     }
 
     @Test
-    void delete_variableNotExisting() {
+    public void delete_variableNotExisting() {
         final long nonExistingVariableId = 1;
 
         VariablesService variablesService = getVariablesService();

@@ -6,8 +6,8 @@ import io.sapl.server.ce.pdp.PDPConfigurationPublisher;
 import io.sapl.server.ce.persistence.SelectedCombiningAlgorithmRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -16,19 +16,19 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class CombiningAlgorithmServiceTests {
     private SelectedCombiningAlgorithmRepository selectedCombiningAlgorithmRepository;
     private PDPConfigurationPublisher pdpConfigurationPublisher;
 
     @BeforeEach
-    void beforeEach() {
+    public void beforeEach() {
         selectedCombiningAlgorithmRepository = mock(SelectedCombiningAlgorithmRepository.class);
         pdpConfigurationPublisher = mock(PDPConfigurationPublisher.class);
     }
 
     @Test
-    void init() {
+    public void init() {
         CombiningAlgorithmService combiningAlgorithmService = getCombiningAlgorithmService();
 
         SelectedCombiningAlgorithm entity = new SelectedCombiningAlgorithm();
@@ -42,7 +42,7 @@ public class CombiningAlgorithmServiceTests {
     }
 
     @Test
-    void getSelected() {
+    public void getSelected() {
         CombiningAlgorithmService combiningAlgorithmService = getCombiningAlgorithmService();
 
         SelectedCombiningAlgorithm entity = new SelectedCombiningAlgorithm();
@@ -56,7 +56,7 @@ public class CombiningAlgorithmServiceTests {
     }
 
     @Test
-    void getSelected_noExistingEntity() {
+    public void getSelected_noExistingEntity() {
         CombiningAlgorithmService combiningAlgorithmService = getCombiningAlgorithmService();
 
         when(selectedCombiningAlgorithmRepository.findAll()).thenReturn(Collections.emptyList());
@@ -65,7 +65,7 @@ public class CombiningAlgorithmServiceTests {
     }
 
     @Test
-    void getSelected_moreThanOneEntity() {
+    public void getSelected_moreThanOneEntity() {
         CombiningAlgorithmService combiningAlgorithmService = getCombiningAlgorithmService();
 
         SelectedCombiningAlgorithm entity = new SelectedCombiningAlgorithm();
@@ -82,14 +82,14 @@ public class CombiningAlgorithmServiceTests {
     }
 
     @Test
-    void getAvailable() {
+    public void getAvailable() {
         CombiningAlgorithmService combiningAlgorithmService = getCombiningAlgorithmService();
 
         assertArrayEquals(PolicyDocumentCombiningAlgorithm.values(), combiningAlgorithmService.getAvailable());
     }
 
     @Test
-    void setSelected() {
+    public void setSelected() {
         CombiningAlgorithmService combiningAlgorithmService = getCombiningAlgorithmService();
 
         int invocationCounter = 0;
