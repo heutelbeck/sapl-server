@@ -1,5 +1,5 @@
 import { LitElement, html } from 'lit-element';
-import { CodeMirrorStyles, CodeMirrorLintStyles, CodeMirrorHintStyles, XTextAnnotationsStyles, AutocompleteWidgetStyle } from './shared-styles.js';
+import { CodeMirrorStyles, CodeMirrorLintStyles, CodeMirrorHintStyles, XTextAnnotationsStyles, AutocompleteWidgetStyle, ReadOnlyStyle } from './shared-styles.js';
 
 class SAPLEditor extends LitElement {
 
@@ -29,6 +29,7 @@ class SAPLEditor extends LitElement {
       CodeMirrorHintStyles,
       XTextAnnotationsStyles,
       AutocompleteWidgetStyle,
+      ReadOnlyStyle,
     ]
   }
 
@@ -137,6 +138,13 @@ class SAPLEditor extends LitElement {
     console.debug('SaplEditor: setEditorOption', option, value, isEditorSet);
 
     if(this.editor !== undefined) {
+      if(option === 'readOnly') {
+        if(value === true) {
+          this.editor.setOption("theme", 'readOnly');
+        } else {
+          this.editor.setOption("theme", 'default');
+        }
+      }
       this.editor.setOption(option, value);  
     }
   }
@@ -146,7 +154,7 @@ class SAPLEditor extends LitElement {
     console.debug('SaplEditor: onEditorChangeCheckOptions', isEditorSet);
 
     if(isEditorSet) {
-      editor.setOption('readonly', this.isReadOnly);
+      this.setEditorOption('readOnly', this.isReadOnly);
     }
   }
 

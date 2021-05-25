@@ -553,3 +553,6 @@ export const HeightFix = css`
   height: 100%;
 }
 `
+export const ReadOnlyStyle = css`
+.cm-s-readOnly.CodeMirror { background: #f7f7f7; color: #9b9b9b; }
+`

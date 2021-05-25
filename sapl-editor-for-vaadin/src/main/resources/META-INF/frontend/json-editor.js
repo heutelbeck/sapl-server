@@ -1,5 +1,5 @@
 import { LitElement, html } from 'lit-element';
-import { CodeMirrorStyles, CodeMirrorLintStyles, CodeMirrorHintStyles, HeightFix } from './shared-styles.js';
+import { CodeMirrorStyles, CodeMirrorLintStyles, CodeMirrorHintStyles, HeightFix, ReadOnlyStyle } from './shared-styles.js';
 
 class JSONEditor extends LitElement {
 
@@ -26,6 +26,7 @@ class JSONEditor extends LitElement {
       CodeMirrorLintStyles,
       CodeMirrorHintStyles,
       HeightFix,
+      ReadOnlyStyle,
     ]
   }
 
@@ -111,6 +112,13 @@ class JSONEditor extends LitElement {
     console.debug('JsonEditor: setEditorOption', option, value, isEditorSet);
 
     if(this.editor !== undefined) {
+      if(option === 'readOnly') {
+        if(value === true) {
+          this.editor.setOption("theme", 'readOnly');
+        } else {
+          this.editor.setOption("theme", 'default');
+        }
+      }
       this.editor.setOption(option, value);  
     }
   }
@@ -120,7 +128,7 @@ class JSONEditor extends LitElement {
     console.debug('JsonEditor: onEditorChangeCheckOptions', isEditorSet);
 
     if(isEditorSet) {
-      editor.setOption('readonly', this.isReadOnly);
+      this.setEditorOption('readOnly', this.isReadOnly);
     }
   }
 
