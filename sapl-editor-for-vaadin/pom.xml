@@ -239,6 +239,9 @@
 						</goals>
 					</execution>
 				</executions>
+				<configuration>
+					<optimizeBundle>false</optimizeBundle>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.eclipse.jetty</groupId>
@@ -353,6 +356,9 @@
 								</goals>
 							</execution>
 						</executions>
+						<configuration>
+							<optimizeBundle>false</optimizeBundle>
+						</configuration>
 					</plugin>
 				</plugins>
 			</build>
