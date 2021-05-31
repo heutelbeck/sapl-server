@@ -1,5 +1,5 @@
 import { LitElement, html } from 'lit-element';
-import { CodeMirrorStyles, CodeMirrorLintStyles, CodeMirrorHintStyles, XTextAnnotationsStyles, AutocompleteWidgetStyle, ReadOnlyStyle } from './shared-styles.js';
+import { CodeMirrorStyles, CodeMirrorLintStyles, CodeMirrorHintStyles, XTextAnnotationsStyles, AutocompleteWidgetStyle, ReadOnlyStyle, HeightFix } from './shared-styles.js';
 
 class SAPLEditor extends LitElement {
 
@@ -30,6 +30,7 @@ class SAPLEditor extends LitElement {
       XTextAnnotationsStyles,
       AutocompleteWidgetStyle,
       ReadOnlyStyle,
+      HeightFix
     ]
   }
 

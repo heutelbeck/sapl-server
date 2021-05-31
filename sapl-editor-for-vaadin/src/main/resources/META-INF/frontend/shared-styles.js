@@ -467,7 +467,7 @@ export const CodeMirrorHintStyles = css`
   }
   `
 
-  export const XTextAnnotationsStyles = css`
+export const XTextAnnotationsStyles = css`
 .CodeMirror {
   height: 100%;
 }
@@ -550,6 +550,9 @@ export const AutocompleteWidgetStyle = css`
 
 export const HeightFix = css`
 .CodeMirror {
+  height: 100%;
+}
+#xtext-editor {
   height: 100%;
 }
 `
