@@ -9,7 +9,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import io.sapl.server.ce.model.sapldocument.PublishedSaplDocument;
-import io.sapl.server.ce.model.sapldocument.SaplDocument;
 
 /**
  * Interface for a repository for accessing persisted
