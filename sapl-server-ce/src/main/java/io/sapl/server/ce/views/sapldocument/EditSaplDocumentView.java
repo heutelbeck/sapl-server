@@ -138,7 +138,8 @@ public class EditSaplDocumentView extends PolymerTemplate<EditSaplDocumentView.E
 
 			Issue[] issues = validationFinishedEvent.getIssues();
 
-			boolean areNoIssuesAvailable = issues.length == 0;
+			boolean areNoIssuesAvailable = issues.length == 0
+					&& saplEditor.getDocument().length() <= SaplDocumentVersion.MAX_DOCUMENT_SIZE;
 			saveVersionButton.setEnabled(areNoIssuesAvailable);
 		});
 

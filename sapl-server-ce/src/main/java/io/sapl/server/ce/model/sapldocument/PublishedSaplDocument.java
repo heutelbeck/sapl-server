@@ -28,7 +28,7 @@ public class PublishedSaplDocument {
 	@Column(length = 250, unique = true, nullable = false)
 	private String documentName;
 
-	@Column(length = 10000, nullable = false)
+	@Column(length = SaplDocumentVersion.MAX_DOCUMENT_SIZE, nullable = false)
 	private String document;
 
 	public void importSaplDocumentVersion(@NonNull SaplDocumentVersion saplDocumentVersion) {
