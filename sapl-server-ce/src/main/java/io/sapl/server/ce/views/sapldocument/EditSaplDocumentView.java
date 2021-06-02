@@ -59,6 +59,9 @@ public class EditSaplDocumentView extends PolymerTemplate<EditSaplDocumentView.E
 
 	private final SaplDocumentService saplDocumentService;
 
+	private SaplDocumentVersion selectedSaplDocumentVersion;
+	private boolean isSelectedVersionRestoredViaEditedDocument;
+
 	@Id(value = "policyIdTextField")
 	private TextField policyIdTextField;
 
@@ -98,7 +101,6 @@ public class EditSaplDocumentView extends PolymerTemplate<EditSaplDocumentView.E
 	private SaplDocument saplDocument;
 
 	private long saplDocumentId;
-	private boolean isDocumentValueEdited;
 	private boolean isFirstDocumentValueValidation;
 
 	@Override
@@ -115,12 +117,20 @@ public class EditSaplDocumentView extends PolymerTemplate<EditSaplDocumentView.E
 
 		saveVersionButton.setEnabled(false);
 
-		isDocumentValueEdited = false;
 		isFirstDocumentValueValidation = true;
 	}
 
 	private void addListener() {
 		versionSelectionComboBox.addValueChangeListener(changedEvent -> {
+			if (isSelectedVersionRestoredViaEditedDocument) {
+				/*
+				 * do not update content of sapl editor if change is initiated via restored document after
+				 * editing (do not reset cursor position of editor)
+				 */
+				isSelectedVersionRestoredViaEditedDocument = false;
+				return;
+			}
+
 			updateSaplEditorBasedOnVersionSelection();
 		});
 
@@ -130,16 +140,21 @@ public class EditSaplDocumentView extends PolymerTemplate<EditSaplDocumentView.E
 				return;
 			}
 
-			if (!isDocumentValueEdited) {
-				versionSelectionComboBox.setValue(NEW_VERSION_SELECTION_ENTRY);
+			String document = saplEditor.getDocument();
 
-				isDocumentValueEdited = true;
+			if (selectedSaplDocumentVersion != null) {
+				if (selectedSaplDocumentVersion.getValue().equals(document)) {
+					isSelectedVersionRestoredViaEditedDocument = true;
+					versionSelectionComboBox.setValue(Integer.toString(selectedSaplDocumentVersion.getVersionNumber()));
+				} else {
+					versionSelectionComboBox.setValue(NEW_VERSION_SELECTION_ENTRY);
+				}
 			}
 
 			Issue[] issues = validationFinishedEvent.getIssues();
 
 			boolean areNoIssuesAvailable = issues.length == 0
-					&& saplEditor.getDocument().length() <= SaplDocumentVersion.MAX_DOCUMENT_SIZE;
+					&& document.length() <= SaplDocumentVersion.MAX_DOCUMENT_SIZE;
 			saveVersionButton.setEnabled(areNoIssuesAvailable);
 		});
 
@@ -156,7 +171,7 @@ public class EditSaplDocumentView extends PolymerTemplate<EditSaplDocumentView.E
 
 		publishCurrentVersionButton.addClickListener(clickEvent -> {
 			Optional<Integer> selectedVersionNumberAsOptional = getSelectedVersionNumber();
-			if (!selectedVersionNumberAsOptional.isPresent()) {
+			if (selectedVersionNumberAsOptional.isEmpty()) {
 				return;
 			}
 
@@ -190,6 +205,7 @@ public class EditSaplDocumentView extends PolymerTemplate<EditSaplDocumentView.E
 
 		SaplDocumentVersion currentVersion = saplDocument.getCurrentVersion();
 		saplEditor.setDocument(currentVersion.getValue());
+		selectedSaplDocumentVersion = currentVersion;
 
 		setUiForPublishing();
 	}
@@ -244,11 +260,10 @@ public class EditSaplDocumentView extends PolymerTemplate<EditSaplDocumentView.E
 			return;
 		}
 
-		SaplDocumentVersion saplDocumentVersion = saplDocument.getVersion(selectedVersionNumberAsOptional.get());
+		selectedSaplDocumentVersion = saplDocument.getVersion(selectedVersionNumberAsOptional.get());
 
-		saplEditor.setDocument(saplDocumentVersion.getValue());
+		saplEditor.setDocument(selectedSaplDocumentVersion.getValue());
 
-		isDocumentValueEdited = false;
 		isFirstDocumentValueValidation = true;
 		saveVersionButton.setEnabled(false);
 
