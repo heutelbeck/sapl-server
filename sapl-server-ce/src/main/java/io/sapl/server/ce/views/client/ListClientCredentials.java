@@ -15,6 +15,12 @@
  */
 package io.sapl.server.ce.views.client;
 
+import java.util.Comparator;
+import java.util.Optional;
+import java.util.stream.Stream;
+
+import javax.annotation.PostConstruct;
+
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.JsModule;
@@ -29,6 +35,7 @@ import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.templatemodel.TemplateModel;
+
 import io.sapl.server.ce.model.ClientCredentials;
 import io.sapl.server.ce.service.ClientCredentialsService;
 import io.sapl.server.ce.views.MainView;
@@ -36,13 +43,7 @@ import io.sapl.server.ce.views.utils.confirm.ConfirmUtils;
 import io.sapl.server.ce.views.utils.error.ErrorNotificationUtils;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import reactor.util.function.Tuple2;
-
-import javax.annotation.PostConstruct;
-import java.util.Comparator;
-import java.util.Optional;
-import java.util.stream.Stream;
 
 /**
  * A Designer generated component for the list-client-credentials template.
@@ -59,7 +60,6 @@ public class ListClientCredentials extends PolymerTemplate<ListClientCredentials
 	public static final String ROUTE = "clients";
 
 	private final ClientCredentialsService clientCredentialsService;
-	private final PasswordEncoder passwordEncoder;
 
 	@Id(value = "clientCredentialsGrid")
 	private Grid<ClientCredentials> clientCredentialsGrid;
@@ -88,8 +88,7 @@ public class ListClientCredentials extends PolymerTemplate<ListClientCredentials
 
 			getUI().ifPresent((ui) -> {
 				ui.access(() -> {
-					showDialogForCreatedVariable(
-							clientCredentialsWithSecret.getT1().getKey(),
+					showDialogForCreatedVariable(clientCredentialsWithSecret.getT1().getKey(),
 							clientCredentialsWithSecret.getT2());
 					clientCredentialsGrid.getDataProvider().refreshAll();
 				});
@@ -100,37 +99,34 @@ public class ListClientCredentials extends PolymerTemplate<ListClientCredentials
 	}
 
 	private void initClientCredentialsGrid() {
-		clientCredentialsGrid
-				.addColumn(ClientCredentials::getKey)
-				.setHeader("Key")
-				.setSortable(true);
+		clientCredentialsGrid.addColumn(ClientCredentials::getKey).setHeader("Key").setSortable(true);
 
 		clientCredentialsGrid.addComponentColumn(currentClientCredential -> {
 			Button deleteButton = new Button("Remove", VaadinIcon.FILE_REMOVE.create());
 			deleteButton.setThemeName("primary");
 			deleteButton.addClickListener(clickEvent -> {
-				ConfirmUtils.letConfirm(
-						String.format("Should the client credentials with key \"%s\" really be deleted?", currentClientCredential.getKey()),
-						() -> {
-							long idOfClientToRemove = currentClientCredential.getId();
-							try {
-								clientCredentialsService.delete(idOfClientToRemove);
-							} catch (Throwable throwable) {
-								getUI().ifPresent((ui) -> {
-									ui.access(() -> {
-										ErrorNotificationUtils.show("The client cannot be deleted due to an internal error.");
-									});
-								});
-								return;
-							}
+				ConfirmUtils
+						.letConfirm(String.format("Should the client credentials with key \"%s\" really be deleted?",
+								currentClientCredential.getKey()), () -> {
+									long idOfClientToRemove = currentClientCredential.getId();
+									try {
+										clientCredentialsService.delete(idOfClientToRemove);
+									} catch (Throwable throwable) {
+										getUI().ifPresent((ui) -> {
+											ui.access(() -> {
+												ErrorNotificationUtils
+														.show("The client cannot be deleted due to an internal error.");
+											});
+										});
+										return;
+									}
 
-							getUI().ifPresent((ui) -> {
-								ui.access(() -> {
-									clientCredentialsGrid.getDataProvider().refreshAll();
-								});
-							});
-						},
-						null);
+									getUI().ifPresent((ui) -> {
+										ui.access(() -> {
+											clientCredentialsGrid.getDataProvider().refreshAll();
+										});
+									});
+								}, null);
 			});
 
 			HorizontalLayout componentsForEntry = new HorizontalLayout();

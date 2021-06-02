@@ -23,7 +23,6 @@
 	<packaging>jar</packaging>
 
 	<name>SAPL Server CE</name>
-	<version>2.0.0-SNAPSHOT</version>
 
 	<description>SAPL Server CE</description>
 
