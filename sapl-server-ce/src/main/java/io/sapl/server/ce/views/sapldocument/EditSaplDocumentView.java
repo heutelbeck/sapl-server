@@ -122,15 +122,6 @@ public class EditSaplDocumentView extends PolymerTemplate<EditSaplDocumentView.E
 
 	private void addListener() {
 		versionSelectionComboBox.addValueChangeListener(changedEvent -> {
-			if (isSelectedVersionRestoredViaEditedDocument) {
-				/*
-				 * do not update content of sapl editor if change is initiated via restored document after
-				 * editing (do not reset cursor position of editor)
-				 */
-				isSelectedVersionRestoredViaEditedDocument = false;
-				return;
-			}
-
 			updateSaplEditorBasedOnVersionSelection();
 		});
 
@@ -142,17 +133,15 @@ public class EditSaplDocumentView extends PolymerTemplate<EditSaplDocumentView.E
 
 			String document = saplEditor.getDocument();
 
-			if (selectedSaplDocumentVersion != null) {
-				if (selectedSaplDocumentVersion.getValue().equals(document)) {
-					isSelectedVersionRestoredViaEditedDocument = true;
-					versionSelectionComboBox.setValue(Integer.toString(selectedSaplDocumentVersion.getVersionNumber()));
-				} else {
-					versionSelectionComboBox.setValue(NEW_VERSION_SELECTION_ENTRY);
-				}
+			if (selectedSaplDocumentVersion != null && selectedSaplDocumentVersion.getValue().equals(document)) {
+				isSelectedVersionRestoredViaEditedDocument = true;
+				versionSelectionComboBox.setValue(Integer.toString(selectedSaplDocumentVersion.getVersionNumber()));
+				return;
 			}
 
-			Issue[] issues = validationFinishedEvent.getIssues();
+			versionSelectionComboBox.setValue(NEW_VERSION_SELECTION_ENTRY);
 
+			Issue[] issues = validationFinishedEvent.getIssues();
 			boolean areNoIssuesAvailable = issues.length == 0
 					&& document.length() <= SaplDocumentVersion.MAX_DOCUMENT_SIZE;
 			saveVersionButton.setEnabled(areNoIssuesAvailable);
@@ -262,9 +251,17 @@ public class EditSaplDocumentView extends PolymerTemplate<EditSaplDocumentView.E
 
 		selectedSaplDocumentVersion = saplDocument.getVersion(selectedVersionNumberAsOptional.get());
 
-		saplEditor.setDocument(selectedSaplDocumentVersion.getValue());
+		if (isSelectedVersionRestoredViaEditedDocument) {
+			/*
+			 * do not update content of sapl editor if change is initiated via restored document after
+			 * editing (do not reset cursor position of editor)
+			 */
+			isSelectedVersionRestoredViaEditedDocument = false;
+		} else {
+			saplEditor.setDocument(selectedSaplDocumentVersion.getValue());
+			isFirstDocumentValueValidation = true;
+		}
 
-		isFirstDocumentValueValidation = true;
 		saveVersionButton.setEnabled(false);
 
 		setUiForPublishing();
