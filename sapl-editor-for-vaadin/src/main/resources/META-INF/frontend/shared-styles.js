@@ -558,4 +558,30 @@ export const HeightFix = css`
 `
 export const ReadOnlyStyle = css`
 .cm-s-readOnly.CodeMirror { background: #f7f7f7; color: #9b9b9b; }
+
+/* copied from default style so editor doesn't lose highlighting */
+.cm-s-readOnly .cm-keyword {color: #708;}
+.cm-s-readOnly .cm-atom {color: #219;}
+.cm-s-readOnly .cm-number {color: #164;}
+.cm-s-readOnly .cm-def {color: #00f;}
+.cm-s-readOnly .cm-variable,
+.cm-s-readOnly .cm-punctuation,
+.cm-s-readOnly .cm-property,
+.cm-s-readOnly .cm-operator {}
+.cm-s-readOnly .cm-variable-2 {color: #05a;}
+.cm-s-readOnly .cm-variable-3, .cm-s-readOnly .cm-type {color: #085;}
+.cm-s-readOnly .cm-comment {color: #a50;}
+.cm-s-readOnly .cm-string {color: #a11;}
+.cm-s-readOnly .cm-string-2 {color: #f50;}
+.cm-s-readOnly .cm-meta {color: #555;}
+.cm-s-readOnly .cm-qualifier {color: #555;}
+.cm-s-readOnly .cm-builtin {color: #30a;}
+.cm-s-readOnly .cm-bracket {color: #997;}
+.cm-s-readOnly .cm-tag {color: #170;}
+.cm-s-readOnly .cm-attribute {color: #00c;}
+.cm-s-readOnly .cm-hr {color: #999;}
+.cm-s-readOnly .cm-link {color: #00c;}
+.cm-s-readOnly .cm-header {color: blue;}
+.cm-s-readOnly .cm-quote {color: #090;}
+.cm-s-readOnly .cm-error {color: #f00;}
 `
