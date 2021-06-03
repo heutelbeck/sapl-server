@@ -26,7 +26,6 @@ import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.templatemodel.TemplateModel;
-
 import io.sapl.server.ce.model.pdpconfiguration.Variable;
 import io.sapl.server.ce.service.pdpconfiguration.DuplicatedVariableNameException;
 import io.sapl.server.ce.service.pdpconfiguration.InvalidJsonException;
@@ -38,12 +37,8 @@ import io.sapl.vaadin.JsonEditor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-/**
- * A Designer generated component for the edit-variable template.
- *
- * Designer will add and remove fields with @Id mappings but does not overwrite
- * or otherwise change this file.
- */
+import java.util.Optional;
+
 @Tag("edit-variable")
 @Route(value = EditVariableView.ROUTE, layout = MainView.class)
 @Slf4j
@@ -81,10 +76,23 @@ public class EditVariableView extends PolymerTemplate<EditVariableView.EditVaria
 
 		reloadVariable();
 		addListener();
+
+		addAttachListener((__) -> {
+			if (variable == null) {
+				log.warn(String.format("variable with id %s is not existing, redirect to list view", parameter));
+				getUI().ifPresent(ui -> ui.navigate(ConfigurePdp.ROUTE));
+			}
+		});
 	}
 
 	private void reloadVariable() {
-		variable = variableService.getById(variableId);
+		Optional<Variable> optionalVariable = variableService.getById(variableId);
+		if (optionalVariable.isEmpty()) {
+			// Vaadin UI object is not available yet, redirect to list view via attach listener
+			return;
+		}
+
+		variable = optionalVariable.get();
 
 		setUI();
 	}

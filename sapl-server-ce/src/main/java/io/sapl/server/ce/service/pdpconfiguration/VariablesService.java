@@ -53,48 +53,18 @@ public class VariablesService {
 		pdpConfigurationPublisher.publishVariables(getAll());
 	}
 
-	/**
-	 * Gets all available {@link Variable} instances.
-	 * 
-	 * @return the available {@link Variable} instances
-	 */
 	public Collection<Variable> getAll() {
 		return variableRepository.findAll();
 	}
 
-	/**
-	 * Gets the amount of available {@link Variable} instances.
-	 * 
-	 * @return the amount
-	 */
 	public long getAmount() {
 		return variableRepository.count();
 	}
 
-	/**
-	 * Gets a specific {@link Variable} by its id.
-	 * 
-	 * @param id the id of the {@link Variable}
-	 * @return the {@link Variable}
-	 */
-	public Variable getById(long id) {
-		Optional<Variable> optionalEntity = variableRepository.findById(id);
-		if (optionalEntity.isEmpty()) {
-			throw new IllegalArgumentException(String.format("entity with id %d is not existing", id));
-		}
-
-		return optionalEntity.get();
+	public Optional<Variable> getById(long id) {
+		return variableRepository.findById(id);
 	}
 
-	/**
-	 * Creates a {@link Variable} with default values.
-	 * 
-	 * @param name the name of the variable to create
-	 * @return the created {@link Variable}
-	 * @throws InvalidVariableNameException    thrown if the name is invalid
-	 * @throws DuplicatedVariableNameException thrown if the name is already used by
-	 *                                         another variable
-	 */
 	public Variable create(@NonNull String name) throws InvalidVariableNameException, DuplicatedVariableNameException {
 		String jsonValue = DEFAULT_JSON_VALUE;
 
@@ -118,30 +88,13 @@ public class VariablesService {
 		}
 	}
 
-	/**
-	 * Creates a {@link Variable}.
-	 * 
-	 * @param name      the name
-	 * @param jsonValue the JSON value
-	 * @return the created {@link Variable}
-	 * @throws InvalidJsonException            thrown if the provided JSON value is
-	 *                                         invalid
-	 * @throws InvalidVariableNameException    thrown if the name is invalid
-	 * @throws DuplicatedVariableNameException thrown if the name is used by another
-	 *                                         variable
-	 */
 	public Variable edit(long id, @NonNull String name, @NonNull String jsonValue)
 			throws InvalidJsonException, InvalidVariableNameException, DuplicatedVariableNameException {
 		VariablesService.checkIsJsonValue(jsonValue);
 		checkForInvalidName(name);
 		checkForDuplicatedName(name, id);
 
-		Optional<Variable> optionalEntity = variableRepository.findById(id);
-		if (optionalEntity.isEmpty()) {
-			throw new IllegalArgumentException(String.format("entity with id %d is not existing", id));
-		}
-
-		Variable oldVariable = optionalEntity.get();
+		Variable oldVariable = getExistingById(id);
 
 		Variable editedVariable = new Variable();
 		editedVariable.setId(id);
@@ -157,11 +110,6 @@ public class VariablesService {
 		return editedVariable;
 	}
 
-	/**
-	 * Deletes a {@link Variable}.
-	 * 
-	 * @param id the id of the {@link Variable}
-	 */
 	public void delete(@NonNull Long id) {
 		Optional<Variable> variableToDelete = variableRepository.findById(id);
 		if (variableToDelete.isEmpty()) {
@@ -183,6 +131,15 @@ public class VariablesService {
 		} catch (JsonProcessingException ex) {
 			throw new InvalidJsonException(jsonValue, ex);
 		}
+	}
+
+	private Variable getExistingById(long id) {
+		Optional<Variable> optionalVariable = getById(id);
+		if (optionalVariable.isEmpty()) {
+			throw new IllegalArgumentException(String.format("variable with id %d is not existing", id));
+		}
+
+		return optionalVariable.get();
 	}
 
 	/**

@@ -80,10 +80,8 @@ public class VariablesServiceTests {
         when(variableRepository.findById(nonAvailable)).thenReturn(Optional.empty());
 
         VariablesService variablesService = getVariablesService();
-        assertEquals(availableVariable, variablesService.getById(available));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            variablesService.getById(nonAvailable);
-        });
+        assertEquals(Optional.of(availableVariable), variablesService.getById(available));
+        assertEquals(Optional.empty(), variablesService.getById(nonAvailable));
     }
 
     @Test
