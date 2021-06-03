@@ -114,7 +114,7 @@ public class EditSaplDocumentView extends PolymerTemplate<EditSaplDocumentView.E
 
 		addAttachListener((__) -> {
 			if (saplDocument == null) {
-				log.warn(String.format("SAPL document with id %s is not existing, redirect to list view", parameter));
+				log.warn("SAPL document with id {} is not existing, redirect to list view", parameter);
 				getUI().ifPresent(ui -> ui.navigate(SaplDocumentsView.ROUTE));
 			}
 		});

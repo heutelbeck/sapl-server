@@ -79,7 +79,7 @@ public class EditVariableView extends PolymerTemplate<EditVariableView.EditVaria
 
 		addAttachListener((__) -> {
 			if (variable == null) {
-				log.warn(String.format("variable with id %s is not existing, redirect to list view", parameter));
+				log.warn("variable with id {} is not existing, redirect to list view", parameter);
 				getUI().ifPresent(ui -> ui.navigate(ConfigurePdp.ROUTE));
 			}
 		});
