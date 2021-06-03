@@ -1,5 +1,6 @@
 package io.sapl.server.ce.security;
 
+import java.security.SecureRandom;
 import java.util.HashMap;
 
 import org.springframework.context.annotation.Bean;
@@ -15,7 +16,7 @@ public class PasswordEncoderConfiguration {
 	public PasswordEncoder passwordEncoder() {
 		var encodingId = "bcrypt";
 		var encoders = new HashMap<String, PasswordEncoder>();
-		encoders.put(encodingId, new BCryptPasswordEncoder(BCryptVersion.$2B, 14));
+		encoders.put(encodingId, new BCryptPasswordEncoder(BCryptVersion.$2B, 14, new SecureRandom()));
 		return new DelegatingPasswordEncoder(encodingId, encoders);
 	}
 }
