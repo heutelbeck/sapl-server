@@ -92,44 +92,18 @@ public class SaplDocumentService implements PrpUpdateEventSource {
 	public void dispose() {
 	}
 
-	/**
-	 * Gets all {@link SaplDocument}s.
-	 * 
-	 * @return the instances
-	 */
 	public Collection<SaplDocument> getAll() {
 		return saplDocumentRepository.findAll();
 	}
 
-	/**
-	 * Gets a specific {@link SaplDocument} by its id.
-	 * 
-	 * @param id the id of the {@link SaplDocument}
-	 * @return the {@link SaplDocument}
-	 */
-	public SaplDocument getById(long id) {
-		Optional<SaplDocument> optionalEntity = saplDocumentRepository.findById(id);
-		if (optionalEntity.isEmpty()) {
-			throw new IllegalArgumentException(String.format("entity with id %d is not existing", id));
-		}
-
-		return optionalEntity.get();
+	public Optional<SaplDocument> getById(long id) {
+		return saplDocumentRepository.findById(id);
 	}
 
-	/**
-	 * Gets the amount of {@link SaplDocument}s.
-	 * 
-	 * @return the amount
-	 */
 	public long getAmount() {
 		return saplDocumentRepository.count();
 	}
 
-	/**
-	 * Creates a new {@link SaplDocument} with a default document value.
-	 * 
-	 * @return the created {@link SaplDocument}
-	 */
 	public SaplDocument createDefault() {
 		String documentValue = DEFAULT_DOCUMENT_VALUE;
 
@@ -149,16 +123,8 @@ public class SaplDocumentService implements PrpUpdateEventSource {
 		return createdDocument;
 	}
 
-	/**
-	 * Creates a new version of a {@link SaplDocument}.
-	 * 
-	 * @param saplDocumentId the id of the {@link SaplDocument} in which the version
-	 *                       will be added
-	 * @param documentValue  the document value of the version
-	 * @return the created {@link SaplDocumentVersion}
-	 */
 	public SaplDocumentVersion createVersion(long saplDocumentId, @NonNull String documentValue) {
-		SaplDocument saplDocument = getById(saplDocumentId);
+		SaplDocument saplDocument = getExistingById(saplDocumentId);
 
 		DocumentAnalysisResult documentAnalysisResult = saplInterpreter.analyze(documentValue);
 		if (!documentAnalysisResult.isValid()) {
@@ -180,20 +146,10 @@ public class SaplDocumentService implements PrpUpdateEventSource {
 		return newSaplDocumentVersion;
 	}
 
-	/**
-	 * Publishes a specific version of a {@link SaplDocument}.
-	 * 
-	 * @param saplDocumentId   the id of the {@link SaplDocument}
-	 * @param versionToPublish the version to publish
-	 * @throws PublishedDocumentNameCollisionException thrown if the name of a
-	 *                                                 {@link SaplDocument} to
-	 *                                                 publish is not unique
-	 * 
-	 */
 	@Transactional(rollbackFor = Throwable.class)
 	public void publishPolicyVersion(long saplDocumentId, int versionToPublish)
 			throws PublishedDocumentNameCollisionException {
-		SaplDocument saplDocument = getById(saplDocumentId);
+		SaplDocument saplDocument = getExistingById(saplDocumentId);
 
 		// unpublish other version if published
 		if (saplDocument.getPublishedVersion() != null) {
@@ -217,14 +173,9 @@ public class SaplDocumentService implements PrpUpdateEventSource {
 		notifyAboutChangedPublicationOfSaplDocument(PrpUpdateEvent.Type.PUBLISH, createdPublishedSaplDocument);
 	}
 
-	/**
-	 * Unpublishes the published version of a {@link SaplDocument}.
-	 * 
-	 * @param saplDocumentId the id of the {@link SaplDocument}
-	 */
 	@Transactional
 	public void unpublishPolicy(long saplDocumentId) {
-		SaplDocument saplDocumentToUnpublish = getById(saplDocumentId);
+		SaplDocument saplDocumentToUnpublish = getExistingById(saplDocumentId);
 
 		SaplDocumentVersion publishedVersion = saplDocumentToUnpublish.getPublishedVersion();
 		if (publishedVersion == null) {
@@ -253,6 +204,15 @@ public class SaplDocumentService implements PrpUpdateEventSource {
 		return publishedSaplDocumentRepository.count();
 	}
 
+	private SaplDocument getExistingById(long saplDocumentId) {
+		Optional<SaplDocument> optionalSaplDocument = getById(saplDocumentId);
+		if (optionalSaplDocument.isEmpty()) {
+			throw new IllegalArgumentException(String.format("SAPL document with id %d is not available", saplDocumentId));
+		}
+
+		return optionalSaplDocument.get();
+	}
+
 	private String getCurrentTimestampAsString() {
 		return dateFormatter.format(Instant.now());
 	}
@@ -273,12 +233,6 @@ public class SaplDocumentService implements PrpUpdateEventSource {
 		return new Update(prpUpdateEventType, sapl, document);
 	}
 
-	/**
-	 * Deletes all instances of {@link PublishedSaplDocument} with a specific name.
-	 * 
-	 * @param name the name
-	 * @return the deleted instances of {@link PublishedSaplDocument}
-	 */
 	private Iterable<PublishedSaplDocument> deletePersistedPublishedSaplDocumentsByName(@NonNull String name) {
 		Collection<PublishedSaplDocument> publishedDocumentsWithName = publishedSaplDocumentRepository.findByDocumentName(name);
 		publishedSaplDocumentRepository.deleteAll(publishedDocumentsWithName);
@@ -286,16 +240,6 @@ public class SaplDocumentService implements PrpUpdateEventSource {
 		return publishedDocumentsWithName;
 	}
 
-	/**
-	 * Creates a {@link PublishedSaplDocument} based on a
-	 * {@link SaplDocumentVersion}.
-	 * 
-	 * @param saplDocumentVersion the {@link SaplDocumentVersion}
-	 * @return the created {@link PublishedSaplDocument}
-	 * @throws PublishedDocumentNameCollisionException thrown if the name collides
-	 *                                                 with another published
-	 *                                                 document
-	 */
 	private PublishedSaplDocument createPersistedPublishedSaplDocument(@NonNull SaplDocumentVersion saplDocumentVersion)
 			throws PublishedDocumentNameCollisionException {
 		PublishedSaplDocument publishedSaplDocument = new PublishedSaplDocument();

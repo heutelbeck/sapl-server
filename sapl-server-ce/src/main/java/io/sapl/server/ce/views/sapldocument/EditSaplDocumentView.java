@@ -42,12 +42,14 @@ import io.sapl.server.ce.views.utils.error.ErrorNotificationUtils;
 import io.sapl.vaadin.Issue;
 import io.sapl.vaadin.SaplEditor;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * View to edit a {@link SaplDocument}.
  */
 @Tag("edit-sapl-document")
 @Route(value = EditSaplDocumentView.ROUTE, layout = MainView.class)
+@Slf4j
 @JsModule("./edit-sapl-document.js")
 @PageTitle("Edit SAPL document")
 @RequiredArgsConstructor
@@ -109,10 +111,23 @@ public class EditSaplDocumentView extends PolymerTemplate<EditSaplDocumentView.E
 
 		reloadSaplDocument();
 		addListener();
+
+		addAttachListener((__) -> {
+			if (saplDocument == null) {
+				log.warn(String.format("SAPL document with id %s is not existing, redirect to list view", parameter));
+				getUI().ifPresent(ui -> ui.navigate(SaplDocumentsView.ROUTE));
+			}
+		});
 	}
 
 	private void reloadSaplDocument() {
-		saplDocument = saplDocumentService.getById(saplDocumentId);
+		Optional<SaplDocument> optionalSaplDocument = saplDocumentService.getById(saplDocumentId);
+		if (optionalSaplDocument.isEmpty()) {
+			// Vaadin UI object is not available yet, redirect to list view via attach listener
+			return;
+		}
+
+		saplDocument = optionalSaplDocument.get();
 		setUI();
 
 		saveVersionButton.setEnabled(false);

@@ -1,7 +1,7 @@
 package io.sapl.server.ce.service.sapldocument;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -103,9 +103,10 @@ public class SaplDocumentServiceTests {
 
         when(saplDocumentRepository.findById(expectedSaplDocument.getId()))
                 .thenReturn(Optional.of(expectedSaplDocument));
-        SaplDocument actualSaplDocument = saplDocumentService.getById(expectedSaplDocument.getId());
+        Optional<SaplDocument> actualOptionalSaplDocument = saplDocumentService.getById(expectedSaplDocument.getId());
         verify(saplDocumentRepository, times(1)).findById(expectedSaplDocument.getId());
-        assertEquals(expectedSaplDocument, actualSaplDocument);
+        assertTrue(actualOptionalSaplDocument.isPresent());
+        assertEquals(expectedSaplDocument, actualOptionalSaplDocument.get());
     }
 
     @Test
@@ -116,9 +117,7 @@ public class SaplDocumentServiceTests {
 
         when(saplDocumentRepository.findById(idOfNotExistingSaplDocument))
                 .thenReturn(Optional.empty());
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            saplDocumentService.getById(idOfNotExistingSaplDocument);
-        });
+        assertEquals(Optional.empty(), saplDocumentService.getById(idOfNotExistingSaplDocument));
     }
 
     @Test
