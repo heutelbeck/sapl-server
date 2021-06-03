@@ -1,5 +1,25 @@
 package io.sapl.server.ce.service.sapldocument;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import io.sapl.interpreter.DocumentAnalysisResult;
 import io.sapl.interpreter.DocumentType;
 import io.sapl.interpreter.SAPLInterpreter;
@@ -10,21 +30,7 @@ import io.sapl.server.ce.model.sapldocument.SaplDocumentVersion;
 import io.sapl.server.ce.persistence.PublishedSaplDocumentRepository;
 import io.sapl.server.ce.persistence.SaplDocumentsRepository;
 import io.sapl.server.ce.persistence.SaplDocumentsVersionRepository;
-import org.checkerframework.checker.nullness.Opt;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Flux;
-
-import java.util.*;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class SaplDocumentServiceTests {

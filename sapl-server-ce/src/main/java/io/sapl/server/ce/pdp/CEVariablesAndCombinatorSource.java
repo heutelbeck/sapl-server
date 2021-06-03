@@ -24,8 +24,9 @@ import javax.annotation.PreDestroy;
 
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Maps;
 
 import io.sapl.grammar.sapl.CombiningAlgorithm;
@@ -35,15 +36,17 @@ import io.sapl.pdp.config.VariablesAndCombinatorSource;
 import io.sapl.server.ce.model.pdpconfiguration.Variable;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
 import reactor.core.publisher.Sinks.EmitFailureHandler;
 import reactor.core.publisher.Sinks.Many;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class CEVariablesAndCombinatorSource implements VariablesAndCombinatorSource, PDPConfigurationPublisher {
-	private static final JsonNodeFactory JSON = JsonNodeFactory.instance;
+	private static final ObjectMapper MAPPER = new ObjectMapper();
 
 	private Many<Collection<Variable>> variablesProcessorSink;
 	private Many<PolicyDocumentCombiningAlgorithm> combiningAlgorithmSink;
@@ -56,16 +59,13 @@ public class CEVariablesAndCombinatorSource implements VariablesAndCombinatorSou
 
 	@Override
 	public Flux<Optional<Map<String, JsonNode>>> getVariables() {
-		return variablesProcessorSink.asFlux()
-				.map(CEVariablesAndCombinatorSource::variablesCollectionToMap)
+		return variablesProcessorSink.asFlux().map(CEVariablesAndCombinatorSource::variablesCollectionToMap)
 				.map(Optional::of);
 	}
 
 	@Override
 	public Flux<Optional<CombiningAlgorithm>> getCombiningAlgorithm() {
-		return combiningAlgorithmSink.asFlux()
-				.map(CombiningAlgorithmFactory::getCombiningAlgorithm)
-				.map(Optional::of);
+		return combiningAlgorithmSink.asFlux().map(CombiningAlgorithmFactory::getCombiningAlgorithm).map(Optional::of);
 	}
 
 	@Override
@@ -86,7 +86,11 @@ public class CEVariablesAndCombinatorSource implements VariablesAndCombinatorSou
 	private static Map<String, JsonNode> variablesCollectionToMap(@NonNull Collection<Variable> variables) {
 		Map<String, JsonNode> variablesAsMap = Maps.newHashMapWithExpectedSize(variables.size());
 		for (Variable variable : variables) {
-			variablesAsMap.put(variable.getName(), JSON.textNode(variable.getJsonValue()));
+			try {
+				variablesAsMap.put(variable.getName(), MAPPER.readTree(variable.getJsonValue()));
+			} catch (JsonProcessingException e) {
+				log.error("Ignoring variable {} not valid JSON.", variable.getName());
+			}
 		}
 
 		return variablesAsMap;

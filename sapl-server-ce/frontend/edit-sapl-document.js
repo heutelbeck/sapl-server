@@ -53,7 +53,7 @@ class EditSaplDocument extends PolymerElement {
     Unpublish 
   </vaadin-button>
  </vaadin-horizontal-layout>
- <sapl-editor id="saplEditor" document="policy \&quot;set by Vaadin View after instantiation ->\\u2588<-\&quot; permit" style="width: 100%; height: 100%;">
+ <sapl-editor id="saplEditor" document="policy \&quot;set by Vaadin View after instantiation ->\\u2588<-\&quot; permit" style="width: 100%; flex-shrink: 0;">
    policy \"set by Vaadin View after instantiation -&gt;\\u2588&lt;-\" permit 
  </sapl-editor>
  <vaadin-horizontal-layout style="margin: var(--lumo-space-s); padding: var(--lumo-space-s); align-self: flex-end;">

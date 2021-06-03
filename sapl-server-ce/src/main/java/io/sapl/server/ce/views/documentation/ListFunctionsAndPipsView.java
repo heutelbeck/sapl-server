@@ -15,6 +15,14 @@
  */
 package io.sapl.server.ce.views.documentation;
 
+import java.util.Collection;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.Set;
+
+import javax.annotation.PostConstruct;
+
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.grid.Grid;
@@ -29,19 +37,13 @@ import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.templatemodel.TemplateModel;
+
 import io.sapl.interpreter.functions.LibraryDocumentation;
 import io.sapl.interpreter.pip.PolicyInformationPointDocumentation;
 import io.sapl.server.ce.views.MainView;
 import io.sapl.spring.pdp.embedded.FunctionLibrariesDocumentation;
 import io.sapl.spring.pdp.embedded.PolicyInformationPointsDocumentation;
 import lombok.RequiredArgsConstructor;
-
-import javax.annotation.PostConstruct;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Optional;
-import java.util.Set;
 
 /**
  * A Designer generated component for the list-functions-and-pips-view template.

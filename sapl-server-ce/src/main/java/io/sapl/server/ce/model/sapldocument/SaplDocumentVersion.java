@@ -41,6 +41,8 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 @Table(name = "SaplDocumentVersion")
 public class SaplDocumentVersion {
+	public static final int MAX_DOCUMENT_SIZE = 64000;
+	
 	/**
 	 * The unique identifier of the SAPL document version.
 	 */
@@ -67,13 +69,13 @@ public class SaplDocumentVersion {
 	/**
 	 * The value / text of the SAPL document version.
 	 */
-	@Column(length = 2000)
+	@Column(length = MAX_DOCUMENT_SIZE)
 	private String value;
 
 	/**
 	 * The name included in the value / text of the SAPL document version
 	 * (redundancy for better query performance).
 	 */
-	@Column(length = 250)
+	@Column(length = 1024)
 	private String name;
 }

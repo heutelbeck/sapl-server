@@ -1,5 +1,9 @@
 package io.sapl.server.ce.views.publishedpolicies;
 
+import java.util.Comparator;
+import java.util.Optional;
+import java.util.stream.Stream;
+
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.JsModule;
@@ -14,6 +18,7 @@ import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.templatemodel.TemplateModel;
+
 import io.sapl.server.ce.model.sapldocument.PublishedSaplDocument;
 import io.sapl.server.ce.service.sapldocument.SaplDocumentService;
 import io.sapl.server.ce.views.MainView;
@@ -23,10 +28,6 @@ import io.sapl.server.ce.views.utils.error.ErrorNotificationUtils;
 import io.sapl.vaadin.SaplEditor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.Comparator;
-import java.util.Optional;
-import java.util.stream.Stream;
 
 @Tag("published-policies-view")
 @Route(value = PublishedPoliciesView.ROUTE, layout = MainView.class)
