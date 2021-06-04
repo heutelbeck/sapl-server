@@ -26,3 +26,7 @@ server:
     key-store-password: changeme
     key-password: changeme
     key-alias: netty
+logging.level:
+  "[io.sapl]": TRACE
+  "[io.sapl.server.ce]": INFO
+ 
