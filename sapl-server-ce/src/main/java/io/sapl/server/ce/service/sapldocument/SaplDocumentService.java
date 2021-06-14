@@ -226,21 +226,21 @@ public class SaplDocumentService implements PrpUpdateEventSource {
 	}
 
 	private PrpUpdateEvent.Update convertSaplDocumentToUpdateOfPrpUpdateEvent(
-			@NonNull PublishedSaplDocument publishedSaplDocument, @NonNull PrpUpdateEvent.Type prpUpdateEventType) {
+			PublishedSaplDocument publishedSaplDocument, PrpUpdateEvent.Type prpUpdateEventType) {
 		String document = publishedSaplDocument.getDocument();
 
 		SAPL sapl = saplInterpreter.parse(document);
 		return new Update(prpUpdateEventType, sapl, document);
 	}
 
-	private Iterable<PublishedSaplDocument> deletePersistedPublishedSaplDocumentsByName(@NonNull String name) {
+	private Iterable<PublishedSaplDocument> deletePersistedPublishedSaplDocumentsByName(String name) {
 		Collection<PublishedSaplDocument> publishedDocumentsWithName = publishedSaplDocumentRepository.findByDocumentName(name);
 		publishedSaplDocumentRepository.deleteAll(publishedDocumentsWithName);
 
 		return publishedDocumentsWithName;
 	}
 
-	private PublishedSaplDocument createPersistedPublishedSaplDocument(@NonNull SaplDocumentVersion saplDocumentVersion)
+	private PublishedSaplDocument createPersistedPublishedSaplDocument(SaplDocumentVersion saplDocumentVersion)
 			throws PublishedDocumentNameCollisionException {
 		PublishedSaplDocument publishedSaplDocument = new PublishedSaplDocument();
 		publishedSaplDocument.importSaplDocumentVersion(saplDocumentVersion);
@@ -259,12 +259,12 @@ public class SaplDocumentService implements PrpUpdateEventSource {
 	}
 
 	private void notifyAboutChangedPublicationOfSaplDocument(PrpUpdateEvent.Type prpUpdateEventType,
-			@NonNull PublishedSaplDocument... publishedSaplDocuments) {
+			PublishedSaplDocument... publishedSaplDocuments) {
 		notifyAboutChangedPublicationOfSaplDocument(prpUpdateEventType, Lists.newArrayList(publishedSaplDocuments));
 	}
 
 	private void notifyAboutChangedPublicationOfSaplDocument(PrpUpdateEvent.Type prpUpdateEventType,
-			@NonNull Iterable<PublishedSaplDocument> publishedSaplDocuments) {
+			Iterable<PublishedSaplDocument> publishedSaplDocuments) {
 		List<PrpUpdateEvent.Update> updateEvents = Streamable.of(publishedSaplDocuments)
 				.map(publishedSaplDocument -> convertSaplDocumentToUpdateOfPrpUpdateEvent(publishedSaplDocument, prpUpdateEventType))
 				.toList();

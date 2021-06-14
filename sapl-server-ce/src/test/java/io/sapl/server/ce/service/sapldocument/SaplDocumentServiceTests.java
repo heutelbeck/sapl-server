@@ -30,6 +30,7 @@ import io.sapl.server.ce.model.sapldocument.SaplDocumentVersion;
 import io.sapl.server.ce.persistence.PublishedSaplDocumentRepository;
 import io.sapl.server.ce.persistence.SaplDocumentsRepository;
 import io.sapl.server.ce.persistence.SaplDocumentsVersionRepository;
+import org.springframework.dao.DataIntegrityViolationException;
 import reactor.core.publisher.Flux;
 
 @ExtendWith(MockitoExtension.class)
@@ -174,6 +175,11 @@ public class SaplDocumentServiceTests {
                 .thenReturn(new DocumentAnalysisResult(true, saplDocumentValue, DocumentType.POLICY, null));
 
         SaplDocumentService saplDocumentService = getSaplDocumentService();
+
+        Assertions.assertThrows(NullPointerException.class, () -> {
+            saplDocumentService.createVersion(saplDocument.getId(), null);
+        });
+
         SaplDocumentVersion newVersion =
                 saplDocumentService.createVersion(saplDocument.getId(), saplDocumentValue);
         verify(saplInterpreter, times(1))
@@ -292,6 +298,30 @@ public class SaplDocumentServiceTests {
         assertEquals(1, relevantUpdates.length);
         assertEquals(secondVersion.getValue(), relevantUpdates[0].getRawDocument());
         assertEquals(PrpUpdateEvent.Type.PUBLISH, relevantUpdates[0].getType());
+    }
+
+    @Test
+    public void publishPolicyVersion_preventCollingVersion() {
+        final SaplDocument saplDocument = new SaplDocument();
+        final SaplDocumentVersion version = new SaplDocumentVersion()
+                .setId((long)2)
+                .setVersionNumber(1)
+                .setName("foo name")
+                .setValue("foo")
+                .setSaplDocument(saplDocument);
+        saplDocument
+                .setId((long)1)
+                .setVersions(List.of(version));
+
+        when(saplDocumentRepository.findById(saplDocument.getId())).thenReturn(Optional.of(saplDocument));
+
+        // calling findAll is used to force checking database constraints after creating published version
+        when(publishedSaplDocumentRepository.findAll()).thenThrow(new DataIntegrityViolationException("invalid"));
+
+        SaplDocumentService saplDocumentService = getSaplDocumentService();
+        Assertions.assertThrows(PublishedDocumentNameCollisionException.class, () -> {
+            saplDocumentService.publishPolicyVersion(saplDocument.getId(), version.getVersionNumber());
+        });
     }
 
     @Test

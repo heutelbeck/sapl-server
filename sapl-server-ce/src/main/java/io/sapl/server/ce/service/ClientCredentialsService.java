@@ -66,31 +66,14 @@ public class ClientCredentialsService implements UserDetailsService, Serializabl
 				.build();
 	}
 
-	/**
-	 * Gets all {@link ClientCredentials}s.
-	 * 
-	 * @return the instances
-	 */
 	public Collection<ClientCredentials> getAll() {
 		return clientCredentialsRepository.findAll();
 	}
 
-	/**
-	 * Gets the amount of {@link ClientCredentials}s.
-	 * 
-	 * @return the amount
-	 */
 	public long getAmount() {
 		return clientCredentialsRepository.count();
 	}
 
-	/**
-	 * Creates a new {@link ClientCredentials} with generated values for key and
-	 * secret.
-	 * 
-	 * @return a tuple containing the created {@link ClientCredentials} and the non
-	 *         encoded secret
-	 */
 	public Tuple2<ClientCredentials, String> createDefault() {
 		String secret = generateFormattedUuid();
 
@@ -105,20 +88,15 @@ public class ClientCredentialsService implements UserDetailsService, Serializabl
 		return Tuples.of(createdClientCredentials, secret);
 	}
 
-	/**
-	 * Deletes a specific {@link ClientCredentials}.
-	 * 
-	 * @param id the id of the {@link ClientCredentials} to delete
-	 */
 	public void delete(@NonNull Long id) {
 		clientCredentialsRepository.deleteById(id);
 	}
 
-	private static String generateFormattedUuid() {
-		return UUID.randomUUID().toString().replace("-", "");
+	public String encodeSecret(@NonNull String secret) {
+		return passwordEncoder.encode(secret);
 	}
 
-	private String encodeSecret(@NonNull String secret) {
-		return passwordEncoder.encode(secret);
+	private static String generateFormattedUuid() {
+		return UUID.randomUUID().toString().replace("-", "");
 	}
 }

@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 import java.util.Arrays;
 import java.util.Collections;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -95,6 +96,10 @@ public class CombiningAlgorithmServiceTests {
     @Test
     public void setSelected() {
         CombiningAlgorithmService combiningAlgorithmService = getCombiningAlgorithmService();
+
+        Assertions.assertThrows(NullPointerException.class, () -> {
+            combiningAlgorithmService.setSelected(null);
+        });
 
         int invocationCounter = 0;
         for (PolicyDocumentCombiningAlgorithm algorithm : PolicyDocumentCombiningAlgorithm.values()) {

@@ -81,7 +81,7 @@ public class VariablesService {
 		return variable;
 	}
 
-	private void checkForInvalidName(@NonNull String name) throws InvalidVariableNameException {
+	private void checkForInvalidName(String name) throws InvalidVariableNameException {
 		int nameLength = name.length();
 		if (nameLength < MIN_NAME_LENGTH || nameLength > MAX_NAME_LENGTH) {
 			throw new InvalidVariableNameException(name);
@@ -121,7 +121,7 @@ public class VariablesService {
 		publishVariables();
 	}
 
-	private static void checkIsJsonValue(@NonNull String jsonValue) throws InvalidJsonException {
+	private static void checkIsJsonValue(String jsonValue) throws InvalidJsonException {
 		if (jsonValue.isBlank()) {
 			throw new InvalidJsonException(jsonValue);
 		}
@@ -150,7 +150,7 @@ public class VariablesService {
 	 * @throws DuplicatedVariableNameException thrown if the name is already used by
 	 *                                         another variable
 	 */
-	private void checkForDuplicatedName(@NonNull String name, Long id) throws DuplicatedVariableNameException {
+	private void checkForDuplicatedName(String name, Long id) throws DuplicatedVariableNameException {
 		Collection<Variable> variablesWithName = variableRepository.findByName(name);
 
 		boolean isAnyVariableWithNameExisting = variablesWithName.stream()

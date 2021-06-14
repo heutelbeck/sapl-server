@@ -139,8 +139,28 @@ public class ClientCredentialsServiceTests {
         final long id = 19;
 
         ClientCredentialsService clientCredentialsService = getClientCredentialsService();
+
+        Assertions.assertThrows(NullPointerException.class, () -> {
+            clientCredentialsService.delete(null);
+        });
+
         clientCredentialsService.delete(id);
         verify(clientCredentialsRepository, times(1)).deleteById(id);
+    }
+
+    @Test
+    public void encodeSecret() {
+        final String encoded = "encoded";
+
+        ClientCredentialsService clientCredentialsService = getClientCredentialsService();
+
+        Assertions.assertThrows(NullPointerException.class, () -> {
+            clientCredentialsService.encodeSecret(null);
+        });
+
+        when(passwordEncoder.encode(any())).thenAnswer(i -> encoded);
+        assertEquals(encoded, clientCredentialsService.encodeSecret("secret"));
+        verify(passwordEncoder, times(1)).encode(any());
     }
 
     private ClientCredentialsService getClientCredentialsService() {

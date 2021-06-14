@@ -91,6 +91,10 @@ public class VariablesServiceTests {
 
         VariablesService variablesService = getVariablesService();
 
+        Assertions.assertThrows(NullPointerException.class, () -> {
+            variablesService.create(null);
+        });
+
         Variable firstVariable = variablesService.create(firstVariableName);
         verify(variableRepository, times(1)).save(any());
         assertEquals(firstVariableName, firstVariable.getName());
@@ -140,6 +144,13 @@ public class VariablesServiceTests {
         final String newJsonValue = "{ \"foo\" : \"bar\" }";
 
         VariablesService variablesService = getVariablesService();
+
+        Assertions.assertThrows(NullPointerException.class, () -> {
+            variablesService.edit(1, null, "json");
+        });
+        Assertions.assertThrows(NullPointerException.class, () -> {
+            variablesService.edit(1, "name", null);
+        });
 
         when(variableRepository.findById(existingVariable.getId())).thenReturn(Optional.of(existingVariable));
         Variable editedVariable = variablesService.edit(existingVariable.getId(), newName, newJsonValue);
@@ -219,6 +230,10 @@ public class VariablesServiceTests {
                 .setJsonValue(VariablesService.DEFAULT_JSON_VALUE);
 
         VariablesService variablesService = getVariablesService();
+
+        Assertions.assertThrows(NullPointerException.class, () -> {
+            variablesService.delete(null);
+        });
 
         when(variableRepository.findById(variableToDelete.getId())).thenReturn(Optional.of(variableToDelete));
         variablesService.delete(variableToDelete.getId());
