@@ -100,6 +100,7 @@ class JSONEditor extends LitElement {
     }
   }
 
+  // ServerCallable
   setEditorDocument(element, document) {
     this.document = document;
     if(element.editor !== undefined) {
@@ -129,6 +130,17 @@ class JSONEditor extends LitElement {
 
     if(isEditorSet) {
       this.setEditorOption('readOnly', this.isReadOnly);
+    }
+  }
+
+  // ServerCallable
+  onRefreshEditor() {
+    let isEditorSet = this.editor !== undefined;
+    console.debug('JsonEditor: onRefreshEditor', isEditorSet);
+
+    if(isEditorSet) {
+      console.debug('JsonEditor: refresh Editor');
+      this.editor.refresh();
     }
   }
 
