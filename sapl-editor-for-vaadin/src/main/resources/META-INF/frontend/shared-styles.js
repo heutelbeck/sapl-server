@@ -543,7 +543,7 @@ export const AutocompleteWidgetStyle = css`
     position: absolute;
     left: 0px;
     top: 0px;
-    width: '1px;
+    width: 1px;
     height: 1px;
 }
 `
