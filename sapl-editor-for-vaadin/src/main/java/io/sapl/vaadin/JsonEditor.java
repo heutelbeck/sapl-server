@@ -34,7 +34,7 @@ public class JsonEditor extends BaseEditor {
 		applyBaseConfiguration(element, config);
 	}
 	
-	public void Refresh() {
+	public void refresh() {
 		Element element = getElement();
 		element.callJsFunction("onRefreshEditor");
 	}
