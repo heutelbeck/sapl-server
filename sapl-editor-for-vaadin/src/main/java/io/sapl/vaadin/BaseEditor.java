@@ -22,6 +22,7 @@ import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.dom.Element;
 
+@SuppressWarnings("serial")
 public class BaseEditor extends Component {
 
 	private static final String IsReadOnlyKey = "isReadOnly";

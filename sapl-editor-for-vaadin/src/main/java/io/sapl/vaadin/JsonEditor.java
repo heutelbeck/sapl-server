@@ -27,6 +27,7 @@ import com.vaadin.flow.dom.Element;
 @JavaScript("./jsonlint.js")
 @NpmPackage(value = "jquery", version = "3.4.1")
 @NpmPackage(value = "codemirror", version = "5.52.2")
+@SuppressWarnings("serial")
 public class JsonEditor extends BaseEditor {
 
 	public JsonEditor(JsonEditorConfiguration config) {
