@@ -123,7 +123,7 @@ public class PublishedPoliciesView extends PolymerTemplate<PublishedPoliciesView
                     .limit(query.getLimit());
         }, query -> (int) saplDocumentService.getPublishedAmount());
         grid.setSelectionMode(Grid.SelectionMode.SINGLE);
-        grid.setHeightByRows(true);
+        grid.setAllRowsVisible(true);
         grid.setPageSize(25);
         grid.setDataProvider(dataProvider);
         grid.setMultiSort(false);

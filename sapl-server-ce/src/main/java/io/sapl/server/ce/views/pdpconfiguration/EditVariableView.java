@@ -15,6 +15,8 @@
  */
 package io.sapl.server.ce.views.pdpconfiguration;
 
+import java.util.Optional;
+
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.JsModule;
@@ -26,6 +28,7 @@ import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.templatemodel.TemplateModel;
+
 import io.sapl.server.ce.model.pdpconfiguration.Variable;
 import io.sapl.server.ce.service.pdpconfiguration.DuplicatedVariableNameException;
 import io.sapl.server.ce.service.pdpconfiguration.InvalidJsonException;
@@ -36,8 +39,6 @@ import io.sapl.server.ce.views.utils.error.ErrorNotificationUtils;
 import io.sapl.vaadin.JsonEditor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.Optional;
 
 @Tag("edit-variable")
 @Route(value = EditVariableView.ROUTE, layout = MainView.class)

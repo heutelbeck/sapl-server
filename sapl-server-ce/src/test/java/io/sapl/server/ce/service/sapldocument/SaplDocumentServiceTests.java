@@ -1,7 +1,8 @@
 package io.sapl.server.ce.service.sapldocument;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -19,6 +20,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import io.sapl.interpreter.DocumentAnalysisResult;
 import io.sapl.interpreter.DocumentType;
@@ -30,7 +32,6 @@ import io.sapl.server.ce.model.sapldocument.SaplDocumentVersion;
 import io.sapl.server.ce.persistence.PublishedSaplDocumentRepository;
 import io.sapl.server.ce.persistence.SaplDocumentsRepository;
 import io.sapl.server.ce.persistence.SaplDocumentsVersionRepository;
-import org.springframework.dao.DataIntegrityViolationException;
 import reactor.core.publisher.Flux;
 
 @ExtendWith(MockitoExtension.class)
@@ -290,7 +291,7 @@ public class SaplDocumentServiceTests {
         assertNotNull(relevantUpdates);
         assertEquals(1, relevantUpdates.length);
         assertEquals(firstVersion.getValue(), relevantUpdates[0].getRawDocument());
-        assertEquals(PrpUpdateEvent.Type.UNPUBLISH, relevantUpdates[0].getType());
+        assertEquals(PrpUpdateEvent.Type.WITHDRAW, relevantUpdates[0].getType());
 
         relevantPrpUpdateEvent = prpUpdateEvents.get(3);
         relevantUpdates = relevantPrpUpdateEvent.getUpdates();

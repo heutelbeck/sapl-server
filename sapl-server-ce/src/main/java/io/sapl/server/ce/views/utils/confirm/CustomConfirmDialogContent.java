@@ -52,6 +52,7 @@ public class CustomConfirmDialogContent
 
 	/**
 	 * Creates a new CustomConfirmDialogContent.
+	 * @param message a message
 	 */
 	public CustomConfirmDialogContent(@NonNull String message) {
 		messageDiv.setText(message);

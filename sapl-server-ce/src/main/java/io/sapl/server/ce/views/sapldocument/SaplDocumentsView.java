@@ -101,7 +101,7 @@ public class SaplDocumentsView extends PolymerTemplate<SaplDocumentsView.ListSap
 		}, query -> (int) saplDocumentService.getAmount());
 		saplDocumentGrid.setDataProvider(dataProvider);
 
-		saplDocumentGrid.setHeightByRows(true);
+		saplDocumentGrid.setAllRowsVisible(true);
 	}
 
 	/**

@@ -193,7 +193,7 @@ public class SaplDocumentService implements PrpUpdateEventSource {
 		log.info("unpublish version {} of SAPL document with id {} (name: {})", publishedVersion.getVersionNumber(),
 				saplDocumentId, saplDocumentToUnpublish.getName());
 
-		notifyAboutChangedPublicationOfSaplDocument(PrpUpdateEvent.Type.UNPUBLISH, deletedPublishedSaplDocument);
+		notifyAboutChangedPublicationOfSaplDocument(PrpUpdateEvent.Type.WITHDRAW, deletedPublishedSaplDocument);
 	}
 
 	public Collection<PublishedSaplDocument> getPublishedSaplDocuments() {

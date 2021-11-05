@@ -197,7 +197,7 @@ public class ConfigurePdp extends PolymerTemplate<ConfigurePdp.ConfigurePdpModel
 		}, query -> (int) variablesService.getAmount());
 		variablesGrid.setDataProvider(dataProvider);
 
-		variablesGrid.setHeightByRows(true);
+		variablesGrid.setAllRowsVisible(true);
 	}
 
 	/**
