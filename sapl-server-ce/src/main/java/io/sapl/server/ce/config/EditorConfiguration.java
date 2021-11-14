@@ -17,6 +17,7 @@ package io.sapl.server.ce.config;
 
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 import io.sapl.grammar.web.SAPLServlet;
@@ -27,6 +28,7 @@ import io.sapl.vaadin.SaplEditorConfiguration;
  * Collection of initialization methods for Spring beans for editos.
  */
 @Configuration
+@ComponentScan("io.sapl.grammar.ide.contentassist")
 public class EditorConfiguration {
 	/**
 	 * Registers the bean {@link ServletRegistrationBean} with generic type
