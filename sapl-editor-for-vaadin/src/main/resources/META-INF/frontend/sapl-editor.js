@@ -1,5 +1,7 @@
 import { LitElement, html } from 'lit-element';
 import { CodeMirrorStyles, CodeMirrorLintStyles, CodeMirrorHintStyles, XTextAnnotationsStyles, AutocompleteWidgetStyle, ReadOnlyStyle, HeightFix } from './shared-styles.js';
+import * as xtext from './xtext-codemirror.min';
+import * as saplmode from './sapl-mode';
 
 class SAPLEditor extends LitElement {
 
@@ -58,44 +60,38 @@ class SAPLEditor extends LitElement {
     return this._isReadOnly; 
   }
 
-  connectedCallback() {
-    super.connectedCallback();
-
+  firstUpdated(changedProperties) {
     var self = this;
     var shadowRoot = self.shadowRoot;
 
     var widget_container = document.createElement("div");
     widget_container.id = "widgetContainer";
+    shadowRoot.appendChild(widget_container);
 
-    require(["./xtext-codemirror.min",
-      "./sapl-mode"], function (xtext, mode) {
-        self.editor = xtext.createEditor({
-          document: shadowRoot,
-          xtextLang: self.xtextLang,
-          sendFullText: true,
-          syntaxDefinition: mode,
-          readOnly: self.isReadOnly,
-          lineNumbers: self.hasLineNumbers,
-          showCursorWhenSelecting: true,
-          enableValidationService: true,
-          textUpdateDelay: self.textUpdateDelay,
-          gutters: ["CodeMirror-lint-markers"],
-          extraKeys: {"Ctrl-Space": "autocomplete"},
-          hintOptions: { 
-            container: widget_container
-          }
-        });
+    self.editor = xtext.createEditor({
+      document: shadowRoot,
+      xtextLang: self.xtextLang,
+      sendFullText: true,
+      syntaxDefinition: saplmode,
+      readOnly: self.isReadOnly,
+      lineNumbers: self.hasLineNumbers,
+      showCursorWhenSelecting: true,
+      enableValidationService: true,
+      textUpdateDelay: self.textUpdateDelay,
+      gutters: ["CodeMirror-lint-markers"],
+      extraKeys: {"Ctrl-Space": "autocomplete"},
+      hintOptions: { 
+        container: widget_container
+      }
+    });
 
-        self.editor.doc.setValue(self.document);
-        self.editor.doc.on("change", function (doc, changeObj) {
-          var value = doc.getValue();
-          self.onDocumentChanged(value);
-        });
+    self.editor.doc.setValue(self.document);
+    self.editor.doc.on("change", function (doc, changeObj) {
+      var value = doc.getValue();
+      self.onDocumentChanged(value);
+    });
 
-        self.registerValidationCallback(self.editor);
-
-        shadowRoot.appendChild(widget_container);
-      });
+    self.registerValidationCallback(self.editor);
   }
 
   registerValidationCallback(editor) {
