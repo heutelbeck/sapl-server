@@ -17,13 +17,12 @@ package io.sapl.vaadin;
 
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.JavaScript;
+import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dependency.NpmPackage;
 import com.vaadin.flow.dom.Element;
 
 @Tag("json-editor")
-@JavaScript("jquery/dist/jquery.min.js")
-@JavaScript("./json-editor.js")
-@JavaScript("./shared-styles.js")
+@JsModule("./json-editor.js")
 @JavaScript("./jsonlint.js")
 @NpmPackage(value = "jquery", version = "3.4.1")
 @NpmPackage(value = "codemirror", version = "5.52.2")

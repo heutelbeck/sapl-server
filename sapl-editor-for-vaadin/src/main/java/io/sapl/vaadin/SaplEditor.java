@@ -20,7 +20,7 @@ import java.util.List;
 
 import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.Tag;
-import com.vaadin.flow.component.dependency.JavaScript;
+import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dependency.NpmPackage;
 import com.vaadin.flow.dom.Element;
 
@@ -28,9 +28,7 @@ import elemental.json.JsonArray;
 import elemental.json.JsonObject;
 
 @Tag("sapl-editor")
-@JavaScript("jquery/dist/jquery.min.js")
-@JavaScript("./sapl-editor.js")
-@JavaScript("./shared-styles.js")
+@JsModule("./sapl-editor.js")
 @NpmPackage(value = "jquery", version = "3.4.1")
 @NpmPackage(value = "codemirror", version = "5.52.2")
 public class SaplEditor extends BaseEditor {
