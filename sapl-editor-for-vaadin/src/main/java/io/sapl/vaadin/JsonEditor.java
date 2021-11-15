@@ -16,14 +16,13 @@
 package io.sapl.vaadin;
 
 import com.vaadin.flow.component.Tag;
-import com.vaadin.flow.component.dependency.JavaScript;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dependency.NpmPackage;
 import com.vaadin.flow.dom.Element;
 
 @Tag("json-editor")
 @JsModule("./json-editor.js")
-@JavaScript("./jsonlint.js")
+@NpmPackage(value = "jsonlint-webpack", version ="1.1.0")
 @NpmPackage(value = "jquery", version = "3.4.1")
 @NpmPackage(value = "codemirror", version = "5.52.2")
 public class JsonEditor extends BaseEditor {

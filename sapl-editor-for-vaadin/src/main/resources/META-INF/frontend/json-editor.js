@@ -4,7 +4,7 @@ import * as codemirror from 'codemirror';
 import 'codemirror/mode/javascript/javascript';
 import 'codemirror/addon/lint/lint';
 import 'codemirror/addon/lint/json-lint';
-import * as jsonlint from './jsonlint';
+import * as jsonlint from 'jsonlint-webpack';
 
 class JSONEditor extends LitElement {
 
