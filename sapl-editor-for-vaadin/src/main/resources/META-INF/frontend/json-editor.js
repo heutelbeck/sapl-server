@@ -1,5 +1,10 @@
 import { LitElement, html } from 'lit-element';
 import { CodeMirrorStyles, CodeMirrorLintStyles, CodeMirrorHintStyles, HeightFix, ReadOnlyStyle } from './shared-styles.js';
+import * as codemirror from 'codemirror';
+import 'codemirror/mode/javascript/javascript';
+import 'codemirror/addon/lint/lint';
+import 'codemirror/addon/lint/json-lint';
+import * as jsonlint from './jsonlint';
 
 class JSONEditor extends LitElement {
 
@@ -54,40 +59,28 @@ class JSONEditor extends LitElement {
     return this._isReadOnly; 
   }
 
-  connectedCallback() {
-    super.connectedCallback();
+  firstUpdated(changedProperties) {
+    window.jsonlint = jsonlint;
 
     var self = this;
-    var shadowRoot = self.shadowRoot;
 
-    require(["codemirror",
-      "codemirror/mode/javascript/javascript",
-      "./jsonlint",
-      "codemirror/addon/lint/lint",
-      "codemirror/addon/lint/json-lint",
-      ], 
-      function (codemirror, mode, jsonlint, cmlint, cmjsonlint) {
-        
-        window.jsonlint = jsonlint;
+    self.editor = codemirror(self.shadowRoot, {
+      value: self.document,
+      mode: "application/json",
+      gutters: ["CodeMirror-lint-markers"],
+      readOnly: self.isReadOnly,
+      lineNumbers: self.hasLineNumbers,
+      showCursorWhenSelecting: true,
+      textUpdateDelay: self.textUpdateDelay,
+      lint: {
+        selfContain: true
+      },
+    });
 
-        self.editor = codemirror(shadowRoot, {
-          value: self.document,
-          mode: "application/json",
-          gutters: ["CodeMirror-lint-markers"],
-          readOnly: self.isReadOnly,
-          lineNumbers: self.hasLineNumbers,
-          showCursorWhenSelecting: true,
-          textUpdateDelay: self.textUpdateDelay,
-          lint: {
-            selfContain: true
-          },
-        });
-
-        self.editor.on("change", function(cm, changeObj) {
-          var value = cm.getValue();
-          self.onDocumentChanged(value);
-        });
-      });
+    self.editor.on("change", function(cm, changeObj) {
+      var value = cm.getValue();
+      self.onDocumentChanged(value);
+    });
   }
 
   onDocumentChanged(value) {
