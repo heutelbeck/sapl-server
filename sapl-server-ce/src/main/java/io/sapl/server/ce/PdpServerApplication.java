@@ -26,6 +26,7 @@ import com.vaadin.flow.spring.annotation.EnableVaadin;
  */
 @EnableVaadin("io.sapl.server.ce")
 @ComponentScan("io.sapl.server") // Scan PDP Endpoint
+@ComponentScan("io.sapl.grammar.ide.contentassist") // Scan Editor Backend
 @SpringBootApplication(exclude = org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration.class)
 public class PdpServerApplication {
 	/**
