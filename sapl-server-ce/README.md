@@ -20,7 +20,7 @@ For running the server locally two modes are available. The default mode is a de
 Run the server:
 
 ```
-java -jar sapl-server-ce-2.0.0-SNAPSHOT.jar
+java -jar sapl-server-ce-2.0.0.jar
 ```
 
 You can access the servers UI under [https://localhost:8443/](https://localhost:8443/)
@@ -35,7 +35,7 @@ To login use the demo credentials:
 The JAR comes with a second demo profile to use a local MariaDB for persistence: 
 
 ```
-java -Dspring.profiles.active=mariadb -jar sapl-server-ce-2.0.0-SNAPSHOT.jar
+java -Dspring.profiles.active=mariadb -jar sapl-server-ce-2.0.0.jar
 ```
 
 The login for the Web UI is the same as for the demo profile. It expects MariaDB to run on localhost and 
