@@ -99,11 +99,11 @@ The beans for `FunctionContext` and `AttributeContext` are only needed if the se
 
 The editor can simply be created and added like a normal UI element.
 ```java
-    public MainView() {
-    	SaplEditor saplEditor = new SaplEditor(new SaplEditorConfiguration());
-    	saplEditor.setDocument("policy \"example\" permit");
-    	add(saplEditor);
-    }
+public MainView() {
+    SaplEditor saplEditor = new SaplEditor(new SaplEditorConfiguration());
+    saplEditor.setDocument("policy \"example\" permit");
+    add(saplEditor);
+}
 ```
 
 ### Configuration
@@ -229,12 +229,10 @@ This class is used to write configuration files in JSON.
 
 The editor can simply be created and added like a normal UI element.
 ```java
-public class JavabasedViewView extends Div {
-    public JavabasedViewView() {
-        setId("javabased-view-view");
-        JsonEditor jsonEditor = new JsonEditor(new JsonEditorConfiguration());
-        add(jsonEditor);
-    }
+public MainView() {
+    JsonEditor jsonEditor = new JsonEditor(new JsonEditorConfiguration());
+    jsonEditor.setDocument("[{\"example\": 1}]");
+    add(jsonEditor);
 }
 ```
 
