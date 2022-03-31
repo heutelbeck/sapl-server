@@ -42,10 +42,10 @@ jobs:
               "password": "${{ secrets.GHUB_ACCESS_TOKEN }}"
            }]
     
-    - name: Set up Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '16'
+#    - name: Set up Node.js
+#      uses: actions/setup-node@v2
+#      with:
+#        node-version: '16'
     
     - name: Cache Maven dependencies
       uses: actions/cache@v2      
