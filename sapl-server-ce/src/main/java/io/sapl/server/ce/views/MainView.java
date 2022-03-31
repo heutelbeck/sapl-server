@@ -70,6 +70,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Push
 @Slf4j
+@SuppressWarnings("deprecation")
 @Theme(value = Lumo.class, variant = Lumo.DARK)
 @JsModule("./styles/shared-styles.js")
 @CssImport("./styles/views/main/main-view.css")

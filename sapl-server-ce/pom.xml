@@ -14,9 +14,8 @@
 
 	<parent>
 		<groupId>io.sapl</groupId>
-		<artifactId>sapl-policy-engine</artifactId>
+		<artifactId>sapl-server</artifactId>
 		<version>2.1.0-SNAPSHOT</version>
-		<relativePath />
 	</parent>
 
 	<artifactId>sapl-server-ce</artifactId>
@@ -25,6 +24,18 @@
 	<name>SAPL Server CE</name>
 
 	<description>SAPL Server CE</description>
+	
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>com.vaadin</groupId>
+				<artifactId>vaadin-bom</artifactId>
+				<version>${vaadin.internal.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
 	<dependencies>
 		<dependency>
@@ -79,7 +90,7 @@
 		<dependency>
 			<groupId>io.github.bonigarcia</groupId>
 			<artifactId>webdrivermanager</artifactId>
-			<version>3.8.1</version>
+			<version>5.1.0</version>
 			<scope>test</scope>
 		</dependency>
 
@@ -183,6 +194,7 @@
 			<plugin>
 				<groupId>com.vaadin</groupId>
 				<artifactId>vaadin-maven-plugin</artifactId>
+				<version>${vaadin.internal.version}</version>				
 				<executions>
 					<execution>
 						<?m2e ignore?>
