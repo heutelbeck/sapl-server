@@ -28,7 +28,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import io.sapl.server.ce.service.ClientCredentialsService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -37,13 +39,13 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	public static final String PDP_CLIENT_ROLE = "PDP_CLIENT";
 
 	private static final String LOGIN_PROCESSING_URL = "/login";
-	private static final String LOGIN_FAILURE_URL = "/login";
-	private static final String LOGIN_URL = "/login";
-	private static final String LOGOUT_SUCCESS_URL = "/login";
-	private static final String API_PATHS = "/api/**";
+	private static final String LOGIN_FAILURE_URL    = "/login";
+	private static final String LOGIN_URL            = "/login";
+	private static final String LOGOUT_SUCCESS_URL   = "/login";
+	private static final String API_PATHS            = "/api/**";
 
 	private final ClientCredentialsService clientCredentialsService;
-	private final PasswordEncoder passwordEncoder;
+	private final PasswordEncoder          passwordEncoder;
 
 	@Value("${io.sapl.server.admin-username}")
 	private String adminUsername;
@@ -128,6 +130,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+		log.error("Admin user    : ->{}<-", adminUsername);
+		log.error("Admin password: ->{}<-", encodedAdminPassword);
+
 		// @formatter:off
 		auth.inMemoryAuthentication()
 			.withUser(adminUsername).password(encodedAdminPassword)
