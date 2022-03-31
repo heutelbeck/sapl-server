@@ -28,9 +28,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import io.sapl.server.ce.service.ClientCredentialsService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -130,9 +128,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-		log.error("Admin user    : ->{}<-", adminUsername);
-		log.error("Admin password: ->{}<-", encodedAdminPassword);
-
 		// @formatter:off
 		auth.inMemoryAuthentication()
 			.withUser(adminUsername).password(encodedAdminPassword)
