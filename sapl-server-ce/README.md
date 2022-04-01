@@ -42,7 +42,7 @@ The login for the Web UI is the same as for the demo profile. It expects MariaDB
 
 The host configuration and credentials for both the MariaDB and the Web UI can be fully customized by overriding the respective configuration properties. 
 
-The properties: <https://github.com/heutelbeck/sapl-policy-engine/blob/master/sapl-server-ce/src/main/resources/application-local.yml>
+The properties: <https://github.com/heutelbeck/sapl-server/blob/main/sapl-server-ce/src/main/resources/application-mariadb.yml>
 How to override: <https://docs.spring.io/spring-boot/docs/2.1.9.RELEASE/reference/html/boot-features-external-config.html>
 
 For testing you can use a public bcrypt hashing tool (e.g., <https://bcrypt-generator.com/>) to generate the password configuration for the user. Make sure to prepend `{bcrypt}` to the hash.   
@@ -126,8 +126,147 @@ mkcert -pkcs12 -p12-file self-signed-cert.p12 localhost 127.0.0.1 ::1
 
 ## Containerized Cloud Deployment
 
-TBD
+### Running on Kubernetes
 
+This section will describe the deployment on a baremetal Kubernetes installation on a Linux system like Ubuntu server which has Port 80 and 443 exposed to the Internet 
+and will use the Kubernetes nginx-ingress-controller as well as cert-manager to manage the Let's Encrypt certificates (Only if Ports are exposed to the Internet so Let's Encrypt can access the URL)
+
+#### Prerequisites
+
+Installed Kubernetes v1.23 
+
+Install a MariaDB instance with Helm (you have to create a persistent Volume with the storageclass saplcedb first (Example ttps://raw.githubusercontent.com/heutelbeck/sapl-server/main/sapl-server-ce/kubernetes/sapl-server-ce-db-pv.yml )
+```
+kubectl create namespace sapl-server-ce
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm install sapl-ce-mariadb --set auth.rootPassword=Q8g7SvwDso5svlebNLQO,auth.username=saplce,auth.password=cvm72OadXaOGgbQ5F9ao,primary.persistence.storageClass=saplcedb bitnami/mariadb -n sapl-server-ce
+```
+
+Log into the pod and create Database with Latin-1
+```
+kubectl exec --stdin --tty -n sapl-server-ce sapl-ce-mariadb-0 -- /bin/bash
+mysql -u root -p
+CREATE DATABASE saplce CHARACTER SET = 'latin1' COLLATE = 'latin1_swedish_ci';
+GRANT ALL PRIVILEGES ON saplce.* TO `saplce`@`%`;
+FLUSH Privileges;
+```
+
+#### Kubernetes Deployment with Let's Encrypt Certificate
+
+This section assumes that the Kubernetes is installed on a Linux OS f.e. Ubuntu with exposed ports 80 and 443 to the internet and matching DNS entries.
+
+Install NGINX Ingress Controller according to https://kubernetes.github.io/ingress-nginx/deploy/
+
+```shell
+helm upgrade --install ingress-nginx ingress-nginx --repo https://kubernetes.github.io/ingress-nginx --namespace ingress-nginx --create-namespace --set controller.hostNetwork=true,controller.kind=DaemonSet
+```
+
+Install Cert-Manager according to https://cert-manager.io/docs/installation/kubernetes/ 
+
+```shell
+kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.7.2/cert-manager.yaml
+```
+
+Change the Email address in the Clusterissuer.yaml (Line email: user@email.com)
+
+```shell
+wget https://raw.githubusercontent.com/heutelbeck/sapl-server/main/sapl-server-ce/kubernetes/clusterissuer.yml
+kubectl apply -f clusterissuer.yml 
+```
+
+Apply the Persistent Volume yaml (or create persistent volumes with the storageclassnames detailed in the yaml file according to your preferred Method)
+
+```shell
+kubectl apply -f https://raw.githubusercontent.com/heutelbeck/sapl-server/main/sapl-server-ce/kubernetes/sapl-server-ce-pv.yml -n sapl-server-ce
+```
+
+Download the Config Files from the Kubernetes/config folder and copy them to the config directory specified in the config-section of sapl-server-ce-pv.yml `/data/sapl-server-ce/conf`
+
+```shell
+wget https://raw.githubusercontent.com/heutelbeck/sapl-server/main/sapl-server-ce/kubernetes/sapl-server-ce-TLS.tar
+tar -xf sapl-server-ce-TLS.tar -C /data/sapl-server-ce/conf
+```
+
+Then download the TLS yaml file 
+
+```shell
+wget https://raw.githubusercontent.com/heutelbeck/sapl-server/main/sapl-server-ce/kubernetes/sapl-server-ce-tls.yml
+```
+
+change the URL in the Ingress section 
+
+```
+  tls:
+    - hosts:
+        - saplce.exampleurl.com
+      secretName: saplce.lt.local-tls
+  rules:
+    - host: saplce.exampleurl.com
+```
+
+then apply the yaml file
+
+```shell
+kubectl apply -f sapl-server-ce-tls.yml -n sapl-server-ce
+```
+
+Change the Admin Login credentials 
+
+Edit the files admin-username and encoded-admin-password located in /data/sapl-server-ce/conf/io/sapl/server 
+For testing you can use a public bcrypt hashing tool (e.g., https://bcrypt-generator.com/) to generate the password configuration for the user. Make sure to prepend {bcrypt} to the hash.
+
+The service should be reachable under the URL defined in the Ingress section of the sapl-server-ce-tls.yml <https://sapl.exampleurl.com/>.
+
+#### Kubernetes Deployment with Nodeport 
+
+Under this section the Process is detailed with a custom certificate for Intranet testing
+
+
+Apply the Persistent Volume yaml (or create persistent volumes with the storageclassnames detailed in the yaml file according to your preferred Method)
+
+```shell
+kubectl apply -f https://raw.githubusercontent.com/heutelbeck/sapl-server/main/sapl-server-ce/kubernetes/sapl-server-ce-pv.yml -n sapl-server-ce
+```
+
+Download the Config Files from the Kubernetes/config folder and copy them to the config directory specified in the config-section of sapl-server-ce-pv.yml `/data/sapl-server-ce/conf`
+
+```shell
+wget https://raw.githubusercontent.com/heutelbeck/sapl-server/main/sapl-server-ce/kubernetes/sapl-server-ce-NodePort.tar
+tar -xf sapl-server-ce-NodePort.tar -C /data/sapl-server-ce/conf
+```
+
+Apply the NodePort yaml file 
+
+```shell
+kubectl apply -f https://raw.githubusercontent.com/heutelbeck/sapl-server/main/sapl-server-ce/kubernetes/sapl-server-ce-NodePort.yml
+```
+
+Change the Admin Login credentials 
+
+Edit the files admin-username and encoded-admin-password located in `/data/sapl-server-ce/conf/io/sapl/server` 
+For testing you can use a public bcrypt hashing tool (e.g., https://bcrypt-generator.com/) to generate the password configuration for the user. Make sure to prepend {bcrypt} to the hash.
+
+Identify the Port 
+
+```shell
+kubectl get services -n sapl-server-ce 
+```
+
+the output should look like:
+  
+sapl-server-ce NodePort 10.107.25.241 <none> 8443:30773/TCP 
+
+The service should be reachable in this Example under <https://localhost:30773/> or if you access it from another pc <https://server-ip-adress:30773/>.
+
+### Kubernetes Troubleshooting
+
+A pod constantly restarts:
+
+Check if the local directory can only be accessed by root and change it to the normal account.
+
+### Custom Policy Information Points (PIPs) in the Kubernetes Deployment
+
+The Pod internal folder `/pdp/data/lib` is mounted as a persistent Volume and can be accessed and manipulated on the path `/data/sapl-server-ce/lib/` see below
 
 ## Custom Policy Information Points (PIPs) or Function Libraries
 
