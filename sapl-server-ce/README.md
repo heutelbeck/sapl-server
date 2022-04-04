@@ -133,9 +133,14 @@ and will use the Kubernetes nginx-ingress-controller as well as cert-manager to 
 
 #### Prerequisites
 
-Installed Kubernetes v1.23 
+Installed Kubernetes v1.23 selfhostet on an Ubuntu Server (if you use a Commmercial Platform you have to create persistent Volumes yourself with the specified StorageClassNames) 
 
-Install a MariaDB instance with Helm (you have to create a persistent Volume with the storageclass saplcedb first (Example ttps://raw.githubusercontent.com/heutelbeck/sapl-server/main/sapl-server-ce/kubernetes/sapl-server-ce-db-pv.yml )
+Create a persistent Volume 
+```
+kubectl apply -f https://raw.githubusercontent.com/heutelbeck/sapl-server/main/sapl-server-ce/kubernetes/sapl-server-ce-db-pv.yml
+```
+
+Install a MariaDB instance with Helm 
 ```
 kubectl create namespace sapl-server-ce
 helm repo add bitnami https://charts.bitnami.com/bitnami
