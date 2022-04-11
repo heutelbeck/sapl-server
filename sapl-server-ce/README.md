@@ -10,7 +10,7 @@ on Docker and/or Kubernetes is available.
 
 ### Running the Server from Source
 
-Disclaimer: It is likely that you only need to run the server from source, if you are a contributor to the policy engine project.
+Disclaimer: It is likely that you only need to run the server from source if you are a contributor to the policy engine project.
 
 The source of the policy engine is found on the public [GitHub](https://github.com/) repository: <https://github.com/heutelbeck/sapl-policy-engine>.
 
@@ -30,7 +30,7 @@ The build is triggered by issuing the command:
 mvn clean install
 ```
 
-Afterwards, change to the folder ```sapl-policy-engine/sapl-server-ce``` and run the application:
+Afterward, change to the folder ```sapl-policy-engine/sapl-server-ce``` and run the application:
 
 ```shell
 mvn spring-boot:run
@@ -38,7 +38,7 @@ mvn spring-boot:run
 
 The server will startup in demo mode.
 
-To login use the demo credentials:
+To log in use the demo credentials:
 
 * Username: demo
 * Password: demo
@@ -47,7 +47,7 @@ To login use the demo credentials:
 > #### Note: Building a Docker Image
 > 
 > To build the docker image of the server application locally, you need to have docker installed on the build machine.
-> The image build is triggered by activating the docker maven profile of the project. This should result with the image installed in your local docker repository. Example:
+> The image build is triggered by activating the docker maven profile of the project. This should result in the image being installed in your local docker repository. Example:
 >
 > ```shell
 > mvn clean install -P docker,production,mariadb,!h2
@@ -70,7 +70,7 @@ server.ssl.key-alias=tomcat
 API access requires "Basic Auth". Use the Web UI to add client credentials. 
 
 
-The server is implemented using Spring Boot. Thus, there are a number of ways to configure the 
+The server is implemented using Spring Boot. Thus, there are several ways to configure the 
 application. 
 Please consult the matching chapter of the [Spring Boot documentation](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#boot-features-external-config).
 
@@ -94,12 +94,13 @@ mkcert -pkcs12 -p12-file self-signed-cert.p12 localhost 127.0.0.1 ::1
 
 ### Running on Kubernetes
 
-This section will describe the deployment on a baremetal Kubernetes installation on a Linux system like Ubuntu server which has Port 80 and 443 exposed to the Internet 
-and will use the Kubernetes nginx-ingress-controller as well as cert-manager to manage the Let's Encrypt certificates (Only if Ports are exposed to the Internet so Let's Encrypt can access the URL)
+This section will describe the deployment on a bare-metal Kubernetes installation on a Linux system like Ubuntu server which has Port 80 and 443 exposed to the Internet 
+and will use the Kubernetes Nginx-Ingress-Controller as well as cert-manager to manage the Let's Encrypt certificates (Only if Ports are exposed to the Internet so Let's Encrypt can access the URL)
 
 #### Prerequisites
 
-Installed Kubernetes v1.23 selfhostet on an Ubuntu Server (if you use a Commmercial Platform you have to create persistent Volumes yourself with the specified StorageClassNames) 
+This tutorial uses Kubernetes v1.23 self-hosted on an Ubuntu Server. If you use a Commercial Platform you have to create persistent Volumes yourself with the specified StorageClassNames.
+ 
 
 Create a persistent Volume 
 ```
@@ -145,7 +146,7 @@ wget https://raw.githubusercontent.com/heutelbeck/sapl-server/main/sapl-server-c
 kubectl apply -f clusterissuer.yml 
 ```
 
-Apply the Persistent Volume yaml (or create persistent volumes with the storageclassnames detailed in the yaml file according to your preferred Method)
+Apply the Persistent Volume YAML file (or create persistent volumes with the StorageClassNames detailed in the YAML file according to your preferred Method)
 
 ```shell
 kubectl apply -f https://raw.githubusercontent.com/heutelbeck/sapl-server/main/sapl-server-ce/kubernetes/sapl-server-ce-pv.yml -n sapl-server-ce
@@ -158,7 +159,7 @@ wget https://raw.githubusercontent.com/heutelbeck/sapl-server/main/sapl-server-c
 tar -xf sapl-server-ce-TLS.tar -C /data/sapl-server-ce/conf
 ```
 
-Then download the TLS yaml file 
+Then download the TLS YAML file 
 
 ```shell
 wget https://raw.githubusercontent.com/heutelbeck/sapl-server/main/sapl-server-ce/kubernetes/sapl-server-ce-tls.yml
@@ -175,7 +176,7 @@ change the URL in the Ingress section
     - host: saplce.exampleurl.com
 ```
 
-then apply the yaml file
+then apply the YAML file
 
 ```shell
 kubectl apply -f sapl-server-ce-tls.yml -n sapl-server-ce
@@ -190,10 +191,10 @@ The service should be reachable under the URL defined in the Ingress section of 
 
 #### Kubernetes Deployment with Nodeport 
 
-Under this section the Process is detailed with a custom certificate for Intranet testing
+Under this section, the Process is detailed with a custom certificate for Intranet testing.
 
 
-Apply the Persistent Volume yaml (or create persistent volumes with the storageclassnames detailed in the yaml file according to your preferred Method)
+Apply the Persistent Volume YAML file (or create persistent volumes with the StorageClassNames detailed in the YAML file according to your preferred Method).
 
 ```shell
 kubectl apply -f https://raw.githubusercontent.com/heutelbeck/sapl-server/main/sapl-server-ce/kubernetes/sapl-server-ce-pv.yml -n sapl-server-ce
@@ -206,7 +207,7 @@ wget https://raw.githubusercontent.com/heutelbeck/sapl-server/main/sapl-server-c
 tar -xf sapl-server-ce-NodePort.tar -C /data/sapl-server-ce/conf
 ```
 
-Apply the NodePort yaml file 
+Apply the NodePort YAML file 
 
 ```shell
 kubectl apply -f https://raw.githubusercontent.com/heutelbeck/sapl-server/main/sapl-server-ce/kubernetes/sapl-server-ce-NodePort.yml
@@ -223,7 +224,7 @@ Identify the Port
 kubectl get services -n sapl-server-ce 
 ```
 
-the output should look like:
+The output should look like this:
   
 sapl-server-ce NodePort 10.107.25.241 <none> 8443:30773/TCP 
 
@@ -241,9 +242,9 @@ The Pod internal folder `/pdp/data/lib` is mounted as a persistent Volume and ca
 
 ## Custom Policy Information Points (PIPs) or Function Libraries
 
-To support new attributes and functions, the matching libraries have to be deployed alongside the server application. One way to do so is to create your own server project and add the libraries to the dependencies of the application via maven dependencies and to add the matching packages to the component scanning of Spring Boot and/or to provide matching configurations. Alternatively the SAPL Server LT supports side-loading of external JARs. 
+To support new attributes and functions, the matching libraries have to be deployed alongside the server application. One way to do so is to create your own server project and add the libraries to the dependencies of the application via maven dependencies and to add the matching packages to the component scanning of Spring Boot and/or to provide matching configurations. Alternatively, the SAPL Server LT supports the side-loading of external JARs. 
 
-To load a custom PIP, the PIP has to be built as a JAR and all dependencies not already provided by the server have to be provided as JARs as well. Alternatively the PIP can be packaged as a so-called "fat JAR" including all dependencies. This can be achieved using the (Maven Dependency Plugin)[https://maven.apache.org/plugins/maven-dependency-plugin/] and an example for this approach can be found here: <https://github.com/heutelbeck/sapl-policy-engine/tree/master/sapl-pip-http>.
+To load a custom PIP, the PIP has to be built as a JAR and all dependencies not already provided by the server have to be provided as JARs as well. Alternatively, the PIP can be packaged as a so-called "fat JAR" including all dependencies. This can be achieved using the (Maven Dependency Plugin)[https://maven.apache.org/plugins/maven-dependency-plugin/] and an example for this approach can be found here: <https://github.com/heutelbeck/sapl-policy-engine/tree/master/sapl-pip-http>.
 
 The SAPL Server LT will scan all packages below ```io.sapl.server``` for Spring beans or configurations providing PIPs or Function libraries at startup and load them automatically. Thus, the custom libraries must provide at least a matching spring configuration under this package.
 
