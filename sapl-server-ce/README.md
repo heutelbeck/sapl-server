@@ -8,46 +8,6 @@ on Docker and/or Kubernetes is available.
 
 ## Local Execution
 
-### Running from Pre-Build JAR
-
-Download the latest build from [here](https://s01.oss.sonatype.org/content/repositories/snapshots/io/sapl/sapl-server-ce/).
-To run the server, you need JRE 11 or later installed. 
-
-#### Pre-Configured Demo Server
-
-For running the server locally two modes are available. The default mode is a demonstration mode with a self-signed TSL certificate, some demo credentials and a H2 in-memory database. By default, the database is configured to persist data under ```~/sapl/db```.
-
-Run the server:
-
-```
-java -jar sapl-server-ce-2.1.0-SNAPSHOT.jar
-```
-
-You can access the servers UI under [https://localhost:8443/](https://localhost:8443/)
-
-To login use the demo credentials:
-
-* Username: demo
-* Password: demo
-
-#### Run Server with Persistence in MariaDB
-
-The JAR comes with a second demo profile to use a local MariaDB for persistence: 
-
-```
-java -Dspring.profiles.active=mariadb -jar sapl-server-ce-2.1.0-SNAPSHOT.jar
-```
-
-The login for the Web UI is the same as for the demo profile. It expects MariaDB to run on localhost and 
-
-The host configuration and credentials for both the MariaDB and the Web UI can be fully customized by overriding the respective configuration properties. 
-
-The properties: <https://github.com/heutelbeck/sapl-server/blob/main/sapl-server-ce/src/main/resources/application-mariadb.yml>
-How to override: <https://docs.spring.io/spring-boot/docs/2.1.9.RELEASE/reference/html/boot-features-external-config.html>
-
-For testing you can use a public bcrypt hashing tool (e.g., <https://bcrypt-generator.com/>) to generate the password configuration for the user. Make sure to prepend `{bcrypt}` to the hash.   
-
-
 ### Running the Server from Source
 
 Disclaimer: It is likely that you only need to run the server from source, if you are a contributor to the policy engine project.
@@ -77,6 +37,12 @@ mvn spring-boot:run
 ```
 
 The server will startup in demo mode.
+
+To login use the demo credentials:
+
+* Username: demo
+* Password: demo
+
 
 > #### Note: Building a Docker Image
 > 
