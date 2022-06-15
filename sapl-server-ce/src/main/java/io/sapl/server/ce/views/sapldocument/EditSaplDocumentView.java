@@ -148,7 +148,7 @@ public class EditSaplDocumentView extends PolymerTemplate<EditSaplDocumentView.E
 
 			String document = saplEditor.getDocument();
 
-			if (selectedSaplDocumentVersion != null && selectedSaplDocumentVersion.getValue().equals(document)) {
+			if (selectedSaplDocumentVersion != null && selectedSaplDocumentVersion.getDocumentContent().equals(document)) {
 				isSelectedVersionRestoredViaEditedDocument = true;
 				versionSelectionComboBox.setValue(Integer.toString(selectedSaplDocumentVersion.getVersionNumber()));
 				return;
@@ -208,7 +208,7 @@ public class EditSaplDocumentView extends PolymerTemplate<EditSaplDocumentView.E
 		versionSelectionComboBox.setValue(Iterables.getLast(availableVersions));
 
 		SaplDocumentVersion currentVersion = saplDocument.getCurrentVersion();
-		saplEditor.setDocument(currentVersion.getValue());
+		saplEditor.setDocument(currentVersion.getDocumentContent());
 		selectedSaplDocumentVersion = currentVersion;
 
 		setUiForPublishing();
@@ -273,7 +273,7 @@ public class EditSaplDocumentView extends PolymerTemplate<EditSaplDocumentView.E
 			 */
 			isSelectedVersionRestoredViaEditedDocument = false;
 		} else {
-			saplEditor.setDocument(selectedSaplDocumentVersion.getValue());
+			saplEditor.setDocument(selectedSaplDocumentVersion.getDocumentContent());
 			isFirstDocumentValueValidation = true;
 		}
 

@@ -117,7 +117,7 @@ public class SaplDocumentService implements PrpUpdateEventSource {
 		SaplDocument createdDocument = saplDocumentRepository.save(saplDocumentToCreate);
 
 		SaplDocumentVersion initialSaplDocumentVersion = new SaplDocumentVersion().setSaplDocument(createdDocument)
-				.setVersionNumber(1).setValue(documentValue).setName(name);
+				.setVersionNumber(1).setDocumentContent(documentValue).setName(name);
 		saplDocumentVersionRepository.save(initialSaplDocumentVersion);
 
 		return createdDocument;
@@ -136,7 +136,7 @@ public class SaplDocumentService implements PrpUpdateEventSource {
 		String newName = documentAnalysisResult.getName();
 
 		SaplDocumentVersion newSaplDocumentVersion = new SaplDocumentVersion().setSaplDocument(saplDocument)
-				.setVersionNumber(newVersionNumber).setValue(documentValue).setName(newName);
+				.setVersionNumber(newVersionNumber).setDocumentContent(documentValue).setName(newName);
 		saplDocumentVersionRepository.save(newSaplDocumentVersion);
 
 		saplDocument.setCurrentVersionNumber(newVersionNumber).setLastModified(getCurrentTimestampAsString())

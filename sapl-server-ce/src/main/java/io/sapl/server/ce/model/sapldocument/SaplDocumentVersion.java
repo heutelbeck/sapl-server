@@ -48,8 +48,8 @@ public class SaplDocumentVersion {
 	 */
 	@Id
 	@GeneratedValue
-	@Column(name = "Id", nullable = false)
-	private Long id;
+	@Column(name = "VersionId", nullable = false)
+	private Long versionId;
 
 	/**
 	 * The {@link SaplDocument} this version is belonging to.
@@ -70,7 +70,7 @@ public class SaplDocumentVersion {
 	 * The value / text of the SAPL document version.
 	 */
 	@Column(length = MAX_DOCUMENT_SIZE)
-	private String value;
+	private String documentContent;
 
 	/**
 	 * The name included in the value / text of the SAPL document version

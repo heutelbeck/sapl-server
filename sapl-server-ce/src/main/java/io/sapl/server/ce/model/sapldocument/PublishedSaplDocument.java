@@ -35,6 +35,6 @@ public class PublishedSaplDocument {
 		setSaplDocumentId(saplDocumentVersion.getSaplDocument().getId());
 		setVersion(saplDocumentVersion.getVersionNumber());
 		setDocumentName(saplDocumentVersion.getName());
-		setDocument(saplDocumentVersion.getValue());
+		setDocument(saplDocumentVersion.getDocumentContent());
 	}
 }

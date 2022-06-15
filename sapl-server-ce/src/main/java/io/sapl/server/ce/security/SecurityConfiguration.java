@@ -62,11 +62,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 				.authorizeRequests().antMatchers("/icons/**", "/images/**").permitAll()
 
 				// use basic authentication for API
-				.and().authorizeRequests().antMatchers(API_PATHS)
-				.authenticated()
-				.and()
-				.httpBasic()
-				.realmName("API")
+				.and().authorizeRequests().antMatchers(API_PATHS).authenticated().and().httpBasic().realmName("API")
 
 				// Register our CustomRequestCache, that saves unauthorized access attempts, so
 				// the user is redirected after login.
@@ -105,13 +101,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 				"/robots.txt",
 
 				// web application manifest
-				"/manifest.webmanifest",
-				"/sw.js",
-				"/offline-page.html",
+				"/manifest.webmanifest", "/sw.js", "/offline-page.html",
 
 				// icons and images
-				"/icons/**",
-				"/images/**",
+				"/icons/**", "/images/**",
 
 				// (development mode) static resources
 				"/frontend/**",
@@ -130,7 +123,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 		// @formatter:off
 		auth.inMemoryAuthentication()
-			.withUser(adminUsername).password(encodedAdminPassword)
+			.withUser(adminUsername)
+			.password(encodedAdminPassword)
 			.roles(PDP_CLIENT_ROLE);
 		// @formatter:on
 

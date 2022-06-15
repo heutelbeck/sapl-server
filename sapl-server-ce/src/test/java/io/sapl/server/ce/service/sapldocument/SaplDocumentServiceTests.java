@@ -184,7 +184,7 @@ public class SaplDocumentServiceTests {
         SaplDocumentVersion newVersion =
                 saplDocumentService.createVersion(saplDocument.getId(), saplDocumentValue);
         verify(saplInterpreter, times(1))
-                .analyze(newVersion.getValue());
+                .analyze(newVersion.getDocumentContent());
         verify(saplDocumentRepository, times(1))
                 .save(any());
         verify(saplDocumentVersionRepository, times(1))
@@ -226,16 +226,16 @@ public class SaplDocumentServiceTests {
     public void publishAndUnpublishPolicyVersion() throws PublishedDocumentNameCollisionException {
         final SaplDocument saplDocument = new SaplDocument();
         final SaplDocumentVersion firstVersion = new SaplDocumentVersion()
-                .setId((long)1)
+                .setVersionId((long)1)
                 .setVersionNumber(1)
                 .setName("foo name")
-                .setValue("foo")
+                .setDocumentContent("foo")
                 .setSaplDocument(saplDocument);
         final SaplDocumentVersion secondVersion = new SaplDocumentVersion()
-                .setId((long)2)
+                .setVersionId((long)2)
                 .setVersionNumber(2)
                 .setName("foo name")
-                .setValue("foo extended")
+                .setDocumentContent("foo extended")
                 .setSaplDocument(saplDocument);
         saplDocument
                 .setId((long)1)
@@ -267,13 +267,13 @@ public class SaplDocumentServiceTests {
         relevantUpdates = relevantPrpUpdateEvent.getUpdates();
         assertNotNull(relevantUpdates);
         assertEquals(1, relevantUpdates.length);
-        assertEquals(firstVersion.getValue(), relevantUpdates[0].getRawDocument());
+        assertEquals(firstVersion.getDocumentContent(), relevantUpdates[0].getRawDocument());
         assertEquals(PrpUpdateEvent.Type.PUBLISH, relevantUpdates[0].getType());
 
         when(publishedSaplDocumentRepository.findByDocumentName(firstVersion.getName()))
                 .thenReturn(Collections.singletonList(new PublishedSaplDocument()
                         .setDocumentName(firstVersion.getName())
-                        .setDocument(firstVersion.getValue())));
+                        .setDocument(firstVersion.getDocumentContent())));
 
         // publish second version
         saplDocumentService.publishPolicyVersion(saplDocument.getId(), secondVersion.getVersionNumber());
@@ -290,14 +290,14 @@ public class SaplDocumentServiceTests {
         relevantUpdates = relevantPrpUpdateEvent.getUpdates();
         assertNotNull(relevantUpdates);
         assertEquals(1, relevantUpdates.length);
-        assertEquals(firstVersion.getValue(), relevantUpdates[0].getRawDocument());
+        assertEquals(firstVersion.getDocumentContent(), relevantUpdates[0].getRawDocument());
         assertEquals(PrpUpdateEvent.Type.WITHDRAW, relevantUpdates[0].getType());
 
         relevantPrpUpdateEvent = prpUpdateEvents.get(3);
         relevantUpdates = relevantPrpUpdateEvent.getUpdates();
         assertNotNull(relevantUpdates);
         assertEquals(1, relevantUpdates.length);
-        assertEquals(secondVersion.getValue(), relevantUpdates[0].getRawDocument());
+        assertEquals(secondVersion.getDocumentContent(), relevantUpdates[0].getRawDocument());
         assertEquals(PrpUpdateEvent.Type.PUBLISH, relevantUpdates[0].getType());
     }
 
@@ -305,10 +305,10 @@ public class SaplDocumentServiceTests {
     public void publishPolicyVersion_preventCollingVersion() {
         final SaplDocument saplDocument = new SaplDocument();
         final SaplDocumentVersion version = new SaplDocumentVersion()
-                .setId((long)2)
+                .setVersionId((long)2)
                 .setVersionNumber(1)
                 .setName("foo name")
-                .setValue("foo")
+                .setDocumentContent("foo")
                 .setSaplDocument(saplDocument);
         saplDocument
                 .setId((long)1)
@@ -329,10 +329,10 @@ public class SaplDocumentServiceTests {
     public void unpublishPolicy_versionNotPublished() {
         final SaplDocument saplDocument = new SaplDocument();
         final SaplDocumentVersion version = new SaplDocumentVersion()
-                .setId((long)1)
+                .setVersionId((long)1)
                 .setVersionNumber(1)
                 .setName("foo name")
-                .setValue("foo")
+                .setDocumentContent("foo")
                 .setSaplDocument(saplDocument);
         saplDocument
                 .setId((long)1)
