@@ -15,7 +15,6 @@
  */
 package io.sapl.server.ce.service.pdpconfiguration;
 
-import io.sapl.server.ce.model.pdpconfiguration.Variable;
 import lombok.NonNull;
 
 /**

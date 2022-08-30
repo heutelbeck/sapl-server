@@ -15,7 +15,6 @@
  */
 package io.sapl.server.ce.service.sapldocument;
 
-import io.sapl.server.ce.model.sapldocument.SaplDocument;
 import lombok.NonNull;
 
 /**
