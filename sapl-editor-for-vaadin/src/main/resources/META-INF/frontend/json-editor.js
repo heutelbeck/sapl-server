@@ -1,5 +1,5 @@
 import { LitElement, html } from 'lit-element';
-import { CodeMirrorStyles, CodeMirrorLintStyles, CodeMirrorHintStyles, HeightFix, ReadOnlyStyle } from './shared-styles.js';
+import { CodeMirrorStyles, CodeMirrorLintStyles, CodeMirrorHintStyles, HeightFix, ReadOnlyStyle, DarkStyle } from './shared-styles.js';
 import * as codemirror from 'codemirror';
 import 'codemirror/mode/javascript/javascript';
 import 'codemirror/addon/lint/lint';
@@ -16,12 +16,14 @@ class JSONEditor extends LitElement {
   static get properties() {
     return {
       document: { type: String },
-      isReadOnly: { type: Boolean }, 
+      isReadOnly: { type: Boolean },
       hasLineNumbers: { type: Boolean },
       autoCloseBrackets: { type: Boolean },
       matchBrackets: { type: Boolean },
       textUpdateDelay: { type: Number },
       editor: { type: Object },
+      isLint: { type: Boolean },
+      isDarkTheme: { type: Boolean }
     }
   }
 
@@ -32,6 +34,7 @@ class JSONEditor extends LitElement {
       CodeMirrorHintStyles,
       HeightFix,
       ReadOnlyStyle,
+      DarkStyle
     ]
   }
 
@@ -55,8 +58,32 @@ class JSONEditor extends LitElement {
     this.setEditorOption('readOnly', value);
   }
 
-  get isReadOnly() { 
-    return this._isReadOnly; 
+  get isReadOnly() {
+    return this._isReadOnly;
+  }
+
+  set isLint(value) {
+    let oldVal = this._isLint;
+    this._isLint = value;
+    console.debug('JsonEditor: set isLint', oldVal, value);
+    this.requestUpdate("isLint", oldVal);
+    this.setLintEditorOption(value);
+  }
+
+  get isLint() {
+    return this._isLint;
+  }
+
+  set isDarkTheme(value) {
+    let oldVal = this._isDarkTheme;
+    this._isDarkTheme = value;
+    console.debug('JsonEditor: set isDarkTheme', oldVal, value);
+    this.requestUpdate("isDarkTheme", oldVal);
+    this.setDarkThemeEditorOption(value);
+  }
+
+  get isDarkTheme() {
+    return this._isDarkTheme;
   }
 
   firstUpdated(changedProperties) {
@@ -75,6 +102,7 @@ class JSONEditor extends LitElement {
       lint: {
         selfContain: true
       },
+      theme: "default"
     });
 
     self.editor.on("change", function(cm, changeObj) {
@@ -123,6 +151,8 @@ class JSONEditor extends LitElement {
 
     if(isEditorSet) {
       this.setEditorOption('readOnly', this.isReadOnly);
+      this.setDarkThemeEditorOption(this.isDarkTheme);
+      this.setLintEditorOption(this.isLint);
     }
   }
 
@@ -140,6 +170,52 @@ class JSONEditor extends LitElement {
   render() {
     return html``;
   }
+
+  scrollToBottom() {
+    let isEditorSet = this.editor !== undefined;
+    console.debug('JsonEditor: scrollToBottom', isEditorSet);
+
+    let scrollInfo = this.editor.getScrollInfo();
+    if(isEditorSet) {
+      this.editor.scrollTo(null, scrollInfo.height);
+    }
+  }
+
+  appendText(text) {
+    let isEditorSet = this.editor !== undefined;
+    console.debug('JsonEditor: appendText', isEditorSet);
+    if(isEditorSet) {
+      let lines = this.editor.lineCount();
+      this.editor.replaceRange(text + "\n", {line: lines});
+    }
+  }
+
+  setDarkThemeEditorOption(value) {
+    console.debug('JsonEditor: setDarkThemeEditorOption', value);
+    let isEditorSet = this.editor !== undefined;
+    if(isEditorSet) {
+      if(value === true) {
+        this.editor.setOption("theme", 'dracula');
+      } else {
+        // Needed to not overwrite readonly Theme
+        this.setEditorOption('readOnly', this._isReadOnly);
+      }
+    }
+  }
+
+  setLintEditorOption(value) {
+    console.debug('JsonEditor: setLintOption', value);
+    let isEditorSet = this.editor !== undefined;
+    if(isEditorSet) {
+      if(value === true) {
+        this.editor.setOption("lint", {selfContain: true});
+      }
+      else if (value === false) {
+        this.editor.setOption("lint", false);
+      }
+    }
+  }
+
 }
 
 customElements.define('json-editor', JSONEditor);

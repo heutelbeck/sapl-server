@@ -36,4 +36,15 @@ public class JsonEditor extends BaseEditor {
 		Element element = getElement();
 		element.callJsFunction("onRefreshEditor");
 	}
+
+	public void appendText(String text) {
+		Element element = getElement();
+		element.callJsFunction("appendText", text);
+	}
+
+	public void setLint(Boolean isLint) {
+		Element element = getElement();
+		element.setProperty("isLint", isLint);
+	}
+
 }

@@ -27,4 +27,6 @@ public class BaseEditorConfiguration {
 	private boolean matchBrackets = true;
 	private int textUpdateDelay = 500;
 	private boolean readOnly = false;
+	private boolean lint = true;
+	private boolean darkTheme = false;
 }

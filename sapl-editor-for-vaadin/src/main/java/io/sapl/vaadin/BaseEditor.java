@@ -21,6 +21,7 @@ import java.util.List;
 import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.dom.Element;
+import io.sapl.api.validation.Bool;
 
 public class BaseEditor extends Component {
 
@@ -39,6 +40,8 @@ public class BaseEditor extends Component {
 		element.setProperty("matchBrackets", config.isMatchBrackets());
 		element.setProperty("textUpdateDelay", config.getTextUpdateDelay());
 		element.setProperty(IsReadOnlyKey, config.isReadOnly());
+		element.setProperty("isLint", config.isLint());
+		element.setProperty("isDarkTheme", config.isDarkTheme());
     }
 
     @ClientCallable
@@ -87,14 +90,62 @@ public class BaseEditor extends Component {
 	public void removeDocumentChangedListener(DocumentChangedListener listener) {
 		this.documentChangedListeners.remove(listener);
 	}
-	
+
+	/**
+	 * This function enables or disables the read-only mode of the editor.
+	 *
+	 * @param isReadOnly
+	 */
 	public void setReadOnly(Boolean isReadOnly) {
 		Element element = getElement();
 		element.setProperty(IsReadOnlyKey, isReadOnly);
 	}
-	
+
+	/**
+	 * This function returns the current read-only status of the editor.
+	 *
+	 * @return The current read-only as a Boolean.
+	 */
 	public Boolean isReadOnly() {
 		Element element = getElement();
 		return element.getProperty(IsReadOnlyKey, false);
+	}
+
+	/**
+	 * If this function is called the editor scrolls to the bottom of the textarea.
+	 */
+	public void scrollToBottom() {
+		Element element = getElement();
+		element.callJsFunction("scrollToBottom");
+	}
+
+	/**
+	 * This function enables or disables the Dark Theme of the editor.
+	 *
+	 * @param isDarkTheme
+	 */
+	public void setDarkTheme(Boolean isDarkTheme) {
+		Element element = getElement();
+		element.setProperty("isDarkTheme", isDarkTheme);
+	}
+
+	/**
+	 * This function returns a Boolean to whether the editor uses the Dark Theme or not.
+	 *
+	 * @return Enabled or disabled Dark Theme as a Boolean.
+	 */
+	public Boolean isDarkTheme() {
+		Element element = getElement();
+		return element.getProperty("isDarkTheme", false);
+	}
+
+	/**
+	 * This function returns a Boolean whether if the editor has linting enabled or not.
+	 *
+	 * @return Enabled or disabled lint as a Boolean.
+	 */
+	public Boolean isLint() {
+		Element element = getElement();
+		return element.getProperty("isLint", true);
 	}
 }

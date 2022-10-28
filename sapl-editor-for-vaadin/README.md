@@ -8,7 +8,7 @@ The usage of this component requires at least Java 11.
 
 ### Vaadin 14 Web Application
 
-The text editors are implemented as addons for a Vaadin 14 application. As such it is required that the target application uses at least a Vaadin 14. 
+The text editors are implemented as addons for a Vaadin 14 application. As such it is required that the target application uses at least Vaadin 14. 
 
 For a quick start the base application Vaadin Flow Quick Start can be used:
 
@@ -23,7 +23,7 @@ For Maven it will look like this:
 <dependency>
     <groupId>io.sapl</groupId>
     <artifactId>sapl-editor-for-vaadin</artifactId>
-    <version>2.0.0</version>
+    <version>2.0.1</version>
 </dependency>
 ```
 
@@ -112,11 +112,15 @@ Upon creation of the editor it can be configured with the configuration object, 
 
 * `hasLineNumbers` - Whether or not to display lineNumbers in the editor
 * `textUpdateDelay` - The delay between the user stopped typing and the editor validating the inputed text
+* `setDarkTheme` - Whether or not to enable dark theme of the editor
+* `setLint` - Whether or not to enable linting
 
 ```java
 SaplEditorConfiguration saplConfig = new SaplEditorConfiguration();
 saplConfig.setHasLineNumbers(true);
 saplConfig.setTextUpdateDelay(500);
+saplConfig.setDarkTheme(true);
+saplConfig.setLint(false);
 
 saplEditor = new SaplEditor(saplConfig);
 ```
@@ -128,6 +132,15 @@ The current document can be set or get via the setter and getter of the editor.
 ```java
 saplEditor.setDocument("policy \"set by Vaadin View after instantiation ->\\u2588<-\" permit");
 String document = saplEditor.getDocument();
+```
+
+### Dark Theme
+
+The theme of the editor can be changed at runtime. Whether the dark theme is enabled or not can be checked via the getter of the editor.
+
+```java
+saplEditor.setDarkTheme(true);
+Boolean isDarkThemeEnabled = saplEditor.isDarkTheme();
 ```
 
 ### DocumentChangedListener
@@ -242,11 +255,15 @@ Upon creation of the editor it can be configured with the configuration object, 
 
 * `hasLineNumbers` - Whether or not to display lineNumbers in the editor
 * `textUpdateDelay` - The delay between the user stopped typing and the editor validating the inputed text
+* `setDarkTheme` - Whether or not to enable dark theme of the editor
+* `setLint` - Whether or not to enable linting
 
 ```java
 JsonEditorConfiguration jsonEditorConfig = new JsonEditorConfiguration();
 jsonEditorConfig.setHasLineNumbers(true);
 jsonEditorConfig.setTextUpdateDelay(500);
+jsonEditorConfig.setDarkTheme(true);
+jsonEditorConfig.setLint(false);
 
 JsonEditor jsonEditor = new JsonEditor(jsonEditorConfig);
 add(jsonEditor)
@@ -281,6 +298,23 @@ jsonEditor.setDocument("[\r\n"
 String document = jsonEditor.getDocument();
 ```
 
+### Dark Theme
+
+The theme of the editor can be changed at runtime. Whether the dark theme is enabled or not can be checked via the getter of the editor.
+
+```java
+jsonEditor.setDarkTheme(true);
+Boolean isDarkThemeEnabled = jsonEditor.isDarkTheme();
+```
+
+### Linting
+
+Linting can be enabled and disabled at runtime. Whether linting is enabled or not can be checked via the getter of the editor.
+
+```java
+jsonEditor.setLint(false);
+Boolean isLintEnabled = jsonEditor.isLint();
+```
 
 ### DocumentChangedListener
 

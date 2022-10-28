@@ -1,5 +1,5 @@
 import { LitElement, html } from 'lit-element';
-import { CodeMirrorStyles, CodeMirrorLintStyles, CodeMirrorHintStyles, XTextAnnotationsStyles, AutocompleteWidgetStyle, ReadOnlyStyle, HeightFix } from './shared-styles.js';
+import { CodeMirrorStyles, CodeMirrorLintStyles, CodeMirrorHintStyles, XTextAnnotationsStyles, AutocompleteWidgetStyle, ReadOnlyStyle, HeightFix, DarkStyle } from './shared-styles.js';
 import * as xtext from './xtext-codemirror.min';
 import * as saplmode from './sapl-mode';
 
@@ -21,6 +21,8 @@ class SAPLEditor extends LitElement {
       textUpdateDelay: { type: Number },
       editor: { type: Object },
       xtextLang: { type: String },
+      isLint: { type: Boolean },
+      isDarkTheme: { type: Boolean }
     }
   }
 
@@ -32,7 +34,8 @@ class SAPLEditor extends LitElement {
       XTextAnnotationsStyles,
       AutocompleteWidgetStyle,
       ReadOnlyStyle,
-      HeightFix
+      HeightFix,
+      DarkStyle
     ]
   }
 
@@ -60,6 +63,30 @@ class SAPLEditor extends LitElement {
     return this._isReadOnly; 
   }
 
+  set isLint(value) {
+    let oldVal = this._isLint;
+    this._isLint = value;
+    console.debug('SaplEditor: set isLint', oldVal, value);
+    this.requestUpdate("isLint", oldVal);
+    this.setLintEditorOption(value);
+  }
+
+  get isLint() {
+    return this._isLint;
+  }
+
+  set isDarkTheme(value) {
+    let oldVal = this._isDarkTheme;
+    this._isDarkTheme = value;
+    console.debug('SaplEditor: set isDarkTheme', oldVal, value);
+    this.requestUpdate("isDarkTheme", oldVal);
+    this.setDarkThemeEditorOption(value);
+  }
+
+  get isDarkTheme() {
+    return this._isDarkTheme;
+  }
+
   firstUpdated(changedProperties) {
     var self = this;
     var shadowRoot = self.shadowRoot;
@@ -76,13 +103,14 @@ class SAPLEditor extends LitElement {
       readOnly: self.isReadOnly,
       lineNumbers: self.hasLineNumbers,
       showCursorWhenSelecting: true,
-      enableValidationService: true,
+      enableValidationService: self.isLint,
       textUpdateDelay: self.textUpdateDelay,
       gutters: ["CodeMirror-lint-markers"],
       extraKeys: {"Ctrl-Space": "autocomplete"},
-      hintOptions: { 
+      hintOptions: {
         container: widget_container
-      }
+      },
+      theme: "default"
     });
 
     self.editor.doc.setValue(self.document);
@@ -146,12 +174,45 @@ class SAPLEditor extends LitElement {
     }
   }
 
+  scrollToBottom() {
+    let isEditorSet = this.editor !== undefined;
+    console.debug('SaplEditor: scrollToBottom', isEditorSet);
+
+    let scrollInfo = this.editor.getScrollInfo();
+    if(isEditorSet) {
+      this.editor.scrollTo(null, scrollInfo.height);
+    }
+  }
+
+  setDarkThemeEditorOption(value) {
+    console.debug('SaplEditor: setDarkThemeEditorOption', value);
+    let isEditorSet = this.editor !== undefined;
+    if(isEditorSet) {
+      if(value === true) {
+        this.editor.setOption("theme", 'dracula');
+      } else {
+        // Needed to not overwrite readonly Theme
+        this.setEditorOption('readOnly', this._isReadOnly);
+      }
+    }
+  }
+
+  setLintEditorOption(value) {
+    console.debug('SaplEditor: setLintOption', value);
+    let isEditorSet = this.editor !== undefined;
+    if(isEditorSet) {
+      this.editor.setOption("enableValidationService", value);
+    }
+  }
+
   onEditorChangeCheckOptions(editor) {
     let isEditorSet = editor !== undefined;
     console.debug('SaplEditor: onEditorChangeCheckOptions', isEditorSet);
 
     if(isEditorSet) {
       this.setEditorOption('readOnly', this.isReadOnly);
+      this.setDarkThemeEditorOption(this.isDarkTheme);
+      this.setLintEditorOption(this.isLint);
     }
   }
 
