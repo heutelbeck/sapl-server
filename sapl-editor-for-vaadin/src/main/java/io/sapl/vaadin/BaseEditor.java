@@ -15,13 +15,12 @@
  */
 package io.sapl.vaadin;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.dom.Element;
-import io.sapl.api.validation.Bool;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class BaseEditor extends Component {
 
