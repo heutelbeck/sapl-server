@@ -236,5 +236,7 @@ package-lock.json
 webpack.config.js
 webpack.generated.js
 node_modules/
+tsconfig.json
+types.d.ts
 
 target/
