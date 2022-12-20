@@ -88,6 +88,7 @@
 
 	<modules>
 		<module>sapl-editor-for-vaadin</module>
+		<!--<module>sapl-demo-editor-vaadin-flow</module>-->
 		<module>sapl-server-ce</module>
 	</modules>
 
