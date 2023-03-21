@@ -1,0 +1,19 @@
+server:
+  port: ${PORT:8080}
+spring:
+  profiles.active: demo
+  mustache.check-template-location: false
+
+vaadin:
+  # Launch the default browser when starting the application in development mode
+  launch-browser: true
+# To improve the performance during development.
+# For more information https://vaadin.com/docs/flow/spring/tutorial-spring-configuration.html#special-configuration-parameters
+  whitelisted-packages: com.vaadin,org.vaadin,dev.hilla,io.sapl.server
+  # fixes issue that dark theme is not shown in 24.0.0. Check later versions if still neccessary
+  frontend.hotdeploy: true
+
+
+logging.level:
+  org.atmosphere: WARN
+  web: INFO
