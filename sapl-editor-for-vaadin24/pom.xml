@@ -198,7 +198,7 @@
                                 <resource>
                                     <directory>${project.build.directory}/xtext/META-INF/resources/xtext/${xtext.version}</directory>
                                     <includes>
-                                        <include>xtext.js</include>
+                                        <include>xtext-codemirror.js</include>
                                     </includes>
                                     <filtering>false</filtering>
                                 </resource>
