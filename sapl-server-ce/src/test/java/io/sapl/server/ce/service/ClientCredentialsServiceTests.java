@@ -108,13 +108,13 @@ public class ClientCredentialsServiceTests {
     public void getAmount() {
         ClientCredentialsService clientCredentialsService = getClientCredentialsService();
 
-        when(clientCredentialsRepository.count()).thenReturn(Long.valueOf(0));
+        when(clientCredentialsRepository.count()).thenReturn(0L);
         assertEquals(0, clientCredentialsService.getAmount());
 
-        when(clientCredentialsRepository.count()).thenReturn(Long.valueOf(1));
+        when(clientCredentialsRepository.count()).thenReturn(1L);
         assertEquals(1, clientCredentialsService.getAmount());
 
-        when(clientCredentialsRepository.count()).thenReturn(Long.valueOf(2));
+        when(clientCredentialsRepository.count()).thenReturn(2L);
         assertEquals(2, clientCredentialsService.getAmount());
     }
 

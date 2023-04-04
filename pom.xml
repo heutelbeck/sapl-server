@@ -72,24 +72,7 @@
 		<maven.deploy.skip>true</maven.deploy.skip>
 	</properties>
 
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>com.vaadin</groupId>
-				<artifactId>vaadin-bom</artifactId>
-				<version>
-                	${vaadin.internal.version}
-            	</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
-
 	<modules>
-		<module>sapl-editor-for-vaadin</module>
-		<module>sapl-editor-for-vaadin24</module>
-		<module>sapl-server-ce</module>
 		<module>sapl-server-ce-vaadin24</module>
 	</modules>
 

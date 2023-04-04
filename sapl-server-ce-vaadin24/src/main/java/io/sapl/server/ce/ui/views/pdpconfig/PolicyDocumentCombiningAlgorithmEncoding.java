@@ -23,7 +23,7 @@ class PolicyDocumentCombiningAlgorithmEncoding {
 	public static String[] encode(@NonNull PolicyDocumentCombiningAlgorithm[] policyDocumentCombiningAlgorithm) {
 		//@formatter:off
 		return Stream.of(policyDocumentCombiningAlgorithm)
-				.map(entry -> encode(entry))
+				.map(PolicyDocumentCombiningAlgorithmEncoding::encode)
 				.toArray(String[]::new);
 		//@formatter:on
 	}

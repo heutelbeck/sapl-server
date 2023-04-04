@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 import com.vaadin.flow.spring.security.AuthenticationContext;
 
 import lombok.RequiredArgsConstructor;
-import reactor.core.publisher.Mono;
 
 @Component
 @RequiredArgsConstructor

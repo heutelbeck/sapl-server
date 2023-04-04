@@ -6,20 +6,20 @@
 
     <groupId>io.sapl</groupId>
     <artifactId>sapl-server-ce-vaadin24</artifactId>
-    <name>SAPL Server CE Vaadin24</name>
+    <name>SAPL Server CE</name>
     <version>2.1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <properties>
         <java.version>17</java.version>
-        <vaadin.version>24.0.0</vaadin.version>
+        <vaadin.version>24.0.2</vaadin.version>
         <selenium.version>4.8.1</selenium.version>
     </properties>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.0.4</version>
+        <version>3.0.5</version>
         <relativePath/>
     </parent>
 
@@ -49,7 +49,7 @@
 		<!-- SAPL -->
 		<dependency>
 			<groupId>io.sapl</groupId>
-			<artifactId>sapl-editor-for-vaadin</artifactId>
+			<artifactId>sapl-editor-vaadin</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

@@ -24,7 +24,6 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasUrlParameter;
@@ -37,6 +36,9 @@ import io.sapl.server.ce.model.sapldocument.SaplDocumentService;
 import io.sapl.server.ce.model.sapldocument.SaplDocumentVersion;
 import io.sapl.server.ce.ui.utils.ErrorNotificationUtils;
 import io.sapl.server.ce.ui.views.MainLayout;
+import io.sapl.vaadin.Issue;
+import io.sapl.vaadin.SaplEditor;
+import io.sapl.vaadin.SaplEditorConfiguration;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
 import lombok.RequiredArgsConstructor;
@@ -65,8 +67,8 @@ public class EditSaplDocumentView extends VerticalLayout
 	private TextField lastModifiedField     = new TextField("Last Modified");
 	private TextField publishedVersionField = new TextField("Published Version");
 	private TextField publishedNameField    = new TextField("Published Name");
-// TODO:	private SaplEditor       saplEditor;
-	private TextArea         saplEditor        = new TextArea();
+	private SaplEditor       saplEditor;
+//	private TextArea         saplEditor        = new TextArea();
 	private ComboBox<String> versionSelection  = new ComboBox<>("Version History");
 	private Button           saveVersionButton = new Button("Save New Version");
 	private Button           cancelButton      = new Button("Cancel");
@@ -79,13 +81,15 @@ public class EditSaplDocumentView extends VerticalLayout
 
 	@PostConstruct
 	private void init() {
+		var editorConfig = new SaplEditorConfiguration();
+		//editorConfig.setDarkTheme(true);
+		saplEditor = new SaplEditor(editorConfig);
 		var metadateRowOne   = new HorizontalLayout(policyIdField, currentVersionField, lastModifiedField);
 		var metadateRowTwo   = new HorizontalLayout(publishedVersionField, publishedNameField);
 		var metadateRowThree = new HorizontalLayout(versionSelection, publishButton, unpublishButton);
 		var editActionsRow   = new HorizontalLayout(saveVersionButton, cancelButton);
 		editActionsRow.setWidthFull();
 		editActionsRow.setJustifyContentMode(JustifyContentMode.END);
-		saplEditor.setWidthFull();
 		add(metadateRowOne, metadateRowTwo, metadateRowThree, saplEditor, editActionsRow);
 	}
 
@@ -121,17 +125,15 @@ public class EditSaplDocumentView extends VerticalLayout
 	}
 
 	private void addListener() {
-		versionSelection.addValueChangeListener(changedEvent -> {
-			updateSaplEditorBasedOnVersionSelection();
-		});
-//		saplEditor.addValidationFinishedListener(validationFinishedEvent -> {
-		saplEditor.addValidationStatusChangeListener(validationFinishedEvent -> {
+		versionSelection.addValueChangeListener(changedEvent -> updateSaplEditorBasedOnVersionSelection());
+
+		saplEditor.addValidationFinishedListener(validationFinishedEvent -> {		
 			if (isFirstDocumentValueValidation) {
 				isFirstDocumentValueValidation = false;
 				return;
 			}
 
-			var document = saplEditor.getValue();
+			var document = saplEditor.getDocument();
 
 			if (selectedSaplDocumentVersion != null
 					&& selectedSaplDocumentVersion.getDocumentContent().equals(document)) {
@@ -142,21 +144,18 @@ public class EditSaplDocumentView extends VerticalLayout
 
 			versionSelection.setValue(NEW_VERSION_SELECTION_ENTRY);
 
-//			Issue[] issues               = validationFinishedEvent.getIssues();
-//			boolean areNoIssuesAvailable = issues.length == 0
-//					&& document.length() <= SaplDocumentVersion.MAX_DOCUMENT_SIZE;
-			var areNoIssuesAvailable = validationFinishedEvent.getNewStatus();
+			Issue[] issues               = validationFinishedEvent.getIssues();
+			boolean areNoIssuesAvailable = issues.length == 0
+					&& document.length() <= SaplDocumentVersion.MAX_DOCUMENT_SIZE;
 			saveVersionButton.setEnabled(areNoIssuesAvailable);
 		});
 
 		saveVersionButton.addClickListener(clickEvent -> {
-			saplDocumentService.createVersion(saplDocumentId, saplEditor.getValue());
+			saplDocumentService.createVersion(saplDocumentId, saplEditor.getDocument());
 			reloadSaplDocument();
 		});
 
-		cancelButton.addClickListener(clickEvent -> {
-			cancelButton.getUI().ifPresent(ui -> ui.navigate(DigitalPoliciesView.ROUTE));
-		});
+		cancelButton.addClickListener(clickEvent -> cancelButton.getUI().ifPresent(ui -> ui.navigate(DigitalPoliciesView.ROUTE)));
 
 		publishButton.addClickListener(clickEvent -> {
 			Optional<Integer> selectedVersionNumberAsOptional = getSelectedVersionNumber();
@@ -193,7 +192,7 @@ public class EditSaplDocumentView extends VerticalLayout
 		versionSelection.setValue(Iterables.getLast(availableVersions));
 
 		SaplDocumentVersion currentVersion = saplDocument.getCurrentVersion();
-		saplEditor.setValue(currentVersion.getDocumentContent());
+		saplEditor.setDocument(currentVersion.getDocumentContent());
 		selectedSaplDocumentVersion = currentVersion;
 
 		setUiForPublishing();
@@ -258,7 +257,7 @@ public class EditSaplDocumentView extends VerticalLayout
 			 */
 			isSelectedVersionRestoredViaEditedDocument = false;
 		} else {
-			saplEditor.setValue(selectedSaplDocumentVersion.getDocumentContent());
+			saplEditor.setDocument(selectedSaplDocumentVersion.getDocumentContent());
 			isFirstDocumentValueValidation = true;
 		}
 

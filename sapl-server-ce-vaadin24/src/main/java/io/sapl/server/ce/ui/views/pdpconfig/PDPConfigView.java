@@ -97,9 +97,7 @@ public class PDPConfigView extends VerticalLayout {
 	}
 
 	private void initUiForVariables() {
-		createVariableButton.addClickListener(clickEvent -> {
-			showDialogForVariableCreation();
-		});
+		createVariableButton.addClickListener(clickEvent -> showDialogForVariableCreation());
 
 		initVariablesGrid();
 	}

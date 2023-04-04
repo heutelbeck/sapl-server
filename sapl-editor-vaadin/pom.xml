@@ -26,15 +26,15 @@
         <version>2.1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>sapl-editor-for-vaadin-24</artifactId>
+    <artifactId>sapl-editor-vaadin</artifactId>
 
-    <name>SAPL Editor for Vaadin 24</name>
-    <description>Integration of the XText-based editor for SAPL for the Vaadin 24 platform</description>
+    <name>SAPL Editor for Vaadin</name>
+    
+    <description>SAPL and JSON Editor Components for Vaadin 24</description>
 
     <properties>
-        <vaadin.version>23.2.8</vaadin.version>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <jetty.version>9.4.28.v20200408</jetty.version>

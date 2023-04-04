@@ -85,7 +85,7 @@ public class LibrariesDocumentationView extends VerticalLayout {
 		showCurrentFunctionLibLayout.setVisible(false);
 
 		Collection<LibraryDocumentation>                 availableFunctionLibs                 = functionLibrariesDocumentation
-				.getDocumentation();
+				.documentation();
 		CallbackDataProvider<LibraryDocumentation, Void> dataProviderForCurrentFunctionLibGrid = DataProvider
 				.fromCallbacks(query -> {
 																											int offset = query
@@ -138,9 +138,7 @@ public class LibrariesDocumentationView extends VerticalLayout {
 								query -> documentationAsEntrySet.size());
 
 				functionsOfCurrentFunctionLibGrid.setItems(dataProviderForFunctionsOfCurrentFunctionLibGrid);
-			}, () -> {
-				showCurrentFunctionLibLayout.setVisible(false);
-			});
+			}, () -> showCurrentFunctionLibLayout.setVisible(false));
 		});
 		functionLibsGrid.setItems(dataProviderForCurrentFunctionLibGrid);
 
@@ -154,7 +152,7 @@ public class LibrariesDocumentationView extends VerticalLayout {
 		showCurrentPipLayout.setVisible(false);
 
 		Collection<PolicyInformationPointDocumentation>                 availablePips                 = policyInformationPointsDocumentation
-				.getDocumentation();
+				.documentation();
 		CallbackDataProvider<PolicyInformationPointDocumentation, Void> dataProviderForCurrentPipGrid = DataProvider
 				.fromCallbacks(query -> {
 																													int offset = query

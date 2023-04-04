@@ -9,7 +9,6 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.splitlayout.SplitLayout;
-import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.CallbackDataProvider;
 import com.vaadin.flow.data.provider.DataProvider;
@@ -21,6 +20,8 @@ import io.sapl.server.ce.model.sapldocument.SaplDocumentService;
 import io.sapl.server.ce.ui.utils.ConfirmUtils;
 import io.sapl.server.ce.ui.utils.ErrorNotificationUtils;
 import io.sapl.server.ce.ui.views.MainLayout;
+import io.sapl.vaadin.SaplEditor;
+import io.sapl.vaadin.SaplEditorConfiguration;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
 import lombok.RequiredArgsConstructor;
@@ -42,14 +43,19 @@ public class PublishedPoliciesView extends VerticalLayout {
 	private TextField                   publishedVersionTextField          = new TextField("Published Version");
 	private Button                      openEditPageForPolicyButton        = new Button("Manage Policy");
 	// TODO: private SaplEditor saplEditor;
-	private TextArea                    saplEditor                         = new TextArea();
+	private SaplEditor saplEditor;
 
 	@PostConstruct
 	private void initUI() {
+		var editorConfig = new SaplEditorConfiguration();
+		//editorConfig.setDarkTheme(true);
+		saplEditor = new SaplEditor(editorConfig);
 		var metadataLayout = new HorizontalLayout(policyIdTextField, publishedVersionTextField);
 		layoutForSelectedPublishedDocument.add(metadataLayout, openEditPageForPolicyButton, saplEditor);
-
-		add(new SplitLayout(grid, layoutForSelectedPublishedDocument));
+		layoutForSelectedPublishedDocument.setSizeFull();
+		var mainLayout = new SplitLayout(grid, layoutForSelectedPublishedDocument);
+		mainLayout.setSizeFull();
+		add(mainLayout);
 
 		initGrid();
 
@@ -72,24 +78,22 @@ public class PublishedPoliciesView extends VerticalLayout {
 		grid.setMultiSort(false);
 		grid.addComponentColumn(publishedDocument -> {
 			Button unpublishButton = new Button("Unpublish");
-			unpublishButton.addClickListener(clickEvent -> {
-				ConfirmUtils.letConfirm("Unpublish Document?",
-						String.format("Should the document \"%s\" really be unpublished?",
-								publishedDocument.getDocumentName()),
-						() -> {
-							try {
-								saplDocumentService.unpublishPolicy(publishedDocument.getSaplDocumentId());
-							} catch (Throwable throwable) {
-								ErrorNotificationUtils.show("The document could not be unpublished.");
-								log.error(String.format(
-										"The document with id %s could not be unpublished.",
-										publishedDocument.getSaplDocumentId()), throwable);
-								return;
-							}
-							grid.getDataProvider().refreshAll();
-						}, () -> {
-						});
-			});
+			unpublishButton.addClickListener(clickEvent -> ConfirmUtils.letConfirm("Unpublish Document?",
+                    String.format("Should the document \"%s\" really be unpublished?",
+                            publishedDocument.getDocumentName()),
+                    () -> {
+                        try {
+                            saplDocumentService.unpublishPolicy(publishedDocument.getSaplDocumentId());
+                        } catch (Throwable throwable) {
+                            ErrorNotificationUtils.show("The document could not be unpublished.");
+                            log.error(String.format(
+                                    "The document with id %s could not be unpublished.",
+                                    publishedDocument.getSaplDocumentId()), throwable);
+                            return;
+                        }
+                        grid.getDataProvider().refreshAll();
+                    }, () -> {
+                    }));
 
 			HorizontalLayout componentsForEntry = new HorizontalLayout();
 			componentsForEntry.add(unpublishButton);
@@ -121,7 +125,7 @@ public class PublishedPoliciesView extends VerticalLayout {
 
 				policyIdTextField.setValue(Long.toString(selectedPublishedDocument.getSaplDocumentId()));
 				publishedVersionTextField.setValue(Integer.toString(selectedPublishedDocument.getVersion()));
-				saplEditor.setValue(selectedPublishedDocument.getDocument());
+				saplEditor.setDocument(selectedPublishedDocument.getDocument());
 			}, () -> layoutForSelectedPublishedDocument.setVisible(false));
 		});
 	}

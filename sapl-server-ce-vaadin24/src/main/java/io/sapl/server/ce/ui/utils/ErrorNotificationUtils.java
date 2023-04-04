@@ -47,9 +47,7 @@ public final class ErrorNotificationUtils {
 		var closeButton = new Button(new Icon("lumo", "cross"));
 		closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
 		closeButton.getElement().setAttribute("aria-label", "Close");
-		closeButton.addClickListener(event -> {
-			notification.close();
-		});
+		closeButton.addClickListener(event -> notification.close());
 
 		var layout = new HorizontalLayout(text, closeButton);
 		layout.setAlignItems(Alignment.CENTER);
