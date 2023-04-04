@@ -85,7 +85,7 @@ public class LibrariesDocumentationView extends VerticalLayout {
 		showCurrentFunctionLibLayout.setVisible(false);
 
 		Collection<LibraryDocumentation>                 availableFunctionLibs                 = functionLibrariesDocumentation
-				.documentation();
+				.getDocumentation();
 		CallbackDataProvider<LibraryDocumentation, Void> dataProviderForCurrentFunctionLibGrid = DataProvider
 				.fromCallbacks(query -> {
 																											int offset = query
@@ -152,7 +152,7 @@ public class LibrariesDocumentationView extends VerticalLayout {
 		showCurrentPipLayout.setVisible(false);
 
 		Collection<PolicyInformationPointDocumentation>                 availablePips                 = policyInformationPointsDocumentation
-				.documentation();
+				.getDocumentation();
 		CallbackDataProvider<PolicyInformationPointDocumentation, Void> dataProviderForCurrentPipGrid = DataProvider
 				.fromCallbacks(query -> {
 																													int offset = query
