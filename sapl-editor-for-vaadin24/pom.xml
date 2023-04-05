@@ -238,7 +238,7 @@
                             <goal>java</goal>
                         </goals>
                         <configuration>
-                            <mainClass>io.sapl.vaadin.TransformFilesToESM</mainClass>
+                            <mainClass>io.sapl.converter.TransformFilesToESM</mainClass>
                         </configuration>
                     </execution>
                 </executions>
@@ -250,7 +250,7 @@
                 <version>3.1.0</version>
                 <configuration>
                     <excludes>
-                        <exclude>**/TransformFilesToESM.class</exclude>
+                        <exclude>io/sapl/converter/**</exclude>
                     </excludes>
                     <archive>
                         <index>true</index>
