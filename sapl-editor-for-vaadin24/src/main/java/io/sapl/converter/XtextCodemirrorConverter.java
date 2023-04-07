@@ -19,10 +19,10 @@ public class XtextCodemirrorConverter {
         String imports = extractImports(importPattern, originalCode);
         String codeWithoutImports = originalCode.replaceAll(importPattern, "");
 
-        String exports = extractExports(codeWithoutImports);
-        String codeWithoutReturns = codeWithoutImports.replaceAll(exportPattern, "");
+        codeWithoutImports = codeWithoutImports.replaceAll("CodeMirrorEditorContext", "EditorContext");
 
-        String functions = codeWithoutReturns.replaceAll("CodeMirrorEditorContext", "EditorContext");
+        String exports = extractExports(codeWithoutImports);
+        String functions = codeWithoutImports.replaceAll(exportPattern, "");
 
         return imports + functions + exports;
     }
