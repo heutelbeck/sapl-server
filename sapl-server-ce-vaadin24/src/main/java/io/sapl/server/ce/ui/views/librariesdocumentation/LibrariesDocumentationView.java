@@ -54,7 +54,7 @@ public class LibrariesDocumentationView extends VerticalLayout {
 
 	private Grid<LibraryDocumentation>                functionLibsGrid                   = new Grid<>();
 	private VerticalLayout                            showCurrentFunctionLibLayout       = new VerticalLayout();
-	private Div                                       descriptionOfCurrentFunctionLibDiv = new Div();;
+	private Div                                       descriptionOfCurrentFunctionLibDiv = new Div();
 	private Grid<Entry<String, String>>               functionsOfCurrentFunctionLibGrid  = new Grid<>();
 	private Grid<PolicyInformationPointDocumentation> pipsGrid                           = new Grid<>();
 	private VerticalLayout                            showCurrentPipLayout               = new VerticalLayout();
