@@ -25,11 +25,11 @@ import io.sapl.vaadin.JsonEditorConfiguration;
 import io.sapl.vaadin.SaplEditorConfiguration;
 
 /**
- * Collection of initialization methods for Spring beans for editos.
+ * Collection of initialization methods for Spring beans for editors.
  */
 @Configuration
 @ComponentScan("io.sapl.grammar.ide.contentassist")
-public class EditorConfiguration {
+class EditorConfiguration {
 	/**
 	 * Registers the bean {@link ServletRegistrationBean} with generic type
 	 * {@link SAPLServlet}.
@@ -37,7 +37,7 @@ public class EditorConfiguration {
 	 * @return the value
 	 */
 	@Bean
-	public static ServletRegistrationBean<SAPLServlet> registerXTextRegistrationBean() {
+	ServletRegistrationBean<SAPLServlet> registerXTextRegistrationBean() {
 		ServletRegistrationBean<SAPLServlet> registration = new ServletRegistrationBean<>(new SAPLServlet(),
 				"/xtext-service/*");
 		registration.setName("XtextServices");
@@ -51,7 +51,7 @@ public class EditorConfiguration {
 	 * @return the value
 	 */
 	@Bean
-	public static SaplEditorConfiguration registerSaplEditorConfiguration() {
+	SaplEditorConfiguration registerSaplEditorConfiguration() {
 		SaplEditorConfiguration saplEditorConfiguration = new SaplEditorConfiguration();
 		saplEditorConfiguration.setAutoCloseBrackets(true);
 		saplEditorConfiguration.setHasLineNumbers(true);
@@ -62,7 +62,7 @@ public class EditorConfiguration {
 	}
 
 	@Bean
-	public static JsonEditorConfiguration registerJsonEditorConfiguration() {
+	JsonEditorConfiguration registerJsonEditorConfiguration() {
 		JsonEditorConfiguration configuration = new JsonEditorConfiguration();
 		configuration.setAutoCloseBrackets(true);
 		configuration.setHasLineNumbers(true);

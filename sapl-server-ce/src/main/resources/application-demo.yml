@@ -2,7 +2,7 @@
 io.sapl:
   server:
     admin-username: demo
-    encoded-admin-password: "{bcrypt}$2y$12$1yBhnA.SfCzTfNrChI/HNuoqz3k/RCG9iXCbQMRje96hnx1DsfPeq"
+    encoded-admin-password: $2y$12$1yBhnA.SfCzTfNrChI/HNuoqz3k/RCG9iXCbQMRje96hnx1DsfPeq
   pdp.embedded:
 # The following options enable or disable different levels of logging for decisions.
 #
@@ -40,15 +40,15 @@ spring:
     hibernate.ddl-auto: update
     open-in-view: false
 # SSL
-server:
-  port: 8443
-  ssl:
-    enabled: true
-    key-store-type: PKCS12
-    key-store: classpath:keystore.p12
-    key-store-password: changeme
-    key-password: changeme
-    key-alias: netty
+#server:
+#  port: 8443
+#  ssl:
+#    enabled: true
+#    key-store-type: PKCS12
+#    key-store: classpath:keystore.p12
+#    key-store-password: changeme
+#    key-password: changeme
+#    key-alias: netty
 logging.level:
   "[io.sapl]": TRACE
   "[io.sapl.server.ce]": INFO
