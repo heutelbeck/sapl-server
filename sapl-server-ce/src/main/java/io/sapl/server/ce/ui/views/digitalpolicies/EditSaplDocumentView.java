@@ -17,7 +17,6 @@ package io.sapl.server.ce.ui.views.digitalpolicies;
 
 import java.util.Collection;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import com.google.common.collect.Iterables;
 import com.vaadin.flow.component.button.Button;
@@ -62,18 +61,17 @@ public class EditSaplDocumentView extends VerticalLayout
 	private transient SaplDocumentVersion selectedSaplDocumentVersion;
 	private boolean                       isSelectedVersionRestoredViaEditedDocument;
 
-	private TextField policyIdField         = new TextField("Policy Identifier");
-	private TextField currentVersionField   = new TextField("Current Version");
-	private TextField lastModifiedField     = new TextField("Last Modified");
-	private TextField publishedVersionField = new TextField("Published Version");
-	private TextField publishedNameField    = new TextField("Published Name");
+	private TextField        policyIdField         = new TextField("Policy Identifier");
+	private TextField        currentVersionField   = new TextField("Current Version");
+	private TextField        lastModifiedField     = new TextField("Last Modified");
+	private TextField        publishedVersionField = new TextField("Published Version");
+	private TextField        publishedNameField    = new TextField("Published Name");
 	private SaplEditor       saplEditor;
-//	private TextArea         saplEditor        = new TextArea();
-	private ComboBox<String> versionSelection  = new ComboBox<>("Version History");
-	private Button           saveVersionButton = new Button("Save New Version");
-	private Button           cancelButton      = new Button("Cancel");
-	private Button           publishButton     = new Button("Publish Selected Version");
-	private Button           unpublishButton   = new Button("Unpublish");
+	private ComboBox<String> versionSelection      = new ComboBox<>("Version History");
+	private Button           saveVersionButton     = new Button("Save New Version");
+	private Button           cancelButton          = new Button("Cancel");
+	private Button           publishButton         = new Button("Publish Selected Version");
+	private Button           unpublishButton       = new Button("Unpublish");
 
 	private SaplDocument saplDocument;
 	private long         saplDocumentId;
@@ -81,9 +79,14 @@ public class EditSaplDocumentView extends VerticalLayout
 
 	@PostConstruct
 	private void init() {
-		var editorConfig = new SaplEditorConfiguration();
-		//editorConfig.setDarkTheme(true);
-		saplEditor = new SaplEditor(editorConfig);
+		var saplConfig = new SaplEditorConfiguration();
+		saplConfig.setHasLineNumbers(true);
+		saplConfig.setTextUpdateDelay(500);
+		saplConfig.setDarkTheme(true);
+		this.saplEditor = new SaplEditor(saplConfig);
+		this.saplEditor.addClassName("sapl-editor");
+		this.setSizeFull();
+		this.setHeightFull();
 		var metadateRowOne   = new HorizontalLayout(policyIdField, currentVersionField, lastModifiedField);
 		var metadateRowTwo   = new HorizontalLayout(publishedVersionField, publishedNameField);
 		var metadateRowThree = new HorizontalLayout(versionSelection, publishButton, unpublishButton);
@@ -100,7 +103,7 @@ public class EditSaplDocumentView extends VerticalLayout
 		reloadSaplDocument();
 		addListener();
 
-		addAttachListener((__) -> {
+		addAttachListener(__ -> {
 			if (saplDocument == null) {
 				log.warn("SAPL document with id {} is not existing, redirect to list view", parameter);
 				getUI().ifPresent(ui -> ui.navigate(DigitalPoliciesView.ROUTE));
@@ -127,7 +130,7 @@ public class EditSaplDocumentView extends VerticalLayout
 	private void addListener() {
 		versionSelection.addValueChangeListener(changedEvent -> updateSaplEditorBasedOnVersionSelection());
 
-		saplEditor.addValidationFinishedListener(validationFinishedEvent -> {		
+		saplEditor.addValidationFinishedListener(validationFinishedEvent -> {
 			if (isFirstDocumentValueValidation) {
 				isFirstDocumentValueValidation = false;
 				return;
@@ -155,7 +158,8 @@ public class EditSaplDocumentView extends VerticalLayout
 			reloadSaplDocument();
 		});
 
-		cancelButton.addClickListener(clickEvent -> cancelButton.getUI().ifPresent(ui -> ui.navigate(DigitalPoliciesView.ROUTE)));
+		cancelButton.addClickListener(
+				clickEvent -> cancelButton.getUI().ifPresent(ui -> ui.navigate(DigitalPoliciesView.ROUTE)));
 
 		publishButton.addClickListener(clickEvent -> {
 			Optional<Integer> selectedVersionNumberAsOptional = getSelectedVersionNumber();
@@ -236,7 +240,7 @@ public class EditSaplDocumentView extends VerticalLayout
 		// @formatter:off
 		return saplDocument.getVersions().stream()
 				.map(saplDocumentVersion -> Integer.toString(saplDocumentVersion.getVersionNumber()))
-				.collect(Collectors.toList());
+				.toList();
 		// @formatter:on
 	}
 

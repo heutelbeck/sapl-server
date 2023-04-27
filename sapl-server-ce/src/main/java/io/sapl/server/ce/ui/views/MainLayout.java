@@ -14,8 +14,11 @@ import com.vaadin.flow.component.html.Footer;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Header;
+import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.menubar.MenuBar;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.server.auth.AccessAnnotationChecker;
@@ -60,14 +63,22 @@ public class MainLayout extends AppLayout {
 	}
 
 	private void addDrawerContent() {
-		H1 appName = new H1("SAPL Server CE");
-		appName.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE);
-		Header header = new Header(appName);
-
-		Scroller scroller = new Scroller(createNavigation());
+		
+		var logoLayout = new HorizontalLayout();
+		logoLayout.setId("logo");
+		logoLayout.setAlignItems(FlexComponent.Alignment.CENTER);
+		logoLayout.setPadding(true);
+		var logo = new Image("images/SAPL-Logo.png", "SAPL Logo");
+		logo.setHeight("50px");
+		var appName = new H1("SAPL Server CE");
+		appName.addClassNames(LumoUtility.FontSize.XLARGE, LumoUtility.Margin.NONE);
+		logoLayout.add(logo,appName);
+		
+		var header = new Header(logoLayout);
+		var scroller = new Scroller(createNavigation());
 
 		addToDrawer(header, scroller, createFooter());
-	}
+	}	
 
 	private AppNav createNavigation() {
 		// AppNav is not yet an official component.

@@ -45,9 +45,10 @@ import reactor.core.publisher.Sinks.Many;
 @Component
 @RequiredArgsConstructor
 public class CEVariablesAndCombinatorSource implements VariablesAndCombinatorSource, PDPConfigurationPublisher {
+
 	private static final ObjectMapper MAPPER = new ObjectMapper();
 
-	private Many<Collection<Variable>> variablesProcessorSink;
+	private Many<Collection<Variable>>             variablesProcessorSink;
 	private Many<PolicyDocumentCombiningAlgorithm> combiningAlgorithmSink;
 
 	@PostConstruct

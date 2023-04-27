@@ -3,6 +3,12 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.0.6</version>
+        <relativePath/>
+    </parent>
 
     <groupId>io.sapl</groupId>
     <artifactId>sapl-server-ce</artifactId>
@@ -12,16 +18,10 @@
 
     <properties>
         <java.version>17</java.version>
-        <vaadin.version>24.0.4</vaadin.version>
-        <selenium.version>4.8.1</selenium.version>
+        <vaadin.version>24.0.5</vaadin.version>
+        <sapl.version>2.1.0-SNAPSHOT</sapl.version>
+        <selenium.version>4.8.3</selenium.version>
     </properties>
-
-    <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.0.5</version>
-        <relativePath/>
-    </parent>
 
     <repositories>
         <repository>
@@ -50,6 +50,13 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+           	<dependency>
+				<groupId>io.sapl</groupId>
+				<artifactId>sapl-bom</artifactId>
+                <version>${sapl.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -58,22 +65,30 @@
 		<dependency>
 			<groupId>io.sapl</groupId>
 			<artifactId>sapl-editor-vaadin</artifactId>
-			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.sapl</groupId>
+			<artifactId>sapl-vaadin-theme</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>io.sapl</groupId>
 			<artifactId>sapl-spring-pdp-embedded</artifactId>
-			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>io.sapl</groupId>
 			<artifactId>sapl-webflux-endpoint</artifactId>
-			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>io.sapl</groupId>
 			<artifactId>sapl-jwt</artifactId>
-			<version>${project.version}</version>
+		</dependency>				
+		<dependency>
+			<groupId>io.sapl</groupId>
+    	    <artifactId>sapl-mqtt-pip</artifactId>
+		</dependency>				
+		<dependency>
+			<groupId>io.sapl</groupId>
+			<artifactId>sapl-mqtt-functions</artifactId>
 		</dependency>				
 		
 		<!-- Spring Boot -->
@@ -158,7 +173,6 @@
                     <maxAttempts>240</maxAttempts>
                 </configuration>
             </plugin>
-
             <plugin>
                 <groupId>com.vaadin</groupId>
                 <artifactId>vaadin-maven-plugin</artifactId>
@@ -171,6 +185,22 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+    			<artifactId>maven-clean-plugin</artifactId>
+    			<configuration>
+        			<filesets>
+            			<fileset>
+							<directory>.</directory>
+                			<includes>
+                    			<include>node_modules/**</include>
+                    			<include>src/dev-bundle/**</include>
+                    			<include>frontend/generated/**</include>
+                    			<include>frontend/index.html</include>
+                			</includes>
+            			</fileset>
+        			</filesets>
+    			</configuration>
+			</plugin>
         </plugins>
     </build>
 
