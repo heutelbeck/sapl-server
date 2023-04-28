@@ -15,7 +15,6 @@
  */
 package io.sapl.server.ce.model.clients;
 
-import java.io.Serializable;
 import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -29,12 +28,17 @@ import com.heutelbeck.uuid.Base64Id;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
-public class ClientCredentialsService implements UserDetailsService, Serializable {
+public class ClientDetailsService implements UserDetailsService {
+
+	public static final String CLIENT = "CLIENT";
+	public static final String ADMIN  = "ADMIN";
 
 	@Value("${io.sapl.server.admin-username}")
 	private String adminUsername;
@@ -47,11 +51,12 @@ public class ClientCredentialsService implements UserDetailsService, Serializabl
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+		log.info("lookup user: {}", username);
 		if (adminUsername.equals(username)) {
 			return org.springframework.security.core.userdetails.User
 					.withUsername(adminUsername)
 					.password(encodedAdminPassword)
-					.roles("ADMIN")
+					.roles(ADMIN)
 					.build();
 		}
 
@@ -62,7 +67,7 @@ public class ClientCredentialsService implements UserDetailsService, Serializabl
 		return org.springframework.security.core.userdetails.User
 				.withUsername(clientCredentials.getKey())
 				.password(clientCredentials.getEncodedSecret())
-				.roles("CLIENT")
+				.roles(CLIENT)
 				.build();
 	}
 

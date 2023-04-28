@@ -40,7 +40,7 @@ public class MainLayout extends AppLayout {
 
 	private H2 viewTitle;
 
-	private AuthenticatedUser       authenticatedUser;
+	private transient AuthenticatedUser       authenticatedUser;
 	private AccessAnnotationChecker accessChecker;
 
 	public MainLayout(AuthenticatedUser authenticatedUser, AccessAnnotationChecker accessChecker) {
@@ -63,7 +63,7 @@ public class MainLayout extends AppLayout {
 	}
 
 	private void addDrawerContent() {
-		
+
 		var logoLayout = new HorizontalLayout();
 		logoLayout.setId("logo");
 		logoLayout.setAlignItems(FlexComponent.Alignment.CENTER);
@@ -72,13 +72,13 @@ public class MainLayout extends AppLayout {
 		logo.setHeight("50px");
 		var appName = new H1("SAPL Server CE");
 		appName.addClassNames(LumoUtility.FontSize.XLARGE, LumoUtility.Margin.NONE);
-		logoLayout.add(logo,appName);
-		
-		var header = new Header(logoLayout);
+		logoLayout.add(logo, appName);
+
+		var header   = new Header(logoLayout);
 		var scroller = new Scroller(createNavigation());
 
 		addToDrawer(header, scroller, createFooter());
-	}	
+	}
 
 	private AppNav createNavigation() {
 		// AppNav is not yet an official component.
@@ -120,9 +120,6 @@ public class MainLayout extends AppLayout {
 			var user = maybeUser.get();
 
 			var avatar = new Avatar(user.getUsername());
-//            var resource = new StreamResource("profile-pic",
-//                    () -> new ByteArrayInputStream(user.getProfilePicture()));
-//			avatar.setImageResource(resource);
 			avatar.setThemeName("xsmall");
 			avatar.getElement().setAttribute("tabindex", "-1");
 

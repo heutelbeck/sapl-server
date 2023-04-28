@@ -36,7 +36,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
 import io.sapl.server.ce.model.clients.ClientCredentials;
-import io.sapl.server.ce.model.clients.ClientCredentialsService;
+import io.sapl.server.ce.model.clients.ClientDetailsService;
 import io.sapl.server.ce.ui.utils.ConfirmUtils;
 import io.sapl.server.ce.ui.utils.ErrorNotificationUtils;
 import io.sapl.server.ce.ui.views.MainLayout;
@@ -53,7 +53,7 @@ import reactor.util.function.Tuple2;
 public class ClientCredentialsView extends VerticalLayout {
 	public static final String ROUTE = "clients";
 
-	private final ClientCredentialsService clientCredentialsService;
+	private final ClientDetailsService clientCredentialsService;
 
 	private Grid<ClientCredentials> clientCredentialsGrid = new Grid<>();
 	private Button                  createButton          = new Button("New Client");

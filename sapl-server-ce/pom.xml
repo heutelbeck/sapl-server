@@ -3,57 +3,23 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.0.6</version>
+	<parent>
+		<groupId>io.sapl</groupId>
+		<artifactId>sapl-policy-engine</artifactId>
+		<version>2.1.0-SNAPSHOT</version>
         <relativePath/>
-    </parent>
+	</parent>
 
-    <groupId>io.sapl</groupId>
     <artifactId>sapl-server-ce</artifactId>
     <name>SAPL Server CE</name>
-    <version>2.1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
-
-    <properties>
-        <java.version>17</java.version>
-        <vaadin.version>24.0.5</vaadin.version>
-        <sapl.version>2.1.0-SNAPSHOT</sapl.version>
-        <selenium.version>4.8.3</selenium.version>
-    </properties>
-
-    <repositories>
-        <repository>
-            <id>Vaadin Directory</id>
-            <url>https://maven.vaadin.com/vaadin-addons</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-			<id>ossrh</id>
-			<url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
-			<snapshots>
-				<enabled>true</enabled>
-				<updatePolicy>always</updatePolicy>
-			</snapshots>
-		</repository>
-    </repositories>
 
     <dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>com.vaadin</groupId>
-                <artifactId>vaadin-bom</artifactId>
-                <version>${vaadin.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
            	<dependency>
 				<groupId>io.sapl</groupId>
 				<artifactId>sapl-bom</artifactId>
-                <version>${sapl.version}</version>
+				<version>${project.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -171,7 +137,22 @@
                     <jvmArguments>-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5251</jvmArguments>
                     <wait>500</wait>
                     <maxAttempts>240</maxAttempts>
-                </configuration>
+		            <mainClass>io.sapl.server.ce.SaplServerCeApplication</mainClass>
+		            <layout>JAR</layout>
+					<excludes>
+						<exclude>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+						</exclude>
+					</excludes>
+				</configuration>
+				<executions>
+   					<execution>
+        				<goals>
+            				<goal>repackage</goal>
+        				</goals>
+    				</execution>
+				</executions>                
             </plugin>
             <plugin>
                 <groupId>com.vaadin</groupId>
