@@ -15,31 +15,24 @@
  */
 package io.sapl.server.ce.model.sapldocument;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import java.io.Serializable;
+
+import jakarta.persistence.*;
+import lombok.*;
 import lombok.experimental.Accessors;
 
 /**
  * Entity for a version of a SAPL document.
  */
-@Data
+@Getter
+@Setter
 @Entity
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @Accessors(chain = true)
 @Table(name = "SaplDocumentVersion")
-public class SaplDocumentVersion {
+public class SaplDocumentVersion implements Serializable {
 	public static final int MAX_DOCUMENT_SIZE = 64000;
 	
 	/**
@@ -51,7 +44,7 @@ public class SaplDocumentVersion {
 	private Long versionId;
 
 	/**
-	 * The {@link SaplDocument} this version is belonging to.
+	 * The {@link SaplDocument} this version belongs to.
 	 */
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "saplDocument_fk")

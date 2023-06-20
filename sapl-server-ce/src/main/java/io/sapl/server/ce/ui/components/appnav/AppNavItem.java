@@ -146,7 +146,7 @@ public class AppNavItem extends Component {
     /**
      * Set a textual label for the item.
      * <p>
-     * The label is also available for screen rader users.
+     * The label is also available for screen reader users.
      * 
      * @param label
      *            the label to set

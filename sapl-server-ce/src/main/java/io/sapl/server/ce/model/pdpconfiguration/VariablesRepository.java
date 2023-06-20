@@ -18,16 +18,16 @@ package io.sapl.server.ce.model.pdpconfiguration;
 import java.io.Serializable;
 import java.util.Collection;
 
+import lombok.NonNull;
 import org.springframework.data.repository.CrudRepository;
-import org.springframework.stereotype.Repository;
 
-@Repository
 public interface VariablesRepository extends CrudRepository<Variable, Long>, Serializable {
 	/**
 	 * Returns all instances of the {@link Variable}s.
 	 * 
 	 * @return the instances
 	 */
+	@NonNull
 	@Override
 	Collection<Variable> findAll();
 

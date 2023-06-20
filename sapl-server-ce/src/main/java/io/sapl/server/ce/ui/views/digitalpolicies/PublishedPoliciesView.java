@@ -37,11 +37,11 @@ public class PublishedPoliciesView extends VerticalLayout {
 
 	private final transient SaplDocumentService saplDocumentService;
 
-	private Grid<PublishedSaplDocument> grid                               = new Grid<>();
-	private VerticalLayout              layoutForSelectedPublishedDocument = new VerticalLayout();
-	private TextField                   policyIdTextField                  = new TextField("Policy Identifier");
-	private TextField                   publishedVersionTextField          = new TextField("Published Version");
-	private Button                      openEditPageForPolicyButton        = new Button("Manage Policy");
+	private final Grid<PublishedSaplDocument> grid                               = new Grid<>();
+	private final VerticalLayout              layoutForSelectedPublishedDocument = new VerticalLayout();
+	private final TextField                   policyIdTextField                  = new TextField("Policy Identifier");
+	private final TextField                   publishedVersionTextField          = new TextField("Published Version");
+	private final Button                      openEditPageForPolicyButton        = new Button("Manage Policy");
 	// TODO: private SaplEditor saplEditor;
 	private SaplEditor saplEditor;
 

@@ -55,8 +55,8 @@ public class ClientCredentialsView extends VerticalLayout {
 
 	private final ClientDetailsService clientCredentialsService;
 
-	private Grid<ClientCredentials> clientCredentialsGrid = new Grid<>();
-	private Button                  createButton          = new Button("New Client");
+	private final Grid<ClientCredentials> clientCredentialsGrid = new Grid<>();
+	private final Button                  createButton          = new Button("New Client");
 
 	@PostConstruct
 	private void init() {
@@ -98,9 +98,9 @@ public class ClientCredentialsView extends VerticalLayout {
 		CallbackDataProvider<ClientCredentials, Void> dataProvider = DataProvider.fromCallbacks(query -> {
 			Stream<ClientCredentials> stream = clientCredentialsService.getAll().stream();
 
-			Optional<Comparator<ClientCredentials>> optionalCompatator = query.getSortingComparator();
-			if (optionalCompatator.isPresent()) {
-				stream = stream.sorted(optionalCompatator.get());
+			Optional<Comparator<ClientCredentials>> optionalComparator = query.getSortingComparator();
+			if (optionalComparator.isPresent()) {
+				stream = stream.sorted(optionalComparator.get());
 			}
 
 			return stream.skip(query.getOffset()).limit(query.getLimit());

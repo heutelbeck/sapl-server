@@ -61,17 +61,17 @@ public class EditSaplDocumentView extends VerticalLayout
 	private transient SaplDocumentVersion selectedSaplDocumentVersion;
 	private boolean                       isSelectedVersionRestoredViaEditedDocument;
 
-	private TextField        policyIdField         = new TextField("Policy Identifier");
-	private TextField        currentVersionField   = new TextField("Current Version");
-	private TextField        lastModifiedField     = new TextField("Last Modified");
-	private TextField        publishedVersionField = new TextField("Published Version");
-	private TextField        publishedNameField    = new TextField("Published Name");
+	private final TextField        policyIdField         = new TextField("Policy Identifier");
+	private final TextField        currentVersionField   = new TextField("Current Version");
+	private final TextField        lastModifiedField     = new TextField("Last Modified");
+	private final TextField        publishedVersionField = new TextField("Published Version");
+	private final TextField        publishedNameField    = new TextField("Published Name");
 	private SaplEditor       saplEditor;
-	private ComboBox<String> versionSelection      = new ComboBox<>("Version History");
-	private Button           saveVersionButton     = new Button("Save New Version");
-	private Button           cancelButton          = new Button("Cancel");
-	private Button           publishButton         = new Button("Publish Selected Version");
-	private Button           unpublishButton       = new Button("Unpublish");
+	private final ComboBox<String> versionSelection      = new ComboBox<>("Version History");
+	private final Button           saveVersionButton     = new Button("Save New Version");
+	private final Button           cancelButton          = new Button("Cancel");
+	private final Button           publishButton         = new Button("Publish Selected Version");
+	private final Button           unpublishButton       = new Button("Unpublish");
 
 	private SaplDocument saplDocument;
 	private long         saplDocumentId;
@@ -87,13 +87,13 @@ public class EditSaplDocumentView extends VerticalLayout
 		this.saplEditor.addClassName("sapl-editor");
 		this.setSizeFull();
 		this.setHeightFull();
-		var metadateRowOne   = new HorizontalLayout(policyIdField, currentVersionField, lastModifiedField);
-		var metadateRowTwo   = new HorizontalLayout(publishedVersionField, publishedNameField);
-		var metadateRowThree = new HorizontalLayout(versionSelection, publishButton, unpublishButton);
+		var metadataRowOne   = new HorizontalLayout(policyIdField, currentVersionField, lastModifiedField);
+		var metadataRowTwo   = new HorizontalLayout(publishedVersionField, publishedNameField);
+		var metadataRowThree = new HorizontalLayout(versionSelection, publishButton, unpublishButton);
 		var editActionsRow   = new HorizontalLayout(saveVersionButton, cancelButton);
 		editActionsRow.setWidthFull();
 		editActionsRow.setJustifyContentMode(JustifyContentMode.END);
-		add(metadateRowOne, metadateRowTwo, metadateRowThree, saplEditor, editActionsRow);
+		add(metadataRowOne, metadataRowTwo, metadataRowThree, saplEditor, editActionsRow);
 	}
 
 	@Override
@@ -246,7 +246,7 @@ public class EditSaplDocumentView extends VerticalLayout
 
 	private void updateSaplEditorBasedOnVersionSelection() {
 		Optional<Integer> selectedVersionNumberAsOptional = getSelectedVersionNumber();
-		if (!selectedVersionNumberAsOptional.isPresent()) {
+		if (selectedVersionNumberAsOptional.isEmpty()) {
 			publishButton.setEnabled(false);
 			unpublishButton.setEnabled(false);
 			return;

@@ -46,30 +46,15 @@ class PolicyDocumentCombiningAlgorithmEncoding {
 		EnumMap<PolicyDocumentCombiningAlgorithm, String> mapping = new EnumMap<>(
 				PolicyDocumentCombiningAlgorithm.class);
 		for (PolicyDocumentCombiningAlgorithm combiningAlgorithm : combiningAlgorithms) {
-			String encoded;
-			switch (combiningAlgorithm) {
-			case DENY_UNLESS_PERMIT:
-				encoded = "deny-unless-permit";
-				break;
-			case PERMIT_UNLESS_DENY:
-				encoded = "permit-unless-deny";
-				break;
-			case ONLY_ONE_APPLICABLE:
-				encoded = "only-one-applicable";
-				break;
-			case DENY_OVERRIDES:
-				encoded = "deny-overrides";
-				break;
-			case PERMIT_OVERRIDES:
-				encoded = "permit-overrides";
-				break;
+			String encoded = switch (combiningAlgorithm) {
+                case DENY_UNLESS_PERMIT -> "deny-unless-permit";
+                case PERMIT_UNLESS_DENY -> "permit-unless-deny";
+                case ONLY_ONE_APPLICABLE -> "only-one-applicable";
+                case DENY_OVERRIDES -> "deny-overrides";
+                case PERMIT_OVERRIDES -> "permit-overrides";
+			};
 
-			default:
-				encoded = combiningAlgorithm.toString();
-				break;
-			}
-
-			mapping.put(combiningAlgorithm, encoded);
+            mapping.put(combiningAlgorithm, encoded);
 		}
 
 		return mapping;

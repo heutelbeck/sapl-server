@@ -50,11 +50,11 @@ public class EditVariableView extends VerticalLayout implements HasUrlParameter<
 
 	private long variableId;
 
-	private TextField nameTextField = new TextField("Variable Name");
+	private final TextField nameTextField = new TextField("Variable Name");
 // TODO: 	private JsonEditor jsonEditor;
-	private TextField jsonEditor   = new TextField("Variable Value");
-	private Button    saveButton   = new Button("Save");
-	private Button    cancelButton = new Button("Cancel");
+	private final TextField jsonEditor   = new TextField("Variable Value");
+	private final Button    saveButton   = new Button("Save");
+	private final Button    cancelButton = new Button("Cancel");
 
 	/**
 	 * The {@link Variable} to edit.

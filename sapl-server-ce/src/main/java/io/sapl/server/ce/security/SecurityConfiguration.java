@@ -8,6 +8,7 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -25,7 +26,6 @@ public class SecurityConfiguration extends VaadinWebSecurity {
 
 	@Bean
 	PasswordEncoder passwordEncoder() {
-		// TODO: Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8();
 		return new BCryptPasswordEncoder();
 	}
 
@@ -41,7 +41,7 @@ public class SecurityConfiguration extends VaadinWebSecurity {
 	SecurityFilterChain tokenAuthnFilterChain(HttpSecurity http) throws Exception {
 		// @formatter:off
 		http.securityMatcher("/api/**") // API path
-		    .csrf(csrf->csrf.disable())    // not to be used by a browser disable CSRF token 
+		    .csrf(AbstractHttpConfigurer::disable)    // not to be used by a browser disable CSRF token
 			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // no session required
 			.httpBasic(withDefaults()) // offer basic authentication
 			// all requests to this end point require the CLIENT role
@@ -53,10 +53,12 @@ public class SecurityConfiguration extends VaadinWebSecurity {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 
-		http.authorizeHttpRequests().requestMatchers(new AntPathRequestMatcher("/images/*.png")).permitAll();
+		http.authorizeHttpRequests(
+				requests -> requests.requestMatchers(new AntPathRequestMatcher("/images/*.png")).permitAll());
 
 		// Icons from the line-awesome addon
-		http.authorizeHttpRequests().requestMatchers(new AntPathRequestMatcher("/line-awesome/**/*.svg")).permitAll();
+		http.authorizeHttpRequests(
+				requests -> requests.requestMatchers(new AntPathRequestMatcher("/line-awesome/**/*.svg")).permitAll());
 
 		super.configure(http);
 		setLoginView(http, LoginView.class);

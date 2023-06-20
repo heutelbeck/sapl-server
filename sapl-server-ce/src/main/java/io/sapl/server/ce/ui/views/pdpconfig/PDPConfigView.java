@@ -52,9 +52,9 @@ public class PDPConfigView extends VerticalLayout {
 	private final CombiningAlgorithmService combiningAlgorithmService;
 	private final VariablesService          variablesService;
 
-	private ComboBox<String> comboBoxCombAlgo     = new ComboBox<>("Combining Algorithm");
-	private Grid<Variable>   variablesGrid        = new Grid<>();
-	private Button           createVariableButton = new Button("New Variable");
+	private final ComboBox<String> comboBoxCombAlgo     = new ComboBox<>("Combining Algorithm");
+	private final Grid<Variable>   variablesGrid        = new Grid<>();
+	private final Button           createVariableButton = new Button("New Variable");
 
 	private boolean isIgnoringNextCombiningAlgorithmComboBoxChange;
 

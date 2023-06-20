@@ -45,8 +45,8 @@ public class DigitalPoliciesView extends VerticalLayout {
 
 	private final transient SaplDocumentService saplDocumentService;
 
-	private Grid<SaplDocument> saplDocumentGrid = new Grid<>();
-	private Button             createButton     = new Button("Create");
+	private final Grid<SaplDocument> saplDocumentGrid = new Grid<>();
+	private final Button             createButton     = new Button("Create");
 
 	@PostConstruct
 	private void init() {

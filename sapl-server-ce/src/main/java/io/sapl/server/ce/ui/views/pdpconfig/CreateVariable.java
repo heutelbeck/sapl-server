@@ -8,9 +8,9 @@ import com.vaadin.flow.component.textfield.TextField;
 import lombok.Setter;
 
 public class CreateVariable extends VerticalLayout {
-	private TextField nameTextField = new TextField("Variable Name");
-	private Button    createButton  = new Button("Create");
-	private Button    cancelButton  = new Button("Cancel");
+	private final TextField nameTextField = new TextField("Variable Name");
+	private final Button    createButton  = new Button("Create");
+	private final Button    cancelButton  = new Button("Cancel");
 
 	@Setter
 	private UserConfirmedListener userConfirmedListener;

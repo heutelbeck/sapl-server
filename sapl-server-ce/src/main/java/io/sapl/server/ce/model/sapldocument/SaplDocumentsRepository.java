@@ -18,13 +18,12 @@ package io.sapl.server.ce.model.sapldocument;
 import java.io.Serializable;
 import java.util.Collection;
 
+import lombok.NonNull;
 import org.springframework.data.repository.CrudRepository;
-import org.springframework.stereotype.Repository;
 
 /**
  * Interface for a repository for accessing persisted {@link SaplDocument}.
  */
-@Repository
 public interface SaplDocumentsRepository extends CrudRepository<SaplDocument, Long>, Serializable {
 	/**
 	 * Returns all instances of the {@link SaplDocument}s.
@@ -32,5 +31,6 @@ public interface SaplDocumentsRepository extends CrudRepository<SaplDocument, Lo
 	 * @return the instances
 	 */
 	@Override
+	@NonNull
 	Collection<SaplDocument> findAll();
 }

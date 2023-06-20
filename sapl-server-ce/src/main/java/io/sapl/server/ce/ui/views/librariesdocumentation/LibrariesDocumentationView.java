@@ -52,14 +52,14 @@ public class LibrariesDocumentationView extends VerticalLayout {
 	private final FunctionLibrariesDocumentation       functionLibrariesDocumentation;
 	private final PolicyInformationPointsDocumentation policyInformationPointsDocumentation;
 
-	private Grid<LibraryDocumentation>                functionLibsGrid                   = new Grid<>();
-	private VerticalLayout                            showCurrentFunctionLibLayout       = new VerticalLayout();
-	private Div                                       descriptionOfCurrentFunctionLibDiv = new Div();
-	private Grid<Entry<String, String>>               functionsOfCurrentFunctionLibGrid  = new Grid<>();
-	private Grid<PolicyInformationPointDocumentation> pipsGrid                           = new Grid<>();
-	private VerticalLayout                            showCurrentPipLayout               = new VerticalLayout();
-	private Div                                       descriptionOfCurrentPipDiv         = new Div();
-	private Grid<Entry<String, String>>               functionsOfCurrentPipGrid          = new Grid<>();
+	private final Grid<LibraryDocumentation>                functionLibsGrid                   = new Grid<>();
+	private final VerticalLayout                            showCurrentFunctionLibLayout       = new VerticalLayout();
+	private final Div                                       descriptionOfCurrentFunctionLibDiv = new Div();
+	private final Grid<Entry<String, String>>               functionsOfCurrentFunctionLibGrid  = new Grid<>();
+	private final Grid<PolicyInformationPointDocumentation> pipsGrid                           = new Grid<>();
+	private final VerticalLayout                            showCurrentPipLayout               = new VerticalLayout();
+	private final Div                                       descriptionOfCurrentPipDiv         = new Div();
+	private final Grid<Entry<String, String>>               functionsOfCurrentPipGrid          = new Grid<>();
 
 	@PostConstruct
 	private void init() {
@@ -85,7 +85,7 @@ public class LibrariesDocumentationView extends VerticalLayout {
 		showCurrentFunctionLibLayout.setVisible(false);
 
 		Collection<LibraryDocumentation>                 availableFunctionLibs                 = functionLibrariesDocumentation
-				.getDocumentation();
+				.documentation();
 		CallbackDataProvider<LibraryDocumentation, Void> dataProviderForCurrentFunctionLibGrid = DataProvider
 				.fromCallbacks(query -> {
 																											int offset = query
@@ -105,9 +105,9 @@ public class LibrariesDocumentationView extends VerticalLayout {
 				.setHeader("Name");
 		functionLibsGrid.addColumn(LibraryDocumentation::getDescription)
 				.setHeader("Description");
-		functionsOfCurrentFunctionLibGrid.addColumn(Entry<String, String>::getKey)
+		functionsOfCurrentFunctionLibGrid.addColumn(Entry::getKey)
 				.setHeader("Function");
-		functionsOfCurrentFunctionLibGrid.addColumn(Entry<String, String>::getValue)
+		functionsOfCurrentFunctionLibGrid.addColumn(Entry::getValue)
 				.setHeader("Documentation")
 				.setFlexGrow(5);
 		functionsOfCurrentFunctionLibGrid.addThemeVariants(GridVariant.LUMO_WRAP_CELL_CONTENT);
@@ -152,7 +152,7 @@ public class LibrariesDocumentationView extends VerticalLayout {
 		showCurrentPipLayout.setVisible(false);
 
 		Collection<PolicyInformationPointDocumentation>                 availablePips                 = policyInformationPointsDocumentation
-				.getDocumentation();
+				.documentation();
 		CallbackDataProvider<PolicyInformationPointDocumentation, Void> dataProviderForCurrentPipGrid = DataProvider
 				.fromCallbacks(query -> {
 																													int offset = query
@@ -172,9 +172,9 @@ public class LibrariesDocumentationView extends VerticalLayout {
 				.setHeader("Name");
 		pipsGrid.addColumn(PolicyInformationPointDocumentation::getDescription)
 				.setHeader("Description");
-		functionsOfCurrentPipGrid.addColumn(Entry<String, String>::getKey)
+		functionsOfCurrentPipGrid.addColumn(Entry::getKey)
 				.setHeader("Function");
-		functionsOfCurrentPipGrid.addColumn(Entry<String, String>::getValue)
+		functionsOfCurrentPipGrid.addColumn(Entry::getValue)
 				.setHeader("Documentation")
 				.setFlexGrow(5);
 		functionsOfCurrentPipGrid.addThemeVariants(GridVariant.LUMO_WRAP_CELL_CONTENT);

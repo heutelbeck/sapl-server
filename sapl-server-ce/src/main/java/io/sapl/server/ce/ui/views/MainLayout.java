@@ -40,8 +40,8 @@ public class MainLayout extends AppLayout {
 
 	private H2 viewTitle;
 
-	private transient AuthenticatedUser       authenticatedUser;
-	private AccessAnnotationChecker accessChecker;
+	private final transient AuthenticatedUser       authenticatedUser;
+	private final AccessAnnotationChecker accessChecker;
 
 	public MainLayout(AuthenticatedUser authenticatedUser, AccessAnnotationChecker accessChecker) {
 		this.authenticatedUser = authenticatedUser;

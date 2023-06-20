@@ -15,10 +15,9 @@
  */
 package io.sapl.server.ce.model.sapldocument;
 
-import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 
 import io.sapl.interpreter.DocumentType;
@@ -32,21 +31,24 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 
 /**
  * A SAPL document.
  */
-@Data
+@Getter
+@Setter
+@ToString
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @Accessors(chain = true)
 @Table(name = "SaplDocument")
-public class SaplDocument implements Serializable {
+public class SaplDocument {
 	/**
 	 * The unique identifier of the SAPL document.
 	 */
@@ -86,9 +88,9 @@ public class SaplDocument implements Serializable {
 	@Column
 	private DocumentType type;
 
-	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "saplDocument")
 	@ToString.Exclude
-	private Collection<SaplDocumentVersion> versions = new ArrayList<>();
+	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "saplDocument")
+	private List<SaplDocumentVersion> versions = new ArrayList<>();
 
 	/**
 	 * Gets the current version of the SAPL document as {@link SaplDocumentVersion}.
@@ -97,8 +99,6 @@ public class SaplDocument implements Serializable {
 	 * @return the current version
 	 */
 	public SaplDocumentVersion getCurrentVersion() {
-		Collection<SaplDocumentVersion> versions = getVersions();
-
 		Optional<SaplDocumentVersion> versionWithHighestVersion = versions.stream()
 				.max(Comparator.comparingInt(SaplDocumentVersion::getVersionNumber));
 		return versionWithHighestVersion.orElse(null);
@@ -143,15 +143,9 @@ public class SaplDocument implements Serializable {
 	 * @return the {@link String} representation
 	 */
 	public String getTypeAsString() {
-		DocumentType type = getType();
-		switch (type) {
-		case POLICY:
-			return "Policy";
-		case POLICY_SET:
-			return "Policy Set";
-
-		default:
-			throw new IllegalStateException(String.format("the type %s is not supported", type));
-		}
+		return switch (type) {
+		case POLICY -> "Policy";
+		case POLICY_SET -> "Policy Set";
+		};
 	}
 }

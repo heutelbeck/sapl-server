@@ -18,16 +18,13 @@ package io.sapl.server.ce.model.pdpconfiguration;
 import java.io.Serializable;
 import java.util.Collection;
 
+import lombok.NonNull;
 import org.springframework.data.repository.CrudRepository;
-import org.springframework.stereotype.Repository;
-
-import io.sapl.interpreter.combinators.PolicyDocumentCombiningAlgorithm;
 
 /**
  * Interface for a repository for accessing the selected
  * {@link PolicyDocumentCombiningAlgorithm}.
  */
-@Repository
 public interface SelectedCombiningAlgorithmRepository
 		extends CrudRepository<SelectedCombiningAlgorithm, Long>, Serializable {
 	/**
@@ -36,5 +33,6 @@ public interface SelectedCombiningAlgorithmRepository
 	 * @return the instances
 	 */
 	@Override
+	@NonNull
 	Collection<SelectedCombiningAlgorithm> findAll();
 }
