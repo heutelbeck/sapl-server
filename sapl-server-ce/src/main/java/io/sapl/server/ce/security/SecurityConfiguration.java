@@ -60,6 +60,9 @@ public class SecurityConfiguration extends VaadinWebSecurity {
 		http.authorizeHttpRequests(
 				requests -> requests.requestMatchers(new AntPathRequestMatcher("/line-awesome/**/*.svg")).permitAll());
 
+		// Xtext services
+		http.csrf().ignoringRequestMatchers(new AntPathRequestMatcher("/xtext-service/**"));
+
 		super.configure(http);
 		setLoginView(http, LoginView.class);
 	}
