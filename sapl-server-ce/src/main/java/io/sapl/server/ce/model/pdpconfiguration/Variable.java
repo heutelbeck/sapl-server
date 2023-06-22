@@ -33,6 +33,7 @@ import java.io.Serializable;
 @Accessors(chain = true)
 @Table(name = "Variable")
 public class Variable implements Serializable {
+
 	/**
 	 * The unique identifier of the variable.
 	 */

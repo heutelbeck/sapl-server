@@ -33,6 +33,7 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 @Table(name = "SaplDocumentVersion")
 public class SaplDocumentVersion implements Serializable {
+
 	public static final int MAX_DOCUMENT_SIZE = 64000;
 	
 	/**

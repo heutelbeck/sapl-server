@@ -44,6 +44,7 @@ import lombok.extern.slf4j.Slf4j;
 @PageTitle("Edit Variable")
 @Route(value = EditVariableView.ROUTE, layout = MainLayout.class)
 public class EditVariableView extends VerticalLayout implements HasUrlParameter<Long> {
+
 	public static final String ROUTE = "pdp-config/edit-variable";
 
 	private final VariablesService variableService;

@@ -21,6 +21,7 @@ import lombok.NonNull;
  * Exception thrown if a provided JSON value is invalid.
  */
 public class InvalidJsonException extends Exception {
+
 	public InvalidJsonException(@NonNull String invalidJson) {
 		this(invalidJson, null);
 	}

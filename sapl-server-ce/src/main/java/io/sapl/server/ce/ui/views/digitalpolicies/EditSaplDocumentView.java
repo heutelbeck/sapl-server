@@ -53,6 +53,7 @@ import lombok.extern.slf4j.Slf4j;
 @Route(value = EditSaplDocumentView.ROUTE, layout = MainLayout.class)
 public class EditSaplDocumentView extends VerticalLayout
 		implements HasUrlParameter<Long> {
+	
 	public static final String  ROUTE                       = "documents";
 	private static final String NEW_VERSION_SELECTION_ENTRY = "New Version";
 
@@ -103,7 +104,7 @@ public class EditSaplDocumentView extends VerticalLayout
 		reloadSaplDocument();
 		addListener();
 
-		addAttachListener(__ -> {
+		addAttachListener(attachEvent -> {
 			if (saplDocument == null) {
 				log.warn("SAPL document with id {} is not existing, redirect to list view", parameter);
 				getUI().ifPresent(ui -> ui.navigate(DigitalPoliciesView.ROUTE));

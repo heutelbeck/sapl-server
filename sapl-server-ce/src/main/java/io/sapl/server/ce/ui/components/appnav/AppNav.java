@@ -18,7 +18,7 @@ import com.vaadin.flow.dom.Element;
 @NpmPackage(value = "@vaadin-component-factory/vcf-nav", version = "1.0.6")
 public class AppNav extends Component implements HasSize, HasStyle {
 
-    /**
+	/**
      * Creates a new menu without any label.
      */
     public AppNav() {

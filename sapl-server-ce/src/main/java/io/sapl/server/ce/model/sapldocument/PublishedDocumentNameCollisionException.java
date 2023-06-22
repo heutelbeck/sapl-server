@@ -22,6 +22,7 @@ import lombok.NonNull;
  * unique.
  */
 public class PublishedDocumentNameCollisionException extends Exception {
+
 	/**
 	 * Creates a new instance of the {@link PublishedDocumentNameCollisionException}
 	 * class.

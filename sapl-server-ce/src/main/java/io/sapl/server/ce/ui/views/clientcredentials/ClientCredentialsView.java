@@ -51,6 +51,7 @@ import reactor.util.function.Tuple2;
 @PageTitle("Client Credentials")
 @Route(value = ClientCredentialsView.ROUTE, layout = MainLayout.class)
 public class ClientCredentialsView extends VerticalLayout {
+
 	public static final String ROUTE = "clients";
 
 	private final ClientDetailsService clientCredentialsService;

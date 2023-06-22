@@ -41,6 +41,7 @@ import lombok.RequiredArgsConstructor;
 @PageTitle("Digital Policies")
 @Route(value = DigitalPoliciesView.ROUTE, layout = MainLayout.class)
 public class DigitalPoliciesView extends VerticalLayout {
+
 	public static final String ROUTE = "";
 
 	private final transient SaplDocumentService saplDocumentService;

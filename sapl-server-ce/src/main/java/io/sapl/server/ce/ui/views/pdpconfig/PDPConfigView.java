@@ -47,6 +47,7 @@ import lombok.extern.slf4j.Slf4j;
 @PageTitle("PDP Configuration")
 @Route(value = PDPConfigView.ROUTE, layout = MainLayout.class)
 public class PDPConfigView extends VerticalLayout {
+
 	public static final String ROUTE = "pdp-config";
 
 	private final CombiningAlgorithmService combiningAlgorithmService;

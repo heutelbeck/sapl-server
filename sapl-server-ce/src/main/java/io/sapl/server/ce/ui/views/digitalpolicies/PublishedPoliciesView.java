@@ -33,6 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 @PageTitle("Published Policies")
 @Route(value = PublishedPoliciesView.ROUTE, layout = MainLayout.class)
 public class PublishedPoliciesView extends VerticalLayout {
+
 	public static final String ROUTE = "published";
 
 	private final transient SaplDocumentService saplDocumentService;
@@ -42,7 +43,6 @@ public class PublishedPoliciesView extends VerticalLayout {
 	private final TextField                   policyIdTextField                  = new TextField("Policy Identifier");
 	private final TextField                   publishedVersionTextField          = new TextField("Published Version");
 	private final Button                      openEditPageForPolicyButton        = new Button("Manage Policy");
-	// TODO: private SaplEditor saplEditor;
 	private SaplEditor saplEditor;
 
 	@PostConstruct

@@ -19,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 @Route(value = "login")
 @RequiredArgsConstructor
 public class LoginView extends LoginOverlay implements BeforeEnterObserver {
-
+	
 	private final transient AuthenticatedUser authenticatedUser;
 
 	@PostConstruct

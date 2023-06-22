@@ -47,6 +47,7 @@ import lombok.RequiredArgsConstructor;
 @PageTitle("Libraries Documentation")
 @Route(value = LibrariesDocumentationView.ROUTE, layout = MainLayout.class)
 public class LibrariesDocumentationView extends VerticalLayout {
+
 	public static final String ROUTE = "libraries";
 
 	private final FunctionLibrariesDocumentation       functionLibrariesDocumentation;
