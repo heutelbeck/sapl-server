@@ -120,7 +120,7 @@ public class PublishedPoliciesView extends VerticalLayout {
 		grid.setMultiSort(false);
 		grid.addSelectionListener(selection -> {
 			Optional<PublishedSaplDocument> selectedItem = selection.getFirstSelectedItem();
-			selectedItem.ifPresentOrElse((selectedPublishedDocument) -> {
+			selectedItem.ifPresentOrElse(selectedPublishedDocument -> {
 				layoutForSelectedPublishedDocument.setVisible(true);
 
 				policyIdTextField.setValue(Long.toString(selectedPublishedDocument.getSaplDocumentId()));

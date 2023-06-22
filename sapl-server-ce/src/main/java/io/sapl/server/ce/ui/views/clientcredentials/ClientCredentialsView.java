@@ -72,8 +72,8 @@ public class ClientCredentialsView extends VerticalLayout {
 		Tuple2<ClientCredentials, String> clientCredentialsWithSecret;
 		try {
 			clientCredentialsWithSecret = clientCredentialsService.createDefault();
-		} catch (Throwable throwable) {
-			ErrorNotificationUtils.show("The client cannot be created due to an internal error.");
+		} catch (Exception e) {
+			ErrorNotificationUtils.show("The client cannot be created due to an internal error. "+e.getMessage());
 			return;
 		}
 		showDialogForCreatedVariable(clientCredentialsWithSecret.getT1().getKey(),
@@ -122,9 +122,9 @@ public class ClientCredentialsView extends VerticalLayout {
 		long idOfClientToRemove = currentClientCredential.getId();
 		try {
 			clientCredentialsService.delete(idOfClientToRemove);
-		} catch (Throwable throwable) {
+		} catch (Exception e) {
 			ErrorNotificationUtils
-					.show("The client cannot be deleted due to an internal error.");
+					.show("The client cannot be deleted due to an internal error. "+e.getMessage());
 			return;
 		}
 		clientCredentialsGrid.getDataProvider().refreshAll();

@@ -74,7 +74,7 @@ public class EditVariableView extends VerticalLayout implements HasUrlParameter<
 		reloadVariable();
 		addListener();
 
-		addAttachListener((__) -> {
+		addAttachListener(__ -> {
 			if (variable == null) {
 				log.warn("variable with id {} is not existing, redirect to list view", parameter);
 				getUI().ifPresent(ui -> ui.navigate(PDPConfigView.ROUTE));
