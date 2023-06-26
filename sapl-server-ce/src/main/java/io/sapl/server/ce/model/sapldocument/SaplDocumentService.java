@@ -19,11 +19,11 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.util.Streamable;
@@ -57,10 +57,10 @@ import reactor.core.publisher.Sinks.Many;
 public class SaplDocumentService implements PrpUpdateEventSource {
 	public static final String DEFAULT_DOCUMENT_VALUE = "policy \"all deny\"\ndeny";
 
-	private final SaplDocumentsRepository saplDocumentRepository;
-	private final SaplDocumentsVersionRepository saplDocumentVersionRepository;
+	private final SaplDocumentsRepository         saplDocumentRepository;
+	private final SaplDocumentsVersionRepository  saplDocumentVersionRepository;
 	private final PublishedSaplDocumentRepository publishedSaplDocumentRepository;
-	private final SAPLInterpreter saplInterpreter;
+	private final SAPLInterpreter                 saplInterpreter;
 
 	private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
 			.withLocale(Locale.GERMANY).withZone(ZoneId.systemDefault());
@@ -70,7 +70,6 @@ public class SaplDocumentService implements PrpUpdateEventSource {
 	@PostConstruct
 	public void init() {
 		prpUpdateEventSink = Sinks.many().replay().all();
-
 		// emit initial event
 		PrpUpdateEvent initialEvent = generateInitialPrpUpdateEvent();
 		prpUpdateEventSink.emitNext(initialEvent, EmitFailureHandler.FAIL_FAST);
@@ -83,7 +82,7 @@ public class SaplDocumentService implements PrpUpdateEventSource {
 
 	@Override
 	public void dispose() {
-		//TODO. What is todo?
+		// TODO. What is todo?
 	}
 
 	public Collection<SaplDocument> getAll() {
@@ -104,11 +103,11 @@ public class SaplDocumentService implements PrpUpdateEventSource {
 		DocumentAnalysisResult documentAnalysisResult = saplInterpreter.analyze(documentValue);
 
 		DocumentType type = documentAnalysisResult.getType();
-		String name = documentAnalysisResult.getName();
+		String       name = documentAnalysisResult.getName();
 
 		SaplDocument saplDocumentToCreate = new SaplDocument().setLastModified(getCurrentTimestampAsString())
 				.setName(name).setCurrentVersionNumber(1).setType(type);
-		SaplDocument createdDocument = saplDocumentRepository.save(saplDocumentToCreate);
+		SaplDocument createdDocument      = saplDocumentRepository.save(saplDocumentToCreate);
 
 		SaplDocumentVersion initialSaplDocumentVersion = new SaplDocumentVersion().setSaplDocument(createdDocument)
 				.setVersionNumber(1).setDocumentContent(documentValue).setName(name);
@@ -125,9 +124,9 @@ public class SaplDocumentService implements PrpUpdateEventSource {
 			throw new IllegalArgumentException(String.format("document value is invalid (value: %s)", documentValue));
 		}
 
-		int newVersionNumber = saplDocument.getCurrentVersionNumber() + 1;
-		DocumentType type = documentAnalysisResult.getType();
-		String newName = documentAnalysisResult.getName();
+		int          newVersionNumber = saplDocument.getCurrentVersionNumber() + 1;
+		DocumentType type             = documentAnalysisResult.getType();
+		String       newName          = documentAnalysisResult.getName();
 
 		SaplDocumentVersion newSaplDocumentVersion = new SaplDocumentVersion().setSaplDocument(saplDocument)
 				.setVersionNumber(newVersionNumber).setDocumentContent(documentValue).setName(newName);
@@ -144,10 +143,30 @@ public class SaplDocumentService implements PrpUpdateEventSource {
 	public void publishPolicyVersion(long saplDocumentId, int versionToPublish)
 			throws PublishedDocumentNameCollisionException {
 		SaplDocument saplDocument = getExistingById(saplDocumentId);
+		var          updateEvents = new ArrayList<Update>(2);
 
 		// unpublish other version if published
 		if (saplDocument.getPublishedVersion() != null) {
-			unpublishPolicy(saplDocumentId);
+			SaplDocument saplDocumentToUnpublish = getExistingById(saplDocumentId);
+
+			SaplDocumentVersion publishedVersion = saplDocumentToUnpublish.getPublishedVersion();
+			if (publishedVersion != null) {
+
+				// update persisted published documents
+				Iterable<PublishedSaplDocument> deletedPublishedSaplDocuments = deletePersistedPublishedSaplDocumentsByName(
+						publishedVersion.getName());
+				for (var doc : deletedPublishedSaplDocuments) {
+					updateEvents.add(convertSaplDocumentToUpdateOfPrpUpdateEvent(doc, PrpUpdateEvent.Type.WITHDRAW));
+				}
+
+				// update persisted document
+				saplDocumentToUnpublish.setPublishedVersion(null);
+				saplDocumentRepository.save(saplDocumentToUnpublish);
+
+				log.info("unpublish version {} of SAPL document with id {} (name: {})",
+						publishedVersion.getVersionNumber(),
+						saplDocumentId, saplDocumentToUnpublish.getName());
+			}
 		}
 
 		SaplDocumentVersion saplDocumentVersionToPublish = saplDocument.getVersion(versionToPublish);
@@ -164,7 +183,11 @@ public class SaplDocumentService implements PrpUpdateEventSource {
 				saplDocumentVersionToPublish.getVersionNumber(), saplDocumentId,
 				saplDocumentVersionToPublish.getName());
 
-		notifyAboutChangedPublicationOfSaplDocument(PrpUpdateEvent.Type.PUBLISH, createdPublishedSaplDocument);
+		updateEvents.add(
+				convertSaplDocumentToUpdateOfPrpUpdateEvent(createdPublishedSaplDocument, PrpUpdateEvent.Type.PUBLISH));
+
+		var prpUpdateEvent = new PrpUpdateEvent(updateEvents);
+		prpUpdateEventSink.emitNext(prpUpdateEvent, EmitFailureHandler.FAIL_FAST);
 	}
 
 	@Transactional
@@ -177,7 +200,7 @@ public class SaplDocumentService implements PrpUpdateEventSource {
 		}
 
 		// update persisted published documents
-		Iterable<PublishedSaplDocument> deletedPublishedSaplDocument = deletePersistedPublishedSaplDocumentsByName(
+		Iterable<PublishedSaplDocument> deletedPublishedSaplDocuments = deletePersistedPublishedSaplDocumentsByName(
 				publishedVersion.getName());
 
 		// update persisted document
@@ -187,7 +210,7 @@ public class SaplDocumentService implements PrpUpdateEventSource {
 		log.info("unpublish version {} of SAPL document with id {} (name: {})", publishedVersion.getVersionNumber(),
 				saplDocumentId, saplDocumentToUnpublish.getName());
 
-		notifyAboutChangedPublicationOfSaplDocument(PrpUpdateEvent.Type.WITHDRAW, deletedPublishedSaplDocument);
+		notifyAboutChangedPublicationOfSaplDocument(PrpUpdateEvent.Type.WITHDRAW, deletedPublishedSaplDocuments);
 	}
 
 	public Collection<PublishedSaplDocument> getPublishedSaplDocuments() {
@@ -201,7 +224,8 @@ public class SaplDocumentService implements PrpUpdateEventSource {
 	private SaplDocument getExistingById(long saplDocumentId) {
 		Optional<SaplDocument> optionalSaplDocument = getById(saplDocumentId);
 		if (optionalSaplDocument.isEmpty()) {
-			throw new IllegalArgumentException(String.format("SAPL document with id %d is not available", saplDocumentId));
+			throw new IllegalArgumentException(
+					String.format("SAPL document with id %d is not available", saplDocumentId));
 		}
 
 		return optionalSaplDocument.get();
@@ -214,8 +238,9 @@ public class SaplDocumentService implements PrpUpdateEventSource {
 	private PrpUpdateEvent generateInitialPrpUpdateEvent() {
 		List<PrpUpdateEvent.Update> updates = publishedSaplDocumentRepository.findAll()
 				.stream()
-				.map(publishedSaplDocument -> convertSaplDocumentToUpdateOfPrpUpdateEvent(publishedSaplDocument, PrpUpdateEvent.Type.PUBLISH))
-				.collect(Collectors.toList());
+				.map(publishedSaplDocument -> convertSaplDocumentToUpdateOfPrpUpdateEvent(publishedSaplDocument,
+						PrpUpdateEvent.Type.PUBLISH))
+				.toList();
 		return new PrpUpdateEvent(updates);
 	}
 
@@ -228,7 +253,8 @@ public class SaplDocumentService implements PrpUpdateEventSource {
 	}
 
 	private Iterable<PublishedSaplDocument> deletePersistedPublishedSaplDocumentsByName(String name) {
-		Collection<PublishedSaplDocument> publishedDocumentsWithName = publishedSaplDocumentRepository.findByDocumentName(name);
+		Collection<PublishedSaplDocument> publishedDocumentsWithName = publishedSaplDocumentRepository
+				.findByDocumentName(name);
 		publishedSaplDocumentRepository.deleteAll(publishedDocumentsWithName);
 
 		return publishedDocumentsWithName;
@@ -260,7 +286,8 @@ public class SaplDocumentService implements PrpUpdateEventSource {
 	private void notifyAboutChangedPublicationOfSaplDocument(PrpUpdateEvent.Type prpUpdateEventType,
 			Iterable<PublishedSaplDocument> publishedSaplDocuments) {
 		List<PrpUpdateEvent.Update> updateEvents = Streamable.of(publishedSaplDocuments)
-				.map(publishedSaplDocument -> convertSaplDocumentToUpdateOfPrpUpdateEvent(publishedSaplDocument, prpUpdateEventType))
+				.map(publishedSaplDocument -> convertSaplDocumentToUpdateOfPrpUpdateEvent(publishedSaplDocument,
+						prpUpdateEventType))
 				.toList();
 
 		PrpUpdateEvent prpUpdateEvent = new PrpUpdateEvent(updateEvents);
