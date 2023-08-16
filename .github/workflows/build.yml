@@ -53,21 +53,20 @@ jobs:
     - name: Build with Maven (JUnit, JaCoCo, Sonar) 
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      run: mvn -B org.jacoco:jacoco-maven-plugin:prepare-agent install org.jacoco:jacoco-maven-plugin:report org.sonarsource.scanner.maven:sonar-maven-plugin:RELEASE:sonar -Dsonar.host.url=https://sonar.ftk.de -Dsonar.login=${SONAR_TOKEN} -P production
-#      run: mvn -B org.jacoco:jacoco-maven-plugin:prepare-agent install org.jacoco:jacoco-maven-plugin:report org.sonarsource.scanner.maven:sonar-maven-plugin:RELEASE:sonar -Dsonar.host.url=https://sonar.ftk.de -Dsonar.login=${SONAR_TOKEN} -P production,h2,mariadb
+      run: mvn -B org.jacoco:jacoco-maven-plugin:prepare-agent install org.jacoco:jacoco-maven-plugin:report org.sonarsource.scanner.maven:sonar-maven-plugin:RELEASE:sonar -Dsonar.host.url=https://sonar.ftk.de -Dsonar.login=${SONAR_TOKEN} -P production,h2,mariadb
 
-#    - name: Install GPG Code Signing Key
-#      run: |
-#        cat <(echo -e "${{ secrets.OSSRH_GPG_SECRET_KEY }}") | gpg --batch --import
-#        gpg --list-secret-keys --keyid-format LONG
+    - name: Install GPG Code Signing Key
+      run: |
+        cat <(echo -e "${{ secrets.OSSRH_GPG_SECRET_KEY }}") | gpg --batch --import
+        gpg --list-secret-keys --keyid-format LONG
 
-#    - name: Deploy Maven artefacts
-#      run: mvn -B --no-transfer-progress -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} -pl !sapl-server-ce -DskipTests -P publish,production,h2,mariadb clean deploy      
+    - name: Deploy Maven artefacts
+      run: mvn -B --no-transfer-progress -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} -pl !sapl-server-ce -DskipTests -P publish,production,h2,mariadb clean deploy      
 
-#    - name: Build and push SAPL Server CE Docker image
-#      run: |
-#        mvn -B clean package dockerfile:build -pl sapl-server-ce -P docker,production,mariadb,!h2 -DskipTests|| exit 1
-#        mvn -B dockerfile:push -pl sapl-server-ce -P docker,production,mariadb,!h2 -DskipTests
+    - name: Build and push SAPL Server CE Docker image
+      run: |
+        mvn -B clean package dockerfile:build -pl sapl-server-ce -P docker,production,mariadb,!h2 -DskipTests|| exit 1
+        mvn -B dockerfile:push -pl sapl-server-ce -P docker,production,mariadb,!h2 -DskipTests
                  
     - name: Clean up local repository before caching
       run: rm -rf /.m2/repository/io/sapl
