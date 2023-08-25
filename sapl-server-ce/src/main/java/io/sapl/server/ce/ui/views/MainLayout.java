@@ -1,10 +1,8 @@
 package io.sapl.server.ce.ui.views;
 
-import java.util.Optional;
-
-import org.springframework.security.core.userdetails.UserDetails;
 import org.vaadin.lineawesome.LineAwesomeIcon;
 
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.avatar.Avatar;
@@ -32,28 +30,29 @@ import io.sapl.server.ce.ui.views.digitalpolicies.DigitalPoliciesView;
 import io.sapl.server.ce.ui.views.digitalpolicies.PublishedPoliciesView;
 import io.sapl.server.ce.ui.views.librariesdocumentation.LibrariesDocumentationView;
 import io.sapl.server.ce.ui.views.pdpconfig.PDPConfigView;
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 
 /**
  * The main view is a top-level placeholder for other views.
  */
+@RequiredArgsConstructor
 public class MainLayout extends AppLayout {
 
 	private H2 viewTitle;
 
-	private final transient AuthenticatedUser       authenticatedUser;
-	private final AccessAnnotationChecker accessChecker;
+	private final AuthenticatedUser			authenticatedUser;
+	private final AccessAnnotationChecker	accessChecker;
 
-	public MainLayout(AuthenticatedUser authenticatedUser, AccessAnnotationChecker accessChecker) {
-		this.authenticatedUser = authenticatedUser;
-		this.accessChecker     = accessChecker;
-
+	@PostConstruct
+	public void init() {
 		setPrimarySection(Section.DRAWER);
 		addDrawerContent();
 		addHeaderContent();
 	}
 
 	private void addHeaderContent() {
-		DrawerToggle toggle = new DrawerToggle();
+		var toggle = new DrawerToggle();
 		toggle.getElement().setAttribute("aria-label", "Menu toggle");
 
 		viewTitle = new H2();
@@ -74,48 +73,31 @@ public class MainLayout extends AppLayout {
 		appName.addClassNames(LumoUtility.FontSize.XLARGE, LumoUtility.Margin.NONE);
 		logoLayout.add(logo, appName);
 
-		var header   = new Header(logoLayout);
-		var scroller = new Scroller(createNavigation());
+		var	header		= new Header(logoLayout);
+		var	scroller	= new Scroller(createNavigation());
 
 		addToDrawer(header, scroller, createFooter());
 	}
 
 	private AppNav createNavigation() {
-		// AppNav is not yet an official component.
-		// For documentation, visit https://github.com/vaadin/vcf-nav#readme
-		AppNav nav = new AppNav();
-
-		if (accessChecker.hasAccess(DigitalPoliciesView.class)) {
-			nav.addItem(
-					new AppNavItem("Digital Policies", DigitalPoliciesView.class, LineAwesomeIcon.FILE_SOLID.create()));
-
-		}
-		if (accessChecker.hasAccess(PublishedPoliciesView.class)) {
-			nav.addItem(new AppNavItem("Published Policies", PublishedPoliciesView.class,
-					LineAwesomeIcon.FILE_ALT.create()));
-
-		}
-		if (accessChecker.hasAccess(PDPConfigView.class)) {
-			nav.addItem(new AppNavItem("PDP Config", PDPConfigView.class, LineAwesomeIcon.COG_SOLID.create()));
-
-		}
-		if (accessChecker.hasAccess(LibrariesDocumentationView.class)) {
-			nav.addItem(new AppNavItem("Libraries Documentation", LibrariesDocumentationView.class,
-					LineAwesomeIcon.BOOK_SOLID.create()));
-
-		}
-		if (accessChecker.hasAccess(ClientCredentialsView.class)) {
-			nav.addItem(new AppNavItem("Client Credentials", ClientCredentialsView.class,
-					LineAwesomeIcon.KEY_SOLID.create()));
-		}
-
+		var nav = new AppNav();
+		addItem(nav, "Digital Policies", DigitalPoliciesView.class, LineAwesomeIcon.FILE_SOLID);
+		addItem(nav, "Published Policies", PublishedPoliciesView.class, LineAwesomeIcon.FILE_ALT);
+		addItem(nav, "PDP Config", PDPConfigView.class, LineAwesomeIcon.COG_SOLID);
+		addItem(nav, "Libraries Documentation", LibrariesDocumentationView.class, LineAwesomeIcon.BOOK_SOLID);
+		addItem(nav, "Client Credentials", ClientCredentialsView.class, LineAwesomeIcon.KEY_SOLID);
 		return nav;
 	}
 
-	private Footer createFooter() {
-		Footer layout = new Footer();
+	private void addItem(AppNav nav, String label, Class<? extends Component> view, LineAwesomeIcon icon) {
+		if (accessChecker.hasAccess(view)) {
+			nav.addItem(new AppNavItem(label, view, icon.create()));
+		}
+	}
 
-		Optional<UserDetails> maybeUser = authenticatedUser.get();
+	private Footer createFooter() {
+		var	layout		= new Footer();
+		var	maybeUser	= authenticatedUser.get();
 		if (maybeUser.isPresent()) {
 			var user = maybeUser.get();
 
@@ -126,8 +108,8 @@ public class MainLayout extends AppLayout {
 			var userMenu = new MenuBar();
 			userMenu.setThemeName("tertiary-inline contrast");
 
-			var userName = userMenu.addItem("");
-			var div      = new Div();
+			var	userName	= userMenu.addItem("");
+			var	div			= new Div();
 			div.add(avatar);
 			div.add(user.getUsername());
 			div.add(new Icon("lumo", "dropdown"));
@@ -153,7 +135,7 @@ public class MainLayout extends AppLayout {
 	}
 
 	private String getCurrentPageTitle() {
-		PageTitle title = getContent().getClass().getAnnotation(PageTitle.class);
+		var title = getContent().getClass().getAnnotation(PageTitle.class);
 		return title == null ? "" : title.value();
 	}
 }

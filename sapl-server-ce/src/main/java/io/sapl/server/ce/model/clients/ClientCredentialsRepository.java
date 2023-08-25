@@ -19,10 +19,11 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Optional;
 
-import lombok.NonNull;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
+
+import lombok.NonNull;
 
 public interface ClientCredentialsRepository extends CrudRepository<ClientCredentials, Long>, Serializable {
 	/**

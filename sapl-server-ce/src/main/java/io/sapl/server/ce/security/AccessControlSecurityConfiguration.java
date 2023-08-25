@@ -17,12 +17,11 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import com.vaadin.flow.spring.security.VaadinWebSecurity;
 
-import io.sapl.server.ce.model.clients.ClientDetailsService;
 import io.sapl.server.ce.ui.views.login.LoginView;
 
 @Configuration
 @EnableWebSecurity
-public class SecurityConfiguration extends VaadinWebSecurity {
+public class AccessControlSecurityConfiguration extends VaadinWebSecurity {
 
 	@Bean
 	PasswordEncoder passwordEncoder() {
@@ -31,7 +30,7 @@ public class SecurityConfiguration extends VaadinWebSecurity {
 
 	/**
 	 * This filter chain is offering Basic Authn for the API.
-	 * 
+	 *
 	 * @param http the HttpSecurity.
 	 * @return configured HttpSecurity
 	 * @throws Exception if error occurs during HTTP security configuration

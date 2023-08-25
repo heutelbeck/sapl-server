@@ -36,7 +36,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
 import io.sapl.server.ce.model.clients.ClientCredentials;
-import io.sapl.server.ce.model.clients.ClientDetailsService;
+import io.sapl.server.ce.security.ClientDetailsService;
 import io.sapl.server.ce.ui.utils.ConfirmUtils;
 import io.sapl.server.ce.ui.utils.ErrorNotificationUtils;
 import io.sapl.server.ce.ui.views.MainLayout;

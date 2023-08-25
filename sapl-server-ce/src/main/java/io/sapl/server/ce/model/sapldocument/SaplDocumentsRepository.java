@@ -18,8 +18,9 @@ package io.sapl.server.ce.model.sapldocument;
 import java.io.Serializable;
 import java.util.Collection;
 
-import lombok.NonNull;
 import org.springframework.data.repository.CrudRepository;
+
+import lombok.NonNull;
 
 /**
  * Interface for a repository for accessing persisted {@link SaplDocument}.
