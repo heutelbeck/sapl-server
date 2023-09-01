@@ -17,9 +17,7 @@
 
 	<properties>
 		<spring.profile.from.maven>default</spring.profile.from.maven>
-		<sapl.image.publish>false</sapl.image.publish>
-		<sapl.image.user></sapl.image.user>
-		<sapl.image.password></sapl.image.password>
+		<sapl.image.publish>false</sapl.image.publish>	
 	</properties>
 	
 	<dependencyManagement>
@@ -188,8 +186,8 @@
 					</image>
                     <docker>
                         <publishRegistry>
-                            <username>${sapl.image.user}</username>
-                            <password>${sapl.image.password}</password>
+                            <username>${env.DOCKER_USER}</username>
+                            <password>${env.DOCKER_PASSWORD}</password>
                         </publishRegistry>
                     </docker>
 				</configuration>
