@@ -17,7 +17,6 @@
 
 	<properties>
 		<spring.profile.from.maven>default</spring.profile.from.maven>
-		<docker.publish>false</docker.publish>
 	</properties>
 	
 	<dependencyManagement>
@@ -182,7 +181,6 @@
 					</layers>
 					<image>
 						<name>ghcr.io/heutelbeck/${project.artifactId}:${project.version}</name>
-						<publish>${docker.publish}</publish>
 					</image>
                     <docker>
 						<publishRegistry>
