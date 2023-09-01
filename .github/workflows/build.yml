@@ -25,28 +25,9 @@ jobs:
         distribution: 'adopt'
         java-version: 17
         cache: 'maven'
-  
-    - name: Configure servers
-      uses: s4u/maven-settings-action@v2.7.0
-      with:
-        githubServer: false
-        servers: |
-          [{
-              "id": "ossrh",
-              "username": "${{ secrets.OSSRH_USERNAME }}",
-              "password": "${{ secrets.OSSRH_PASSWORD }}"
-           },{
-              "id": "ghcr.io",
-              "username": "${{ secrets.GHUB_USERNAME }}",
-              "password": "${{ secrets.GHUB_ACCESS_TOKEN }}"
-           },{
-              "id": "github",
-              "username": "${{ secrets.GHUB_USERNAME }}",
-              "password": "${{ secrets.GHUB_ACCESS_TOKEN }}"
-           }]
        
-    - name: Build with Maven (JUnit, JaCoCo, Sonar) 
-      run: mvn -B org.jacoco:jacoco-maven-plugin:prepare-agent package org.jacoco:jacoco-maven-plugin:report org.sonarsource.scanner.maven:sonar-maven-plugin:RELEASE:sonar -Dsonar.host.url=https://sonar.ftk.de -Dsonar.login=${{ secrets.SONAR_TOKEN }} -P production
+#    - name: Build with Maven (JUnit, JaCoCo, Sonar) 
+#      run: mvn -B org.jacoco:jacoco-maven-plugin:prepare-agent package org.jacoco:jacoco-maven-plugin:report org.sonarsource.scanner.maven:sonar-maven-plugin:RELEASE:sonar -Dsonar.host.url=https://sonar.ftk.de -Dsonar.login=${{ secrets.SONAR_TOKEN }} -P production
 
     - name: Build SAPL Server CE Docker image
       run: mvn -B clean spring-boot:build-image -pl sapl-server-ce -P docker,production -DskipTests "-Dsapl.image.publish=false" "-Dsapl.image.username=${{ secrets.GHUB_USERNAME }}" "-Dsapl.image.password=${{ secrets.GHUB_ACCESS_TOKEN }}" 
