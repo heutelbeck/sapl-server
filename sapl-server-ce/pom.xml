@@ -17,6 +17,9 @@
 
 	<properties>
 		<spring.profile.from.maven>default</spring.profile.from.maven>
+		<sapl.image.publish>false</sapl.image.publish>
+		<sapl.image.token></sapl.image.token>
+		<sapl.image.user></sapl.image.user>
 	</properties>
 	
 	<dependencyManagement>
@@ -181,8 +184,15 @@
 					</layers>
 					<image>
 						<name>ghcr.io/heutelbeck/${project.artifactId}:${project.version}</name>
-						<publish>true</publish>
+						<publish>${sapl.image.publish}</publish>
 					</image>
+                    <docker>
+                        <publishRegistry>
+                            <username>${sapl.image.user}</username>
+                            <token>${sapl.image.token}</token>
+                            <url>https://ghcr.io</url>
+                        </publishRegistry>
+                    </docker>
 				</configuration>
 				<executions>
 					<execution>
