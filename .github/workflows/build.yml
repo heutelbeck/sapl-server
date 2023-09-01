@@ -33,7 +33,7 @@ jobs:
       env:
         DOCKER_USER: ${{ secrets.GHUB_USERNAME }}
         DOCKER_PASSWORD: ${{ secrets.GHUB_PASSWORD }}        
-      run: mvn -B clean spring-boot:build-image -pl sapl-server-ce -P docker,production -DskipTests -Dsapl.image.publish=false 
+      run: mvn -B clean spring-boot:build-image -pl sapl-server-ce -P docker,production -DskipTests -Dsapl.image.publish=true 
                  
     - name: Clean up local repository before caching
       run: rm -rf /.m2/repository/io/sapl
