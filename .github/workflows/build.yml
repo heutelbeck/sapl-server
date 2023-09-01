@@ -31,7 +31,7 @@ jobs:
 
     - name: Build SAPL Server CE Docker image
       run: mvn -B clean spring-boot:build-image -pl sapl-server-ce -P docker,production -DskipTests \
-             -Ddocker.publish=true \
+             -Dspring-boot.build-image.publish=true \
              -Ddocker.credentials.username=${{ github.actor }} \
              -Ddocker.credentials.password=${{ secrets.GITHUB_TOKEN }}
                  
