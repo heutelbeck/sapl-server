@@ -179,6 +179,10 @@
 					<layers>
 						<enabled>true</enabled>
 					</layers>
+					<image>
+						<name>ghcr.io/heutelbeck/${project.artifactId}:${project.version}</name>
+						<publish>true</publish>
+					</image>
 				</configuration>
 				<executions>
 					<execution>
