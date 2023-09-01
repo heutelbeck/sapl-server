@@ -30,10 +30,10 @@ jobs:
 #      run: mvn -B org.jacoco:jacoco-maven-plugin:prepare-agent package org.jacoco:jacoco-maven-plugin:report org.sonarsource.scanner.maven:sonar-maven-plugin:RELEASE:sonar -Dsonar.host.url=https://sonar.ftk.de -Dsonar.login=${{ secrets.SONAR_TOKEN }} -P production
 
     - name: Build SAPL Server CE Docker image
-      env:
-        DOCKER_USER: ${{ secrets.GHUB_USERNAME }}
-        DOCKER_PASSWORD: ${{ secrets.GHUB_PASSWORD }}        
-      run: mvn -B clean spring-boot:build-image -pl sapl-server-ce -P docker,production -DskipTests -Dsapl.image.publish=true 
+      run: mvn -B clean spring-boot:build-image -pl sapl-server-ce -P docker,production -DskipTests \
+             -Ddocker.publish=true \
+             -Ddocker.credentials.username=${{ github.actor }} \
+             -Ddocker.credentials.password=${{ secrets.GITHUB_TOKEN }}
                  
     - name: Clean up local repository before caching
       run: rm -rf /.m2/repository/io/sapl
