@@ -18,8 +18,8 @@
 	<properties>
 		<spring.profile.from.maven>default</spring.profile.from.maven>
 		<sapl.image.publish>false</sapl.image.publish>
-		<sapl.image.token></sapl.image.token>
 		<sapl.image.user></sapl.image.user>
+		<sapl.image.password></sapl.image.password>
 	</properties>
 	
 	<dependencyManagement>
@@ -189,8 +189,7 @@
                     <docker>
                         <publishRegistry>
                             <username>${sapl.image.user}</username>
-                            <token>${sapl.image.token}</token>
-                            <url>https://ghcr.io</url>
+                            <password>${sapl.image.password}</password>
                         </publishRegistry>
                     </docker>
 				</configuration>
