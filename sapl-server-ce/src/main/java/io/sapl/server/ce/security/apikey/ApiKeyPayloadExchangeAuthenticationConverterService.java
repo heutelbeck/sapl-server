@@ -22,7 +22,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.rsocket.api.PayloadExchange;
 import org.springframework.security.rsocket.authentication.PayloadExchangeAuthenticationConverter;
 import org.springframework.stereotype.Component;
@@ -30,7 +29,6 @@ import org.springframework.util.MimeType;
 import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 
 @Slf4j
 @Component
@@ -50,8 +48,8 @@ public class ApiKeyPayloadExchangeAuthenticationConverterService implements Payl
 		for (CompositeMetadata.Entry entry : compositeMetadata) {
 			if (apiKeyMimeTypeValue.equals(entry.getMimeType())) {
 				String apikey = entry.getContent().toString(StandardCharsets.UTF_8);
-				if (clientDetailsService.isApiKeyAllowedToConnect(apikey)) {
-					return Mono.just(new ApiKeyAuthenticationToken(apikey, "apikey"));
+				if (clientDetailsService.isApiKeyAssociatedWithClientCredentials(apikey)) {
+					return Mono.just(new ApiKeyAuthenticationToken(apikey));
 				} else {
 					return Mono.error(() -> new ApiKeyAuthenticationException("ApiKey not authorized"));
 				}

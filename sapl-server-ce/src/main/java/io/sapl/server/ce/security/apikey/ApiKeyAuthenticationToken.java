@@ -15,58 +15,31 @@
  */
 package io.sapl.server.ce.security.apikey;
 
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
+import io.sapl.server.ce.security.ClientDetailsService;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-import java.util.Collection;
 import java.util.List;
 
 /**
  * Represents an authentication token within the example application.
  */
-public class ApiKeyAuthenticationToken implements Authentication {
-
+public class ApiKeyAuthenticationToken extends AbstractAuthenticationToken {
 	private final String apiKey;
-	private final String principal;
-	private boolean      authenticated = false;
 
-	public ApiKeyAuthenticationToken(final String apiKey, final String principal) {
-		this.apiKey    = apiKey;
-		this.principal = principal;
-	}
-
-	@Override
-	public Collection<? extends GrantedAuthority> getAuthorities() {
-		return List.of();
+	public ApiKeyAuthenticationToken(String apiKey) {
+		super(List.of(new SimpleGrantedAuthority(ClientDetailsService.CLIENT)));
+		this.apiKey = apiKey;
+		setAuthenticated(true);
 	}
 
 	@Override
 	public Object getCredentials() {
-		return apiKey;
-	}
-
-	@Override
-	public Object getDetails() {
 		return null;
 	}
 
 	@Override
 	public Object getPrincipal() {
-		return principal;
-	}
-
-	@Override
-	public boolean isAuthenticated() {
-		return authenticated;
-	}
-
-	@Override
-	public void setAuthenticated(boolean isAuthenticated) {
-		this.authenticated = isAuthenticated;
-	}
-
-	@Override
-	public String getName() {
-		return getPrincipal().toString();
+		return apiKey;
 	}
 }

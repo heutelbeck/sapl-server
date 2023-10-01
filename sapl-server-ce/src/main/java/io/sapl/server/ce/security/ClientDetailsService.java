@@ -78,7 +78,7 @@ public class ClientDetailsService implements UserDetailsService {
 						String.format("client credentials with key \"%s\" not found", username)));
 
 		return org.springframework.security.core.userdetails.User.withUsername(clientCredentials.getKey())
-				.password(clientCredentials.getEncodedSecret()).roles(CLIENT).build();
+				.password(clientCredentials.getEncodedSecret()).authorities(CLIENT).build();
 	}
 
 	public Collection<ClientCredentials> getAll() {
@@ -113,7 +113,10 @@ public class ClientDetailsService implements UserDetailsService {
 		return passwordEncoder.encode(secret);
 	}
 
-	public boolean isApiKeyAllowedToConnect(String apiKey){
-		return true;
+	public boolean isApiKeyAssociatedWithClientCredentials(String apiKey){
+		var clientCredentials = clientCredentialsRepository.findByApiKey(apiKey)
+				.orElseThrow(() -> new UsernameNotFoundException(
+						String.format("client credentials with apiKey \"%s\" not found", apiKey)));
+		return clientCredentials != null;
 	}
 }

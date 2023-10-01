@@ -3,6 +3,7 @@ package io.sapl.server.ce.security;
 import io.sapl.server.ce.security.apikey.ApiKeyPayloadExchangeAuthenticationConverterService;
 import io.sapl.server.ce.security.apikey.ApiKeyReactiveAuthenticationManager;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,10 +23,11 @@ import org.springframework.security.rsocket.authentication.AuthenticationPayload
 import org.springframework.security.rsocket.core.PayloadSocketAcceptorInterceptor;
 import reactor.core.publisher.Mono;
 
-@Configuration // (1)
-@EnableRSocketSecurity // (2)
-@EnableReactiveMethodSecurity // (3)
+@Slf4j
+@Configuration
+@EnableRSocketSecurity
 @RequiredArgsConstructor
+@EnableReactiveMethodSecurity
 public class RSocketSecurityConfig {
 
     @Value("${io.sapl.server.accesscontrol.allowBasicAuth:#{true}}")
@@ -47,8 +49,6 @@ public class RSocketSecurityConfig {
     };
 
 
-
-
     /**
      * The PayloadSocketAcceptorInterceptor Bean (rsocketPayloadAuthorization)
      * configures the Security Filter Chain for Rsocket Payloads. Supported
@@ -64,6 +64,7 @@ public class RSocketSecurityConfig {
         // Configure Basic and Oauth Authentication
         UserDetailsRepositoryReactiveAuthenticationManager simpleManager = null;
         if (allowBasicAuth) {
+            log.info("configuring BasicAuth for RSocket authentication");
             simpleManager = new  UserDetailsRepositoryReactiveAuthenticationManager(rsocketUserDetailsService);
             simpleManager.setPasswordEncoder(passwordEncoder);
         }
@@ -89,6 +90,7 @@ public class RSocketSecurityConfig {
 
         // Configure ApiKey authentication
         if (allowApiKeyAuth) {
+            log.info("configuring ApiKey for RSocket authentication");
             ReactiveAuthenticationManager manager           = new ApiKeyReactiveAuthenticationManager();
             AuthenticationPayloadInterceptor apikeyInterceptor = new AuthenticationPayloadInterceptor(manager);
             apikeyInterceptor

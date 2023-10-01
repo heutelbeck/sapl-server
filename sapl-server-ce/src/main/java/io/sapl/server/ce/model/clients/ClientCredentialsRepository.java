@@ -43,4 +43,13 @@ public interface ClientCredentialsRepository extends CrudRepository<ClientCreden
 	 */
 	@Query(value = "SELECT c FROM ClientCredentials c WHERE c.key = :key")
 	Optional<ClientCredentials> findByKey(@Param(value = "key") String key);
+
+	/**
+	 * Gets the {@link ClientCredentials} with a specific apiKey.
+	 *
+	 * @param apiKey of the credentials<
+	 * @return the {@link ClientCredentials}
+	 */
+	@Query(value = "SELECT c FROM ClientCredentials c WHERE c.apiKey = :apiKey")
+	Optional<ClientCredentials> findByApiKey(@Param(value = "apiKey") String apiKey);
 }

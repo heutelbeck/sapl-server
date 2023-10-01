@@ -1,7 +1,11 @@
 package io.sapl.server.ce.security;
 
-import static org.springframework.security.config.Customizer.withDefaults;
-
+import com.vaadin.flow.spring.security.VaadinWebSecurity;
+import io.sapl.server.ce.security.apikey.ApiKeaderHeaderAuthFilterService;
+import io.sapl.server.ce.ui.views.login.LoginView;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
@@ -13,15 +17,19 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
-import com.vaadin.flow.spring.security.VaadinWebSecurity;
+import static org.springframework.security.config.Customizer.withDefaults;
 
-import io.sapl.server.ce.ui.views.login.LoginView;
-
+@Slf4j
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class HttpSecurityConfiguration extends VaadinWebSecurity {
+	@Value("${io.sapl.server.accesscontrol.allowApiKeyAuth:#{true}}")
+	private boolean  allowApiKeyAuth;
+	private final ApiKeaderHeaderAuthFilterService apiKeyAuthenticationFilterService;
 
 	@Bean
 	PasswordEncoder passwordEncoder() {
@@ -37,14 +45,21 @@ public class HttpSecurityConfiguration extends VaadinWebSecurity {
 	 */
 	@Bean
 	@Order(Ordered.HIGHEST_PRECEDENCE + 5)
-	SecurityFilterChain tokenAuthnFilterChain(HttpSecurity http) throws Exception {
+	SecurityFilterChain apiAuthnFilterChain(HttpSecurity http) throws Exception {
 		// @formatter:off
 		http.securityMatcher("/api/**") // API path
 		    .csrf(AbstractHttpConfigurer::disable)    // api is not to be browser, disable CSRF token
-			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // no session required
-			.httpBasic(withDefaults()) // offer basic authentication
+			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)); // no session required
+
+		if (allowApiKeyAuth) {
+			log.info("configuring ApiKey for Http authentication");
+			http = http.addFilterAt(apiKeyAuthenticationFilterService, UsernamePasswordAuthenticationFilter.class);
+		}
+
+		http.httpBasic(withDefaults()) // offer basic authentication
 			// all requests to this end point require the CLIENT role
-			.authorizeHttpRequests(authz -> authz.anyRequest().hasAnyRole(ClientDetailsService.CLIENT)); 
+			.authorizeHttpRequests(authz -> authz.anyRequest().hasAnyAuthority(ClientDetailsService.CLIENT));
+
 		// @formatter:on
 		return http.build();
 	}

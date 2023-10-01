@@ -49,8 +49,8 @@ public class ApiKeyAuthenticationConverterService implements ServerAuthenticatio
 	 * @param apiKey api key
 	 */
 	private Mono<ApiKeyAuthenticationToken> lookup(final String apiKey) {
-		if (clientDetailsService.isApiKeyAllowedToConnect(apiKey)) {
-			return Mono.just(new ApiKeyAuthenticationToken(apiKey, "apikey"));
+		if (clientDetailsService.isApiKeyAssociatedWithClientCredentials(apiKey)) {
+			return Mono.just(new ApiKeyAuthenticationToken(apiKey));
 		} else {
 			return Mono.error(() -> new ApiKeyAuthenticationException("ApiKey not authorized"));
 		}
