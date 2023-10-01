@@ -57,9 +57,15 @@ public class ClientCredentials {
 	@Column(length = 250, name = "clientEncodedSecret")
 	private String encodedSecret;
 
-	public ClientCredentials(String key, String encodedSecret) {
+	/**
+	 * The encoded secret (hashed / salted password).
+	 */
+	@Column(length = 512, name = "clientApiKey")
+	private String apiKey;
+
+	public ClientCredentials(String key, String encodedSecret, String apiKey) {
 		this.key           = key;
 		this.encodedSecret = encodedSecret;
+		this.apiKey = apiKey;
 	}
-
 }

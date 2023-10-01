@@ -21,7 +21,7 @@ import io.sapl.server.ce.ui.views.login.LoginView;
 
 @Configuration
 @EnableWebSecurity
-public class AccessControlSecurityConfiguration extends VaadinWebSecurity {
+public class HttpSecurityConfiguration extends VaadinWebSecurity {
 
 	@Bean
 	PasswordEncoder passwordEncoder() {
@@ -40,7 +40,7 @@ public class AccessControlSecurityConfiguration extends VaadinWebSecurity {
 	SecurityFilterChain tokenAuthnFilterChain(HttpSecurity http) throws Exception {
 		// @formatter:off
 		http.securityMatcher("/api/**") // API path
-		    .csrf(AbstractHttpConfigurer::disable)    // not to be used by a browser disable CSRF token
+		    .csrf(AbstractHttpConfigurer::disable)    // api is not to be browser, disable CSRF token
 			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // no session required
 			.httpBasic(withDefaults()) // offer basic authentication
 			// all requests to this end point require the CLIENT role

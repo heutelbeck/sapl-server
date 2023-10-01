@@ -15,12 +15,6 @@
  */
 package io.sapl.server.ce.ui.views.clientcredentials;
 
-import java.util.Comparator;
-import java.util.Optional;
-import java.util.stream.Stream;
-
-import org.vaadin.lineawesome.LineAwesomeIcon;
-
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -29,12 +23,12 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.CallbackDataProvider;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-
 import io.sapl.server.ce.model.clients.ClientCredentials;
 import io.sapl.server.ce.security.ClientDetailsService;
 import io.sapl.server.ce.ui.utils.ConfirmUtils;
@@ -44,7 +38,12 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import reactor.util.function.Tuple2;
+import org.vaadin.lineawesome.LineAwesomeIcon;
+import reactor.util.function.Tuple3;
+
+import java.util.Comparator;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 @RolesAllowed("ADMIN")
 @RequiredArgsConstructor
@@ -69,15 +68,18 @@ public class ClientCredentialsView extends VerticalLayout {
 	}
 
 	private void createClient() {
-		Tuple2<ClientCredentials, String> clientCredentialsWithSecret;
+		Tuple3<ClientCredentials, String, String> clientCredentialsWithSecret;
 		try {
 			clientCredentialsWithSecret = clientCredentialsService.createDefault();
 		} catch (Exception e) {
 			ErrorNotificationUtils.show("The client cannot be created due to an internal error. "+e.getMessage());
 			return;
 		}
-		showDialogForCreatedVariable(clientCredentialsWithSecret.getT1().getKey(),
-				clientCredentialsWithSecret.getT2());
+		showDialogForCreatedVariable(
+				clientCredentialsWithSecret.getT1().getKey(),
+				clientCredentialsWithSecret.getT2(),
+				clientCredentialsWithSecret.getT3()
+		);
 		clientCredentialsGrid.getDataProvider().refreshAll();
 	}
 
@@ -130,7 +132,7 @@ public class ClientCredentialsView extends VerticalLayout {
 		clientCredentialsGrid.getDataProvider().refreshAll();
 	}
 
-	private void showDialogForCreatedVariable(@NonNull String key, @NonNull String secret) {
+	private void showDialogForCreatedVariable(@NonNull String key, @NonNull String secret, @NonNull String apiKey) {
 		var layout = new VerticalLayout();
 		var text   = new Span(
 				"A new client has been created. The following secret will only be shown once and is not recoverable. Make sure to write it down.");
@@ -139,12 +141,18 @@ public class ClientCredentialsView extends VerticalLayout {
 		keyField.setValue(key);
 		keyField.setReadOnly(true);
 		keyField.setWidthFull();
+
 		var secretField = new TextField("Client Secret");
 		secretField.setValue(secret);
 		secretField.setReadOnly(true);
 		secretField.setWidthFull();
 
-		layout.add(text, keyField, secretField);
+		var apikeyField = new TextArea("API Key");
+		apikeyField.setValue(apiKey);
+		apikeyField.setReadOnly(true);
+		apikeyField.setWidthFull();
+
+		layout.add(text, keyField, secretField, apikeyField);
 
 		Dialog dialog = new Dialog(layout);
 		dialog.setHeaderTitle("Client Created");

@@ -5,6 +5,22 @@ io.sapl:
       admin-username: demo
       # plaintext: 'demo' encoded using bcrypt:
       encoded-admin-password: $2y$12$1yBhnA.SfCzTfNrChI/HNuoqz3k/RCG9iXCbQMRje96hnx1DsfPeq
+
+    allowBasicAuth: True
+
+    # Optional: configure API key  authentication
+    # List of permitted API Keys that can be used for authentication when the option allowApiKeyAuth is set to ture.
+    # --header "API_KEY: phsNZdvQAFX9P2jgGzq9TrzUecQhsnHc"
+    allowApiKeyAuth: True
+
+    # Optional: configure Oauth2 (jwt) authentication
+    allowOauth2Auth: False
+
+spring.security.oauth2:
+  resourceserver:
+    jwt.issuer-uri: http://auth-server:9000
+
+
   pdp.embedded:
 # The following options enable or disable different levels of logging for decisions.
 #
@@ -28,14 +44,17 @@ io.sapl:
 #                                  it is recommended to keep this turned off.
       pretty-print-reports: false
 
+
+
 spring:
   datasource:
     url: jdbc:h2:file:~/sapl/db
     username: sa
     password: password
 
-# TLS/SSL
+# Http TLS/SSL configuration
 server:
+  address: localhost
   port: ${PORT:8443}
   ssl:
     enabled: true
@@ -45,7 +64,21 @@ server:
     key-password: changeme
     key-alias: netty
 
+
+# Rsocket configuration
+spring.rsocket.server:
+  port: ${RSOCKET_PORT:7000}
+  transport: tcp
+  ssl:
+    enabled: true
+    key-store-type: PKCS12
+    key-store: file:config/keystore.p12
+    key-store-password: changeme
+    key-password: changeme
+    key-alias: netty
+
 logging.level:
+  #"root": DEBUG
   "[io.sapl]": DEBUG
   "[io.sapl.server.ce]": DEBUG
  

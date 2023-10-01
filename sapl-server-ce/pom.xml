@@ -119,6 +119,28 @@
 			<scope>runtime</scope>
 		</dependency>
 
+		<!-- Rsocket -->
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-rsocket</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.sapl</groupId>
+			<artifactId>sapl-rsocket-endpoint</artifactId>
+			<version>3.0.0-SNAPSHOT</version>
+			<!-- TODO: add sapl-rsocket-endpoint in  sapl-bom -->
+		</dependency>
+
+		<!-- Oauth2 / JWT support -->
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-oauth2-resource-server</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-oauth2-jose</artifactId>
+		</dependency>
+
 		<!-- Test -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
