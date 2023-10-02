@@ -32,7 +32,6 @@ import io.sapl.interpreter.combinators.PolicyDocumentCombiningAlgorithm;
 import io.sapl.pdp.config.VariablesAndCombinatorSource;
 import io.sapl.server.ce.model.pdpconfiguration.Variable;
 import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -48,13 +47,13 @@ public class CEVariablesAndCombinatorSource implements VariablesAndCombinatorSou
 
 	private static final ObjectMapper MAPPER = new ObjectMapper();
 
-	private Many<Collection<Variable>>             variablesProcessorSink;
-	private Many<PolicyDocumentCombiningAlgorithm> combiningAlgorithmSink;
+	private Many<Collection<Variable>>				variablesProcessorSink;
+	private Many<PolicyDocumentCombiningAlgorithm>	combiningAlgorithmSink;
 
 	@PostConstruct
 	public void init() {
-		variablesProcessorSink = Sinks.many().replay().all();
-		combiningAlgorithmSink = Sinks.many().replay().all();
+		variablesProcessorSink	= Sinks.many().replay().all();
+		combiningAlgorithmSink	= Sinks.many().replay().all();
 	}
 
 	@Override
@@ -76,11 +75,6 @@ public class CEVariablesAndCombinatorSource implements VariablesAndCombinatorSou
 	@Override
 	public void publishVariables(@NonNull Collection<Variable> variables) {
 		variablesProcessorSink.emitNext(variables, EmitFailureHandler.FAIL_FAST);
-	}
-
-	@Override
-	@PreDestroy
-	public void dispose() {
 	}
 
 	private static Map<String, JsonNode> variablesCollectionToMap(@NonNull Collection<Variable> variables) {

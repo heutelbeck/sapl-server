@@ -30,8 +30,6 @@ import org.springframework.data.util.Streamable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.google.common.collect.Lists;
-
 import io.sapl.grammar.sapl.SAPL;
 import io.sapl.interpreter.DocumentAnalysisResult;
 import io.sapl.interpreter.DocumentType;
@@ -57,10 +55,10 @@ import reactor.core.publisher.Sinks.Many;
 public class SaplDocumentService implements PrpUpdateEventSource {
 	public static final String DEFAULT_DOCUMENT_VALUE = "policy \"all deny\"\ndeny";
 
-	private final SaplDocumentsRepository         saplDocumentRepository;
-	private final SaplDocumentsVersionRepository  saplDocumentVersionRepository;
-	private final PublishedSaplDocumentRepository publishedSaplDocumentRepository;
-	private final SAPLInterpreter                 saplInterpreter;
+	private final SaplDocumentsRepository			saplDocumentRepository;
+	private final SaplDocumentsVersionRepository	saplDocumentVersionRepository;
+	private final PublishedSaplDocumentRepository	publishedSaplDocumentRepository;
+	private final SAPLInterpreter					saplInterpreter;
 
 	private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
 			.withLocale(Locale.GERMANY).withZone(ZoneId.systemDefault());
@@ -102,12 +100,12 @@ public class SaplDocumentService implements PrpUpdateEventSource {
 
 		DocumentAnalysisResult documentAnalysisResult = saplInterpreter.analyze(documentValue);
 
-		DocumentType type = documentAnalysisResult.getType();
-		String       name = documentAnalysisResult.getName();
+		DocumentType	type	= documentAnalysisResult.getType();
+		String			name	= documentAnalysisResult.getName();
 
-		SaplDocument saplDocumentToCreate = new SaplDocument().setLastModified(getCurrentTimestampAsString())
+		SaplDocument	saplDocumentToCreate	= new SaplDocument().setLastModified(getCurrentTimestampAsString())
 				.setName(name).setCurrentVersionNumber(1).setType(type);
-		SaplDocument createdDocument      = saplDocumentRepository.save(saplDocumentToCreate);
+		SaplDocument	createdDocument			= saplDocumentRepository.save(saplDocumentToCreate);
 
 		SaplDocumentVersion initialSaplDocumentVersion = new SaplDocumentVersion().setSaplDocument(createdDocument)
 				.setVersionNumber(1).setDocumentContent(documentValue).setName(name);
@@ -124,9 +122,9 @@ public class SaplDocumentService implements PrpUpdateEventSource {
 			throw new IllegalArgumentException(String.format("document value is invalid (value: %s)", documentValue));
 		}
 
-		int          newVersionNumber = saplDocument.getCurrentVersionNumber() + 1;
-		DocumentType type             = documentAnalysisResult.getType();
-		String       newName          = documentAnalysisResult.getName();
+		int				newVersionNumber	= saplDocument.getCurrentVersionNumber() + 1;
+		DocumentType	type				= documentAnalysisResult.getType();
+		String			newName				= documentAnalysisResult.getName();
 
 		SaplDocumentVersion newSaplDocumentVersion = new SaplDocumentVersion().setSaplDocument(saplDocument)
 				.setVersionNumber(newVersionNumber).setDocumentContent(documentValue).setName(newName);
@@ -142,8 +140,8 @@ public class SaplDocumentService implements PrpUpdateEventSource {
 	@Transactional(rollbackFor = Throwable.class)
 	public void publishPolicyVersion(long saplDocumentId, int versionToPublish)
 			throws PublishedDocumentNameCollisionException {
-		SaplDocument saplDocument = getExistingById(saplDocumentId);
-		var          updateEvents = new ArrayList<Update>(2);
+		SaplDocument	saplDocument	= getExistingById(saplDocumentId);
+		var				updateEvents	= new ArrayList<Update>(2);
 
 		// unpublish other version if published
 		if (saplDocument.getPublishedVersion() != null) {
@@ -164,8 +162,7 @@ public class SaplDocumentService implements PrpUpdateEventSource {
 				saplDocumentRepository.save(saplDocumentToUnpublish);
 
 				log.info("unpublish version {} of SAPL document with id {} (name: {})",
-						publishedVersion.getVersionNumber(),
-						saplDocumentId, saplDocumentToUnpublish.getName());
+						publishedVersion.getVersionNumber(), saplDocumentId, saplDocumentToUnpublish.getName());
 			}
 		}
 
@@ -236,8 +233,7 @@ public class SaplDocumentService implements PrpUpdateEventSource {
 	}
 
 	private PrpUpdateEvent generateInitialPrpUpdateEvent() {
-		List<PrpUpdateEvent.Update> updates = publishedSaplDocumentRepository.findAll()
-				.stream()
+		List<PrpUpdateEvent.Update> updates = publishedSaplDocumentRepository.findAll().stream()
 				.map(publishedSaplDocument -> convertSaplDocumentToUpdateOfPrpUpdateEvent(publishedSaplDocument,
 						PrpUpdateEvent.Type.PUBLISH))
 				.toList();
@@ -276,11 +272,6 @@ public class SaplDocumentService implements PrpUpdateEventSource {
 		}
 
 		return createdPublishedSaplDocument;
-	}
-
-	private void notifyAboutChangedPublicationOfSaplDocument(PrpUpdateEvent.Type prpUpdateEventType,
-			PublishedSaplDocument... publishedSaplDocuments) {
-		notifyAboutChangedPublicationOfSaplDocument(prpUpdateEventType, Lists.newArrayList(publishedSaplDocuments));
 	}
 
 	private void notifyAboutChangedPublicationOfSaplDocument(PrpUpdateEvent.Type prpUpdateEventType,
