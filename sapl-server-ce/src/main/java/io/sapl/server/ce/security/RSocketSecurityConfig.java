@@ -18,6 +18,9 @@ import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.ReactiveJwtDecoders;
+import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthenticationToken;
+import org.springframework.security.oauth2.server.resource.authentication.JwtReactiveAuthenticationManager;
 import org.springframework.security.rsocket.authentication.AuthenticationPayloadExchangeConverter;
 import org.springframework.security.rsocket.authentication.AuthenticationPayloadInterceptor;
 import org.springframework.security.rsocket.core.PayloadSocketAcceptorInterceptor;
@@ -34,8 +37,13 @@ public class RSocketSecurityConfig {
     private boolean  allowBasicAuth;
     @Value("${io.sapl.server.accesscontrol.allowApiKeyAuth:#{true}}")
     private boolean  allowApiKeyAuth;
-    @Value("${io.sapl.server.accesscontrol.allowOauth2Auth:#{false}}")
-    private boolean  allowOauth2Auth;
+
+    @Value("${io.sapl.server.accesscontrol.allowApiKeyAuth:#{false}}")
+    private boolean allowOauth2Auth;
+
+    @Value("spring.security.oauth2.resourceserver.jwt.issuer-uri:null")
+    private String jwtIssuerURI;
+
     private final PasswordEncoder passwordEncoder;
     private final UserDetailsService userDetailsService;
     private final ApiKeyPayloadExchangeAuthenticationConverterService apiKeyPayloadExchangeAuthenticationConverterService;
@@ -48,6 +56,10 @@ public class RSocketSecurityConfig {
         }
     };
 
+    private static void customize(RSocketSecurity.AuthorizePayloadsSpec spec) {
+        spec.anyRequest().authenticated().anyExchange().permitAll();
+    }
+
 
     /**
      * The PayloadSocketAcceptorInterceptor Bean (rsocketPayloadAuthorization)
@@ -56,12 +68,9 @@ public class RSocketSecurityConfig {
      */
     @Bean
     PayloadSocketAcceptorInterceptor rsocketPayloadAuthorization(RSocketSecurity security) {
-        security = security.authorizePayload(spec -> {
-            spec.anyRequest().authenticated().anyExchange().permitAll();
-        });
-        allowBasicAuth = true;
+        security = security.authorizePayload(RSocketSecurityConfig::customize);
 
-        // Configure Basic and Oauth Authentication
+        // Configure Basic Authentication
         UserDetailsRepositoryReactiveAuthenticationManager simpleManager = null;
         if (allowBasicAuth) {
             log.info("configuring BasicAuth for RSocket authentication");
@@ -69,12 +78,23 @@ public class RSocketSecurityConfig {
             simpleManager.setPasswordEncoder(passwordEncoder);
         }
 
+        // Configure Oauth2 Authentication
+        JwtReactiveAuthenticationManager jwtManager = null;
+        if (allowOauth2Auth) {
+            jwtManager = new JwtReactiveAuthenticationManager(
+                    ReactiveJwtDecoders.fromIssuerLocation(jwtIssuerURI));
+        }
+
         UserDetailsRepositoryReactiveAuthenticationManager finalSimpleManager = simpleManager;
+        JwtReactiveAuthenticationManager finalJwtManager = jwtManager;
         AuthenticationPayloadInterceptor auth               = new AuthenticationPayloadInterceptor(
                 a -> {
                     if (finalSimpleManager != null
                             && a instanceof UsernamePasswordAuthenticationToken) {
-                        return finalSimpleManager
+                        return finalSimpleManager.authenticate(a);
+                    } else if (finalJwtManager != null
+                            && a instanceof BearerTokenAuthenticationToken) {
+                        return finalJwtManager
                                 .authenticate(
                                         a);
                     } else {

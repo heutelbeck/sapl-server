@@ -10,12 +10,15 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
+import org.springframework.security.oauth2.jwt.ReactiveJwtDecoders;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -29,11 +32,31 @@ import static org.springframework.security.config.Customizer.withDefaults;
 public class HttpSecurityConfiguration extends VaadinWebSecurity {
 	@Value("${io.sapl.server.accesscontrol.allowApiKeyAuth:#{true}}")
 	private boolean  allowApiKeyAuth;
+
+	@Value("${io.sapl.server.accesscontrol.allowApiKeyAuth:#{false}}")
+	private boolean allowOauth2Auth;
+
+	@Value("spring.security.oauth2.resourceserver.jwt.issuer-uri:null")
+	private String jwtIssuerURI;
+
 	private final ApiKeaderHeaderAuthFilterService apiKeyAuthenticationFilterService;
 
 	@Bean
 	PasswordEncoder passwordEncoder() {
 		return Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8();
+	}
+
+	/**
+	 * Decodes JSON Web Token (JWT) according to the configuration that was
+	 * initialized by the OpenID Provider specified in the jwtIssuerURI.
+	 */
+	@Bean
+	ReactiveJwtDecoder jwtDecoder() {
+		if (allowOauth2Auth) {
+			return ReactiveJwtDecoders.fromIssuerLocation(jwtIssuerURI);
+		} else {
+			return null;
+		}
 	}
 
 	/**
@@ -54,6 +77,13 @@ public class HttpSecurityConfiguration extends VaadinWebSecurity {
 		if (allowApiKeyAuth) {
 			log.info("configuring ApiKey for Http authentication");
 			http = http.addFilterAt(apiKeyAuthenticationFilterService, UsernamePasswordAuthenticationFilter.class);
+		}
+
+		if (allowOauth2Auth) {
+			log.info("configuring Oauth2 authentication");
+			http = http.oauth2ResourceServer(oauth2 -> oauth2
+					.jwt(Customizer.withDefaults())
+			);
 		}
 
 		http.httpBasic(withDefaults()) // offer basic authentication

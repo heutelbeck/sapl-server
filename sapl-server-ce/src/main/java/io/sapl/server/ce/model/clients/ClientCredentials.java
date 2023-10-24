@@ -15,11 +15,7 @@
  */
 package io.sapl.server.ce.model.clients;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -62,6 +58,15 @@ public class ClientCredentials {
 	 */
 	@Column(length = 512, name = "clientApiKey")
 	private String apiKey;
+
+	public enum Authtype {
+		BASIC, APIKEY;
+	}
+
+	@Enumerated(EnumType.STRING)
+	private ClientCredentials.Authtype status = Authtype.BASIC;
+
+	// TODO: basic oder API Key authentication
 
 	public ClientCredentials(String key, String encodedSecret, String apiKey) {
 		this.key           = key;
