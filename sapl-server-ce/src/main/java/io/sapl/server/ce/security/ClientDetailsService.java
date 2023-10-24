@@ -59,7 +59,7 @@ public class ClientDetailsService implements UserDetailsService {
 		}
 		if (encodedAdminPassword == null) {
 			log.error(
-					"Admin password undefined. To define the password, specify it in the property 'io.sapl.server.accesscontrol.encoded-admin-password'. The password is expected in encoded form using Argon2.");
+					"Admin password undefined. To define the password, specify it in the property 'io.sapl.server.accesscontrol.encoded-admin-password'. The password is expected in encoded form using BCrypt.");
 		}
 		if (adminUsername == null || encodedAdminPassword == null) {
 			throw new IllegalStateException("Administrator credentials missing.");
