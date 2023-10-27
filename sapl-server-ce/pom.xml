@@ -35,7 +35,7 @@
 		<!-- SAPL -->
 		<dependency>
 			<groupId>io.sapl</groupId>
-			<artifactId>sapl-editor-vaadin</artifactId>
+			<artifactId>sapl-vaadin-editor</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>io.sapl</groupId>
@@ -221,6 +221,12 @@
 								<include>src/dev-bundle/**</include>
 								<include>frontend/generated/**</include>
 								<include>frontend/index.html</include>
+								<include>vite.config.ts</include>
+								<include>vite.generated.ts</include>
+								<include>types.d.ts</include>
+								<include>tsconfig.json</include>
+								<include>package.json</include>
+								<include>package-lock.json</include>
 							</includes>
 						</fileset>
 					</filesets>
