@@ -3,8 +3,9 @@ io.sapl:
   server:
     accesscontrol:
       admin-username: demo
-      # plaintext: 'demo' encoded using bcrypt:
-      encoded-admin-password: $2y$12$1yBhnA.SfCzTfNrChI/HNuoqz3k/RCG9iXCbQMRje96hnx1DsfPeq
+      # plaintext: 'demo' encoded using argon2:
+      encoded-admin-password: $argon2id$v=19$m=15360,t=2,p=1$pZtquF0gUGAmFeEoKJ9sdA9cnsvwWmjLadQMTTl6xJY$PyASWvCQQt33Zm5aOzgBWahTim8smd4LQXLVRJ4dYBSQ/F3M6RGNKIHhyrlPlNXdBmcpdTwvB4ukPUpDK/Q92Q
+
 
     allowBasicAuth: True
 
