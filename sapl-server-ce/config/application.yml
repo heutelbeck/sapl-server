@@ -16,11 +16,6 @@ io.sapl:
     # Optional: configure Oauth2 (jwt) authentication
     allowOauth2Auth: False
 
-spring.security.oauth2:
-  resourceserver:
-    jwt.issuer-uri: http://auth-server:9000
-
-
   pdp.embedded:
 # The following options enable or disable different levels of logging for decisions.
 #
@@ -44,7 +39,9 @@ spring.security.oauth2:
 #                                  it is recommended to keep this turned off.
       pretty-print-reports: false
 
-
+# Configures Oauth2 JWT Issuer-Uri required when io.sapl.server.allowOauth2Auth is true
+spring.security.oauth2.resourceserver.jwt:
+  issuer-uri: http://auth-server:8080/default
 
 spring:
   datasource:
@@ -81,4 +78,3 @@ logging.level:
   #"root": DEBUG
   "[io.sapl]": DEBUG
   "[io.sapl.server.ce]": DEBUG
- 

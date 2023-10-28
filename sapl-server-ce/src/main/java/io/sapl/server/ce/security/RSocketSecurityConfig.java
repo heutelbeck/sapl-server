@@ -33,15 +33,15 @@ import reactor.core.publisher.Mono;
 @EnableReactiveMethodSecurity
 public class RSocketSecurityConfig {
 
-    @Value("${io.sapl.server.accesscontrol.allowBasicAuth:#{true}}")
+    @Value("${io.sapl.server.allowBasicAuth:#{true}}")
     private boolean  allowBasicAuth;
-    @Value("${io.sapl.server.accesscontrol.allowApiKeyAuth:#{true}}")
+    @Value("${io.sapl.server.allowApiKeyAuth:#{true}}")
     private boolean  allowApiKeyAuth;
 
-    @Value("${io.sapl.server.accesscontrol.allowApiKeyAuth:#{false}}")
+    @Value("${io.sapl.server.allowOauth2Auth:#{false}}")
     private boolean allowOauth2Auth;
 
-    @Value("spring.security.oauth2.resourceserver.jwt.issuer-uri:null")
+    @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri:#{null}}")
     private String jwtIssuerURI;
 
     private final PasswordEncoder passwordEncoder;
@@ -81,6 +81,7 @@ public class RSocketSecurityConfig {
         // Configure Oauth2 Authentication
         JwtReactiveAuthenticationManager jwtManager = null;
         if (allowOauth2Auth) {
+            log.info("configuring Oauth2 authentication with jwtIssuerURI: " + jwtIssuerURI);
             jwtManager = new JwtReactiveAuthenticationManager(
                     ReactiveJwtDecoders.fromIssuerLocation(jwtIssuerURI));
         }

@@ -41,7 +41,7 @@ import java.util.concurrent.ThreadLocalRandom;
 @RequiredArgsConstructor
 public class ClientDetailsService implements UserDetailsService {
 
-	public static final String	CLIENT	= "CLIENT";
+	public static final String	CLIENT	= "SAPL_CLIENT";
 	public static final String	ADMIN	= "ADMIN";
 
 	@Value("${io.sapl.server.accesscontrol.admin-username:#{null}}")
