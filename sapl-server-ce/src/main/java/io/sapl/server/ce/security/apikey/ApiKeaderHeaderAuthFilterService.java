@@ -1,6 +1,5 @@
 package io.sapl.server.ce.security.apikey;
 
-import io.sapl.server.ce.model.clients.ClientCredentialsRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
@@ -22,14 +21,9 @@ import java.io.IOException;
 @Component
 @RequiredArgsConstructor
 public class ApiKeaderHeaderAuthFilterService extends GenericFilterBean {
-    private final ClientCredentialsRepository clientCredentialsRepository;
-
     @Value("${io.sapl.server.accesscontrol.apiKeyHeaderName:API_KEY}")
     private String	apiKeyHeaderName;
-
-    private boolean isApiKeyAssociatedWithClientCredentials(String apiKey){
-        return clientCredentialsRepository.findByApiKey(apiKey).isPresent();
-    }
+    private final ApiKeyFinderService apiKeyFinderService;
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
@@ -38,8 +32,8 @@ public class ApiKeaderHeaderAuthFilterService extends GenericFilterBean {
         // if header token is not valid, send un-athorized error back
         String apiKey = request.getHeader(apiKeyHeaderName);
         if (StringUtils.isNotEmpty(apiKey)) {
-            if (isApiKeyAssociatedWithClientCredentials(apiKey)){
-                Authentication auth = new ApiKeyAuthenticationToken(apiKey);
+            if (apiKeyFinderService.isApiKeyAssociatedWithClientCredentials(apiKey)){
+                Authentication auth = new ApiKeyAuthenticationToken();
                 auth.setAuthenticated(true);
                 SecurityContextHolder.getContext().setAuthentication(auth);
             } else {

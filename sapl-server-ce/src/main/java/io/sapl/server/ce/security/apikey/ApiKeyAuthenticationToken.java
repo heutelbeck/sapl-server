@@ -25,11 +25,9 @@ import java.util.List;
  * Represents an authentication token within the example application.
  */
 public class ApiKeyAuthenticationToken extends AbstractAuthenticationToken {
-	private final String apiKey;
 
-	public ApiKeyAuthenticationToken(String apiKey) {
+	public ApiKeyAuthenticationToken() {
 		super(List.of(new SimpleGrantedAuthority(ClientDetailsService.CLIENT)));
-		this.apiKey = apiKey;
 		setAuthenticated(true);
 	}
 
@@ -40,6 +38,6 @@ public class ApiKeyAuthenticationToken extends AbstractAuthenticationToken {
 
 	@Override
 	public Object getPrincipal() {
-		return apiKey;
+		return null;
 	}
 }

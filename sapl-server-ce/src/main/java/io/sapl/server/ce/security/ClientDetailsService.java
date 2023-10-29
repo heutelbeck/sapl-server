@@ -16,6 +16,7 @@
 package io.sapl.server.ce.security;
 
 import com.heutelbeck.uuid.Base64Id;
+import io.sapl.server.ce.model.clients.AuthType;
 import io.sapl.server.ce.model.clients.ClientCredentials;
 import io.sapl.server.ce.model.clients.ClientCredentialsRepository;
 import jakarta.annotation.PostConstruct;
@@ -28,7 +29,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-import reactor.util.function.Tuple3;
+import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
 
 import java.util.Base64;
@@ -50,6 +51,7 @@ public class ClientDetailsService implements UserDetailsService {
 	private String								encodedAdminPassword;
 	private final ClientCredentialsRepository	clientCredentialsRepository;
 	private final PasswordEncoder				passwordEncoder;
+
 
 	@PostConstruct
 	void validateSecuritySettings() {
@@ -89,12 +91,18 @@ public class ClientDetailsService implements UserDetailsService {
 		return clientCredentialsRepository.count();
 	}
 
-	public Tuple3<ClientCredentials, String, String> createDefault() {
+	public Tuple2<ClientCredentials, String> createBasicDefault() {
 		var	key					= Base64Id.randomID();
 		var	secret				= Base64Id.randomID();
+		var	clientCredentials	= clientCredentialsRepository.save(new ClientCredentials(key, AuthType.Basic, encodeSecret(secret)));
+		return Tuples.of(clientCredentials, secret);
+	}
+
+	public Tuple2<ClientCredentials, String> createApiKeyDefault() {
+		var	key					= Base64Id.randomID();
 		var	apiKey				= generateRandomApiKey();
-		var	clientCredentials	= clientCredentialsRepository.save(new ClientCredentials(key, encodeSecret(secret), apiKey));
-		return Tuples.of(clientCredentials, secret, apiKey);
+		var	clientCredentials	= clientCredentialsRepository.save(new ClientCredentials(key, AuthType.ApiKey, encodeSecret(apiKey)));
+		return Tuples.of(clientCredentials, apiKey);
 	}
 
 	private static String generateRandomApiKey(){
@@ -111,12 +119,5 @@ public class ClientDetailsService implements UserDetailsService {
 
 	public String encodeSecret(@NonNull String secret) {
 		return passwordEncoder.encode(secret);
-	}
-
-	public boolean isApiKeyAssociatedWithClientCredentials(String apiKey){
-		var clientCredentials = clientCredentialsRepository.findByApiKey(apiKey)
-				.orElseThrow(() -> new UsernameNotFoundException(
-						String.format("client credentials with apiKey \"%s\" not found", apiKey)));
-		return clientCredentials != null;
 	}
 }

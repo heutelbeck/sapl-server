@@ -17,7 +17,6 @@ package io.sapl.server.ce.security.apikey;
 
 import io.netty.buffer.ByteBuf;
 import io.rsocket.metadata.CompositeMetadata;
-import io.sapl.server.ce.security.ClientDetailsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,10 +35,9 @@ import java.nio.charset.StandardCharsets;
 public class ApiKeyPayloadExchangeAuthenticationConverterService implements PayloadExchangeAuthenticationConverter {
 	@Value("${io.sapl.server.accesscontrol.apiKeyHeaderName:API_KEY}")
 	private String	apiKeyHeaderName = "API_KEY";
+
 	private String	apiKeyMimeTypeValue = String.valueOf(MimeType.valueOf("messaging/" + apiKeyHeaderName));
-	private final ClientDetailsService clientDetailsService;
-
-
+	private final ApiKeyFinderService apiKeyFinderService;
 
 	@Override
 	public Mono<Authentication> convert(PayloadExchange exchange) {
@@ -48,8 +46,8 @@ public class ApiKeyPayloadExchangeAuthenticationConverterService implements Payl
 		for (CompositeMetadata.Entry entry : compositeMetadata) {
 			if (apiKeyMimeTypeValue.equals(entry.getMimeType())) {
 				String apikey = entry.getContent().toString(StandardCharsets.UTF_8);
-				if (clientDetailsService.isApiKeyAssociatedWithClientCredentials(apikey)) {
-					return Mono.just(new ApiKeyAuthenticationToken(apikey));
+				if (apiKeyFinderService.isApiKeyAssociatedWithClientCredentials(apikey)) {
+					return Mono.just(new ApiKeyAuthenticationToken());
 				} else {
 					return Mono.error(() -> new ApiKeyAuthenticationException("ApiKey not authorized"));
 				}

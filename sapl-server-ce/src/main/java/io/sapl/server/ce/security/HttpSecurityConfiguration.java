@@ -5,16 +5,20 @@ import io.sapl.server.ce.security.apikey.ApiKeaderHeaderAuthFilterService;
 import io.sapl.server.ce.ui.views.login.LoginView;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
@@ -42,12 +46,8 @@ public class HttpSecurityConfiguration extends VaadinWebSecurity {
 	@Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri:#{null}}")
 	private String jwtIssuerURI;
 
+	private final PasswordEncoder passwordEncoder;
 	private final ApiKeaderHeaderAuthFilterService apiKeyAuthenticationFilterService;
-
-	@Bean
-	PasswordEncoder passwordEncoder() {
-		return Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8();
-	}
 
 	/**
 	 * Decodes JSON Web Token (JWT) according to the configuration that was
@@ -103,6 +103,7 @@ public class HttpSecurityConfiguration extends VaadinWebSecurity {
 		// @formatter:on
 		return http.build();
 	}
+
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {

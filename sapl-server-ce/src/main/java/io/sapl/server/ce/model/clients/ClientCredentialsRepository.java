@@ -17,6 +17,7 @@ package io.sapl.server.ce.model.clients;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.Query;
@@ -47,9 +48,8 @@ public interface ClientCredentialsRepository extends CrudRepository<ClientCreden
 	/**
 	 * Gets the {@link ClientCredentials} with a specific apiKey.
 	 *
-	 * @param apiKey of the credentials<
 	 * @return the {@link ClientCredentials}
 	 */
-	@Query(value = "SELECT c FROM ClientCredentials c WHERE c.apiKey = :apiKey")
-	Optional<ClientCredentials> findByApiKey(@Param(value = "apiKey") String apiKey);
+	@Query(value = "SELECT c FROM ClientCredentials c WHERE c.authType = io.sapl.server.ce.model.clients.AuthType.ApiKey")
+	List<ClientCredentials> getApiKeyCredentials();
 }
