@@ -15,11 +15,8 @@
  */
 package io.sapl.server.ce.model.clients;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -37,6 +34,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @Table(name = "ClientCredentials")
 public class ClientCredentials {
+
 	/**
 	 * The unique identifier.
 	 */
@@ -52,14 +50,21 @@ public class ClientCredentials {
 	private String key;
 
 	/**
-	 * The encoded secret (hashed / salted password).
+	 * The client type (Basic or APIKEY)
 	 */
-	@Column(length = 250, name = "clientEncodedSecret")
+	@NotNull
+	@Enumerated(EnumType.STRING)
+	private AuthType authType = AuthType.Basic;
+
+	/**
+	 * The encoded secret (hashed / salted password or ApiKey).
+	 */
+	@Column(length = 512, name = "clientEncodedSecret")
 	private String encodedSecret;
 
-	public ClientCredentials(String key, String encodedSecret) {
+	public ClientCredentials(String key, AuthType authType, String encodedSecret) {
 		this.key           = key;
+		this.authType 	   = authType;
 		this.encodedSecret = encodedSecret;
 	}
-
 }

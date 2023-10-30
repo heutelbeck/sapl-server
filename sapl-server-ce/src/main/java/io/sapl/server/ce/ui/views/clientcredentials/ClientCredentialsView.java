@@ -15,12 +15,6 @@
  */
 package io.sapl.server.ce.ui.views.clientcredentials;
 
-import java.util.Comparator;
-import java.util.Optional;
-import java.util.stream.Stream;
-
-import org.vaadin.lineawesome.LineAwesomeIcon;
-
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -29,12 +23,12 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.CallbackDataProvider;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-
 import io.sapl.server.ce.model.clients.ClientCredentials;
 import io.sapl.server.ce.security.ClientDetailsService;
 import io.sapl.server.ce.ui.utils.ConfirmUtils;
@@ -44,7 +38,12 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.vaadin.lineawesome.LineAwesomeIcon;
 import reactor.util.function.Tuple2;
+
+import java.util.Comparator;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 @RolesAllowed("ADMIN")
 @RequiredArgsConstructor
@@ -57,32 +56,55 @@ public class ClientCredentialsView extends VerticalLayout {
 	private final ClientDetailsService clientCredentialsService;
 
 	private final Grid<ClientCredentials> clientCredentialsGrid = new Grid<>();
-	private final Button                  createButton          = new Button("New Client");
+	private final Button newBasicClientButton = new Button("New Baisc Client");
+	private final Button newApiKeyClientButton = new Button("New ApiKey Client");
 
 	@PostConstruct
 	private void init() {
-		add(createButton, clientCredentialsGrid);
+		var createButtons = new HorizontalLayout();
+		createButtons.add(newBasicClientButton, newApiKeyClientButton);
+		add(createButtons, clientCredentialsGrid);
+		clientCredentialsGrid.getStyle().set("font-family", "\"Courier\", monospace");
 
-		createButton.addClickListener(e -> createClient());
+		newBasicClientButton.addClickListener(e -> createBasicClient());
+		newApiKeyClientButton.addClickListener(e -> createApiKeyClient());
 
 		initClientCredentialsGrid();
 	}
 
-	private void createClient() {
+	private void createBasicClient() {
 		Tuple2<ClientCredentials, String> clientCredentialsWithSecret;
 		try {
-			clientCredentialsWithSecret = clientCredentialsService.createDefault();
+			clientCredentialsWithSecret = clientCredentialsService.createBasicDefault();
 		} catch (Exception e) {
 			ErrorNotificationUtils.show("The client cannot be created due to an internal error. "+e.getMessage());
 			return;
 		}
-		showDialogForCreatedVariable(clientCredentialsWithSecret.getT1().getKey(),
-				clientCredentialsWithSecret.getT2());
+		showDialogForCreatedBasicClient(
+				clientCredentialsWithSecret.getT1().getKey(),
+				clientCredentialsWithSecret.getT2()
+		);
+		clientCredentialsGrid.getDataProvider().refreshAll();
+	}
+
+	private void createApiKeyClient() {
+		Tuple2<ClientCredentials, String> clientCredentialsWithApiKey;
+		try {
+			clientCredentialsWithApiKey = clientCredentialsService.createApiKeyDefault();
+		} catch (Exception e) {
+			ErrorNotificationUtils.show("The client cannot be created due to an internal error. "+e.getMessage());
+			return;
+		}
+		showDialogForCreatedApiKeyClient(
+				clientCredentialsWithApiKey.getT1().getKey(),
+				clientCredentialsWithApiKey.getT2()
+		);
 		clientCredentialsGrid.getDataProvider().refreshAll();
 	}
 
 	private void initClientCredentialsGrid() {
 		clientCredentialsGrid.addColumn(ClientCredentials::getKey).setHeader("Key").setSortable(true);
+		clientCredentialsGrid.addColumn(ClientCredentials::getAuthType).setHeader("Auth Type").setSortable(true);
 
 		clientCredentialsGrid.addComponentColumn(currentClientCredential -> {
 			Button deleteButton = new Button("Delete", LineAwesomeIcon.TRASH_SOLID.create());
@@ -130,21 +152,51 @@ public class ClientCredentialsView extends VerticalLayout {
 		clientCredentialsGrid.getDataProvider().refreshAll();
 	}
 
-	private void showDialogForCreatedVariable(@NonNull String key, @NonNull String secret) {
+	private void showDialogForCreatedBasicClient(@NonNull String key, @NonNull String secret) {
 		var layout = new VerticalLayout();
 		var text   = new Span(
-				"A new client has been created. The following secret will only be shown once and is not recoverable. Make sure to write it down.");
+				"A new Basic client has been created. The following secret will only be shown once and is not recoverable. Make sure to write it down.");
 
 		var keyField = new TextField("Client Key");
 		keyField.setValue(key);
 		keyField.setReadOnly(true);
 		keyField.setWidthFull();
+
 		var secretField = new TextField("Client Secret");
 		secretField.setValue(secret);
 		secretField.setReadOnly(true);
 		secretField.setWidthFull();
 
 		layout.add(text, keyField, secretField);
+
+		Dialog dialog = new Dialog(layout);
+		dialog.setHeaderTitle("Client Created");
+		var closeButton = new Button(new Icon("lumo", "cross"), e -> dialog.close());
+		closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+		dialog.getHeader().add(closeButton);
+		dialog.setWidth("600px");
+		dialog.setModal(true);
+		dialog.setCloseOnEsc(false);
+		dialog.setCloseOnOutsideClick(false);
+		dialog.open();
+	}
+
+	private void showDialogForCreatedApiKeyClient(@NonNull String key, @NonNull String apiKey) {
+		var layout = new VerticalLayout();
+		var text   = new Span(
+				"A new ApiKey client has been created. The following secret will only be shown once and is not recoverable. Make sure to write it down.");
+
+		var keyField = new TextField("Client Key");
+		keyField.setValue(key);
+		keyField.setReadOnly(true);
+		keyField.setWidthFull();
+
+		var apikeyField = new TextArea("API Key");
+		apikeyField.setValue(apiKey);
+		apikeyField.setReadOnly(true);
+		apikeyField.setWidthFull();
+
+		layout.add(text, keyField, apikeyField);
 
 		Dialog dialog = new Dialog(layout);
 		dialog.setHeaderTitle("Client Created");
