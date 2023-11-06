@@ -166,15 +166,11 @@ kubectl apply -f https://raw.githubusercontent.com/heutelbeck/sapl-server/main/s
 
 Download the Config Files from the Kubernetes/config folder and copy them to the config directory specified in the config-section of sapl-server-ce-pv.yml `/data/sapl-server-ce/conf`
 
-```shell
-wget https://raw.githubusercontent.com/heutelbeck/sapl-server/main/sapl-server-ce/kubernetes/sapl-server-ce-TLS.tar
-tar -xf sapl-server-ce-TLS.tar -C /data/sapl-server-ce/conf
-```
 
 Then download the TLS yaml file 
 
 ```shell
-wget https://raw.githubusercontent.com/heutelbeck/sapl-server/main/sapl-server-ce/kubernetes/sapl-server-ce-tls.yml
+wget https://raw.githubusercontent.com/heutelbeck/sapl-server/main/sapl-server-ce/kubernetes/sapl-server-ce-ingress-sample.yml
 ```
 
 change the URL in the Ingress section 
@@ -191,5 +187,5 @@ change the URL in the Ingress section
 then apply the yaml file
 
 ```shell
-kubectl apply -f ssapl-server-ce-ingress-sample.yml -n sapl-server-ce
+kubectl apply -f sapl-server-ce-ingress-sample.yml -n sapl-server-ce
 ```
