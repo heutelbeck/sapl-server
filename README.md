@@ -81,7 +81,7 @@ kubectl create namespace sapl-server-ce
 Apply the Kubernetes-Deployment.yaml
 
 ```shell
-kubectl apply -f https://raw.githubusercontent.com/heutelbeck/sapl-server/main/sapl-server-ce/kubernetes/Kubernetes-Deployment.yaml -n sapl-server-ce
+kubectl apply -f https://raw.githubusercontent.com/heutelbeck/sapl-server/main/sapl-server-ce/Kubernetes/Kubernetes-Deployment.yaml -n sapl-server-ce
 ```
 
 For testing Purposes the Service can be changed to Nodeport. 
@@ -154,14 +154,14 @@ kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/
 Change the Email address in the Clusterissuer.yaml (Line email: user@email.com)
 
 ```shell
-wget https://raw.githubusercontent.com/heutelbeck/sapl-server/main/sapl-server-ce/kubernetes/clusterissuer.yml
+wget https://raw.githubusercontent.com/heutelbeck/sapl-server/main/sapl-server-ce/Kubernetes/clusterissuer.yml
 kubectl apply -f clusterissuer.yml 
 ```
 
 Apply the Persistent Volume yaml (or create persistent volumes with the storageclassnames detailed in the yaml file according to your preferred Method)
 
 ```shell
-kubectl apply -f https://raw.githubusercontent.com/heutelbeck/sapl-server/main/sapl-server-ce/kubernetes/sapl-server-ce-pv.yml -n sapl-server-ce
+kubectl apply -f https://raw.githubusercontent.com/heutelbeck/sapl-server/main/sapl-server-ce/Kubernetes/sapl-server-ce-pv.yml -n sapl-server-ce
 ```
 
 Download the Config Files from the Kubernetes/config folder and copy them to the config directory specified in the config-section of sapl-server-ce-pv.yml `/data/sapl-server-ce/conf`
@@ -170,7 +170,7 @@ Download the Config Files from the Kubernetes/config folder and copy them to the
 Then download the TLS yaml file 
 
 ```shell
-wget https://raw.githubusercontent.com/heutelbeck/sapl-server/main/sapl-server-ce/kubernetes/sapl-server-ce-ingress-sample.yml
+wget https://raw.githubusercontent.com/heutelbeck/sapl-server/main/sapl-server-ce/Kubernetes/sapl-server-ce-ingress-sample.yml
 ```
 
 change the URL in the Ingress section 
