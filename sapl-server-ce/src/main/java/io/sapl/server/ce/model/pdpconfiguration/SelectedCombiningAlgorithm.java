@@ -1,5 +1,7 @@
 /*
- * Copyright © 2017-2021 Dominic Heutelbeck (dominic@heutelbeck.com)
+ * Copyright (C) 2017-2023 Dominic Heutelbeck (dominic@heutelbeck.com)
+ *
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,21 +41,21 @@ import lombok.ToString;
 @AllArgsConstructor
 @Table(name = "SelectedCombiningAlgorithm")
 public class SelectedCombiningAlgorithm {
-	public SelectedCombiningAlgorithm(@NonNull PolicyDocumentCombiningAlgorithm selection) {
-		this.selection = selection;
-	}
+    public SelectedCombiningAlgorithm(@NonNull PolicyDocumentCombiningAlgorithm selection) {
+        this.selection = selection;
+    }
 
-	/**
-	 * The unique identifier of the SAPL document.
-	 */
-	@Id
-	@GeneratedValue
-	@Column(name = "Id", nullable = false)
-	private Long id;
+    /**
+     * The unique identifier of the SAPL document.
+     */
+    @Id
+    @GeneratedValue
+    @Column(name = "Id", nullable = false)
+    private Long id;
 
-	/**
-	 * The selection.
-	 */
-	@Column
-	private PolicyDocumentCombiningAlgorithm selection;
+    /**
+     * The selection.
+     */
+    @Column
+    private PolicyDocumentCombiningAlgorithm selection;
 }

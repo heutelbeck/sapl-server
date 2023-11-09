@@ -1,5 +1,7 @@
 /*
- * Copyright © 2017-2021 Dominic Heutelbeck (dominic@heutelbeck.com)
+ * Copyright (C) 2017-2023 Dominic Heutelbeck (dominic@heutelbeck.com)
+ *
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,23 +44,23 @@ import lombok.experimental.Accessors;
 @Table(name = "Variable")
 public class Variable implements Serializable {
 
-	/**
-	 * The unique identifier of the variable.
-	 */
-	@Id
-	@GeneratedValue
-	@Column(name = "Id", nullable = false)
-	private Long id;
+    /**
+     * The unique identifier of the variable.
+     */
+    @Id
+    @GeneratedValue
+    @Column(name = "Id", nullable = false)
+    private Long id;
 
-	/**
-	 * The name of the variable.
-	 */
-	@Column(name = "name")
-	private String name;
+    /**
+     * The name of the variable.
+     */
+    @Column(name = "name")
+    private String name;
 
-	/**
-	 * The JSON encoded value of the variable.
-	 */
-	@Column(name = "json")
-	private String jsonValue;
+    /**
+     * The JSON encoded value of the variable.
+     */
+    @Column(name = "json")
+    private String jsonValue;
 }

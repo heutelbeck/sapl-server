@@ -1,5 +1,7 @@
 /*
- * Copyright © 2017-2021 Dominic Heutelbeck (dominic@heutelbeck.com)
+ * Copyright (C) 2017-2023 Dominic Heutelbeck (dominic@heutelbeck.com)
+ *
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,41 +48,41 @@ import lombok.experimental.Accessors;
 @Table(name = "SaplDocumentVersion")
 public class SaplDocumentVersion implements Serializable {
 
-	public static final int MAX_DOCUMENT_SIZE = 64000;
-	
-	/**
-	 * The unique identifier of the SAPL document version.
-	 */
-	@Id
-	@GeneratedValue
-	@Column(name = "VersionId", nullable = false)
-	private Long versionId;
+    public static final int MAX_DOCUMENT_SIZE = 64000;
 
-	/**
-	 * The {@link SaplDocument} this version belongs to.
-	 */
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "saplDocument_fk")
-	@ToString.Exclude
-	@EqualsAndHashCode.Exclude
-	private SaplDocument saplDocument;
+    /**
+     * The unique identifier of the SAPL document version.
+     */
+    @Id
+    @GeneratedValue
+    @Column(name = "VersionId", nullable = false)
+    private Long versionId;
 
-	/**
-	 * The version number.
-	 */
-	@Column
-	private int versionNumber;
+    /**
+     * The {@link SaplDocument} this version belongs to.
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "saplDocument_fk")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private SaplDocument saplDocument;
 
-	/**
-	 * The value / text of the SAPL document version.
-	 */
-	@Column(length = MAX_DOCUMENT_SIZE)
-	private String documentContent;
+    /**
+     * The version number.
+     */
+    @Column
+    private int versionNumber;
 
-	/**
-	 * The name included in the value / text of the SAPL document version
-	 * (redundancy for better query performance).
-	 */
-	@Column(length = 1024)
-	private String name;
+    /**
+     * The value / text of the SAPL document version.
+     */
+    @Column(length = MAX_DOCUMENT_SIZE)
+    private String documentContent;
+
+    /**
+     * The name included in the value / text of the SAPL document version
+     * (redundancy for better query performance).
+     */
+    @Column(length = 1024)
+    private String name;
 }

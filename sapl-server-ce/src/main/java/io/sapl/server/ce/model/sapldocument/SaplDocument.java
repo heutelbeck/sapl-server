@@ -1,5 +1,7 @@
 /*
- * Copyright © 2017-2021 Dominic Heutelbeck (dominic@heutelbeck.com)
+ * Copyright (C) 2017-2023 Dominic Heutelbeck (dominic@heutelbeck.com)
+ *
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,103 +51,103 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 @Table(name = "SaplDocument")
 public class SaplDocument {
-	/**
-	 * The unique identifier of the SAPL document.
-	 */
-	@Id
-	@GeneratedValue
-	@Column(name = "Id", nullable = false)
-	private Long id;
+    /**
+     * The unique identifier of the SAPL document.
+     */
+    @Id
+    @GeneratedValue
+    @Column(name = "Id", nullable = false)
+    private Long id;
 
-	/**
-	 * The number of the current version.
-	 */
-	@Column
-	private int currentVersionNumber;
+    /**
+     * The number of the current version.
+     */
+    @Column
+    private int currentVersionNumber;
 
-	/**
-	 * The published version. The value is <b>null</b>, if no version of the SAPL
-	 * document is published.
-	 */
-	@OneToOne
-	private SaplDocumentVersion publishedVersion;
+    /**
+     * The published version. The value is <b>null</b>, if no version of the SAPL
+     * document is published.
+     */
+    @OneToOne
+    private SaplDocumentVersion publishedVersion;
 
-	/**
-	 * The version.
-	 */
-	@Column
-	private String lastModified;
+    /**
+     * The version.
+     */
+    @Column
+    private String lastModified;
 
-	/**
-	 * The name of the current version of the document.
-	 */
-	@Column
-	private String name;
+    /**
+     * The name of the current version of the document.
+     */
+    @Column
+    private String name;
 
-	/**
-	 * The {@link DocumentType}.
-	 */
-	@Column
-	private DocumentType type;
+    /**
+     * The {@link DocumentType}.
+     */
+    @Column
+    private DocumentType type;
 
-	@ToString.Exclude
-	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "saplDocument")
-	private List<SaplDocumentVersion> versions = new ArrayList<>();
+    @ToString.Exclude
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "saplDocument")
+    private List<SaplDocumentVersion> versions = new ArrayList<>();
 
-	/**
-	 * Gets the current version of the SAPL document as {@link SaplDocumentVersion}.
-	 * If no version is available, <b>null</b> will be returned.
-	 * 
-	 * @return the current version
-	 */
-	public SaplDocumentVersion getCurrentVersion() {
-		Optional<SaplDocumentVersion> versionWithHighestVersion = versions.stream()
-				.max(Comparator.comparingInt(SaplDocumentVersion::getVersionNumber));
-		return versionWithHighestVersion.orElse(null);
-	}
+    /**
+     * Gets the current version of the SAPL document as {@link SaplDocumentVersion}.
+     * If no version is available, <b>null</b> will be returned.
+     *
+     * @return the current version
+     */
+    public SaplDocumentVersion getCurrentVersion() {
+        Optional<SaplDocumentVersion> versionWithHighestVersion = versions.stream()
+                .max(Comparator.comparingInt(SaplDocumentVersion::getVersionNumber));
+        return versionWithHighestVersion.orElse(null);
+    }
 
-	/**
-	 * Gets a specific {@link SaplDocumentVersion} by its version number.
-	 * 
-	 * @param version the version number
-	 * @return {@link SaplDocumentVersion}
-	 * @exception IllegalArgumentException the version was not found
-	 */
-	public SaplDocumentVersion getVersion(int version) {
-		Optional<SaplDocumentVersion> versionAsOptional = getVersions().stream()
-				.filter(currentSaplDocumentVersion -> currentSaplDocumentVersion.getVersionNumber() == version)
-				.findFirst();
+    /**
+     * Gets a specific {@link SaplDocumentVersion} by its version number.
+     *
+     * @param version the version number
+     * @return {@link SaplDocumentVersion}
+     * @exception IllegalArgumentException the version was not found
+     */
+    public SaplDocumentVersion getVersion(int version) {
+        Optional<SaplDocumentVersion> versionAsOptional = getVersions().stream()
+                .filter(currentSaplDocumentVersion -> currentSaplDocumentVersion.getVersionNumber() == version)
+                .findFirst();
 
-		if (versionAsOptional.isPresent()) {
-			return versionAsOptional.get();
-		}
+        if (versionAsOptional.isPresent()) {
+            return versionAsOptional.get();
+        }
 
-		throw new IllegalArgumentException(String.format("version %d was not found", version));
-	}
+        throw new IllegalArgumentException(String.format("version %d was not found", version));
+    }
 
-	/**
-	 * Gets a {@link String} representation of the published version number.
-	 * 
-	 * @return the {@link String} representation
-	 */
-	public String getPublishedVersionNumberAsString() {
-		SaplDocumentVersion publishedDocumentVersion = getPublishedVersion();
-		if (publishedDocumentVersion != null) {
-			return Integer.toString(publishedDocumentVersion.getVersionNumber());
-		} else {
-			return "-";
-		}
-	}
+    /**
+     * Gets a {@link String} representation of the published version number.
+     *
+     * @return the {@link String} representation
+     */
+    public String getPublishedVersionNumberAsString() {
+        SaplDocumentVersion publishedDocumentVersion = getPublishedVersion();
+        if (publishedDocumentVersion != null) {
+            return Integer.toString(publishedDocumentVersion.getVersionNumber());
+        } else {
+            return "-";
+        }
+    }
 
-	/**
-	 * Gets a {@link String} representation of the {@link DocumentType}.
-	 * 
-	 * @return the {@link String} representation
-	 */
-	public String getTypeAsString() {
-		return switch (type) {
-		case POLICY -> "Policy";
-		case POLICY_SET -> "Policy Set";
-		};
-	}
+    /**
+     * Gets a {@link String} representation of the {@link DocumentType}.
+     *
+     * @return the {@link String} representation
+     */
+    public String getTypeAsString() {
+        return switch (type) {
+        case POLICY -> "Policy";
+        case POLICY_SET -> "Policy Set";
+        };
+    }
 }

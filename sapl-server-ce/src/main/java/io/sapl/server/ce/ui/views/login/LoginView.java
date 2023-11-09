@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2017-2023 Dominic Heutelbeck (dominic@heutelbeck.com)
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package io.sapl.server.ce.ui.views.login;
 
 import com.vaadin.flow.component.login.LoginI18n;
@@ -19,32 +36,32 @@ import lombok.RequiredArgsConstructor;
 @Route(value = "login")
 @RequiredArgsConstructor
 public class LoginView extends LoginOverlay implements BeforeEnterObserver {
-	
-	private final transient AuthenticatedUser authenticatedUser;
 
-	@PostConstruct
-	void init() {
-		setAction(RouteUtil.getRoutePath(VaadinService.getCurrent().getContext(), getClass()));
+    private final transient AuthenticatedUser authenticatedUser;
 
-		var i18n = LoginI18n.createDefault();
-		i18n.setHeader(new LoginI18n.Header());
-		i18n.getHeader().setTitle("SAPL Server CE");
-		i18n.getHeader().setDescription("Login with administrator account.");
-		i18n.setAdditionalInformation(null);
-		setI18n(i18n);
+    @PostConstruct
+    void init() {
+        setAction(RouteUtil.getRoutePath(VaadinService.getCurrent().getContext(), getClass()));
 
-		setForgotPasswordButtonVisible(false);
-		setOpened(true);
-	}
+        var i18n = LoginI18n.createDefault();
+        i18n.setHeader(new LoginI18n.Header());
+        i18n.getHeader().setTitle("SAPL Server CE");
+        i18n.getHeader().setDescription("Login with administrator account.");
+        i18n.setAdditionalInformation(null);
+        setI18n(i18n);
 
-	@Override
-	public void beforeEnter(BeforeEnterEvent event) {
-		if (authenticatedUser.get().isPresent()) {
-			// Already logged in
-			setOpened(false);
-			event.forwardTo("");
-		}
+        setForgotPasswordButtonVisible(false);
+        setOpened(true);
+    }
 
-		setError(event.getLocation().getQueryParameters().getParameters().containsKey("error"));
-	}
+    @Override
+    public void beforeEnter(BeforeEnterEvent event) {
+        if (authenticatedUser.get().isPresent()) {
+            // Already logged in
+            setOpened(false);
+            event.forwardTo("");
+        }
+
+        setError(event.getLocation().getQueryParameters().getParameters().containsKey("error"));
+    }
 }

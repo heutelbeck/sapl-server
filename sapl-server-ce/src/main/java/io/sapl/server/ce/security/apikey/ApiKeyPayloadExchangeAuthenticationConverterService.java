@@ -1,5 +1,7 @@
 /*
- * Copyright © 2023 Dominic Heutelbeck (dominic@heutelbeck.com)
+ * Copyright (C) 2017-2023 Dominic Heutelbeck (dominic@heutelbeck.com)
+ *
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,44 +17,44 @@
  */
 package io.sapl.server.ce.security.apikey;
 
-import io.netty.buffer.ByteBuf;
-import io.rsocket.metadata.CompositeMetadata;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.nio.charset.StandardCharsets;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.rsocket.api.PayloadExchange;
 import org.springframework.security.rsocket.authentication.PayloadExchangeAuthenticationConverter;
 import org.springframework.stereotype.Component;
 import org.springframework.util.MimeType;
+
+import io.netty.buffer.ByteBuf;
+import io.rsocket.metadata.CompositeMetadata;
+import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
-import java.nio.charset.StandardCharsets;
-
-@Slf4j
 @Component
 @RequiredArgsConstructor
 public class ApiKeyPayloadExchangeAuthenticationConverterService implements PayloadExchangeAuthenticationConverter {
-	@Value("${io.sapl.server.accesscontrol.apiKeyHeaderName:API_KEY}")
-	private String	apiKeyHeaderName = "API_KEY";
+    @Value("${io.sapl.server.accesscontrol.apiKeyHeaderName:API_KEY}")
+    private String apiKeyHeaderName = "API_KEY";
 
-	private String	apiKeyMimeTypeValue = String.valueOf(MimeType.valueOf("messaging/" + apiKeyHeaderName));
-	private final ApiKeyFinderService apiKeyFinderService;
+    private String                    apiKeyMimeTypeValue = String
+            .valueOf(MimeType.valueOf("messaging/" + apiKeyHeaderName));
+    private final ApiKeyFinderService apiKeyFinderService;
 
-	@Override
-	public Mono<Authentication> convert(PayloadExchange exchange) {
-		ByteBuf           metadata          = exchange.getPayload().metadata();
-		CompositeMetadata compositeMetadata = new CompositeMetadata(metadata, false);
-		for (CompositeMetadata.Entry entry : compositeMetadata) {
-			if (apiKeyMimeTypeValue.equals(entry.getMimeType())) {
-				String apikey = entry.getContent().toString(StandardCharsets.UTF_8);
-				if (apiKeyFinderService.isApiKeyAssociatedWithClientCredentials(apikey)) {
-					return Mono.just(new ApiKeyAuthenticationToken());
-				} else {
-					return Mono.error(() -> new ApiKeyAuthenticationException("ApiKey not authorized"));
-				}
-			}
-		}
-		return Mono.empty();
-	}
+    @Override
+    public Mono<Authentication> convert(PayloadExchange exchange) {
+        ByteBuf           metadata          = exchange.getPayload().metadata();
+        CompositeMetadata compositeMetadata = new CompositeMetadata(metadata, false);
+        for (CompositeMetadata.Entry entry : compositeMetadata) {
+            if (apiKeyMimeTypeValue.equals(entry.getMimeType())) {
+                String apikey = entry.getContent().toString(StandardCharsets.UTF_8);
+                if (apiKeyFinderService.isApiKeyAssociatedWithClientCredentials(apikey)) {
+                    return Mono.just(new ApiKeyAuthenticationToken());
+                } else {
+                    return Mono.error(() -> new ApiKeyAuthenticationException("ApiKey not authorized"));
+                }
+            }
+        }
+        return Mono.empty();
+    }
 }

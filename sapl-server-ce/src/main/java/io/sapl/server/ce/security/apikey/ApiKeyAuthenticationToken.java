@@ -1,5 +1,7 @@
 /*
- * Copyright © 2023 Dominic Heutelbeck (dominic@heutelbeck.com)
+ * Copyright (C) 2017-2023 Dominic Heutelbeck (dominic@heutelbeck.com)
+ *
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,18 +28,18 @@ import java.util.List;
  */
 public class ApiKeyAuthenticationToken extends AbstractAuthenticationToken {
 
-	public ApiKeyAuthenticationToken() {
-		super(List.of(new SimpleGrantedAuthority(ClientDetailsService.CLIENT)));
-		setAuthenticated(true);
-	}
+    public ApiKeyAuthenticationToken() {
+        super(List.of(new SimpleGrantedAuthority(ClientDetailsService.CLIENT)));
+        setAuthenticated(true);
+    }
 
-	@Override
-	public Object getCredentials() {
-		return null;
-	}
+    @Override
+    public Object getCredentials() {
+        return null;
+    }
 
-	@Override
-	public Object getPrincipal() {
-		return null;
-	}
+    @Override
+    public Object getPrincipal() {
+        return null;
+    }
 }

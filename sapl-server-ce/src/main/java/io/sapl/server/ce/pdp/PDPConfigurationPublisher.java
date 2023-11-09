@@ -1,5 +1,7 @@
 /*
- * Copyright © 2017-2021 Dominic Heutelbeck (dominic@heutelbeck.com)
+ * Copyright (C) 2017-2023 Dominic Heutelbeck (dominic@heutelbeck.com)
+ *
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,17 +27,17 @@ import lombok.NonNull;
  * Publisher for changed configuration of the PDP.
  */
 public interface PDPConfigurationPublisher {
-	/**
-	 * Publishes a changed {@link PolicyDocumentCombiningAlgorithm}.
-	 * 
-	 * @param algorithm the changed {@link PolicyDocumentCombiningAlgorithm}
-	 */
-	void publishCombiningAlgorithm(@NonNull PolicyDocumentCombiningAlgorithm algorithm);
+    /**
+     * Publishes a changed {@link PolicyDocumentCombiningAlgorithm}.
+     *
+     * @param algorithm the changed {@link PolicyDocumentCombiningAlgorithm}
+     */
+    void publishCombiningAlgorithm(@NonNull PolicyDocumentCombiningAlgorithm algorithm);
 
-	/**
-	 * Publishes a changed collection of {@link Variable} instances.
-	 * 
-	 * @param variables the collection of {@link Variable} instances
-	 */
-	void publishVariables(@NonNull Collection<Variable> variables);
+    /**
+     * Publishes a changed collection of {@link Variable} instances.
+     *
+     * @param variables the collection of {@link Variable} instances
+     */
+    void publishVariables(@NonNull Collection<Variable> variables);
 }

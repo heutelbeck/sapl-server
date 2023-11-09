@@ -1,5 +1,7 @@
 /*
- * Copyright © 2017-2021 Dominic Heutelbeck (dominic@heutelbeck.com)
+ * Copyright (C) 2017-2023 Dominic Heutelbeck (dominic@heutelbeck.com)
+ *
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,56 +44,56 @@ import lombok.RequiredArgsConstructor;
 @Route(value = DigitalPoliciesView.ROUTE, layout = MainLayout.class)
 public class DigitalPoliciesView extends VerticalLayout {
 
-	public static final String ROUTE = "";
+    public static final String ROUTE = "";
 
-	private final transient SaplDocumentService saplDocumentService;
+    private final transient SaplDocumentService saplDocumentService;
 
-	private final Grid<SaplDocument> saplDocumentGrid = new Grid<>();
-	private final Button             createButton     = new Button("Create");
+    private final Grid<SaplDocument> saplDocumentGrid = new Grid<>();
+    private final Button             createButton     = new Button("Create");
 
-	@PostConstruct
-	private void init() {
-		add(createButton, saplDocumentGrid);
+    @PostConstruct
+    private void init() {
+        add(createButton, saplDocumentGrid);
 
-		initSaplDocumentGrid();
+        initSaplDocumentGrid();
 
-		createButton.addClickListener(clickEvent -> {
-			saplDocumentService.createDefault();
-			saplDocumentGrid.getDataProvider().refreshAll();
-		});
-	}
+        createButton.addClickListener(clickEvent -> {
+            saplDocumentService.createDefault();
+            saplDocumentGrid.getDataProvider().refreshAll();
+        });
+    }
 
-	private void initSaplDocumentGrid() {
-		// add columns
-		saplDocumentGrid.addColumn(SaplDocument::getName).setHeader("Name");
-		saplDocumentGrid.addColumn(SaplDocument::getCurrentVersionNumber).setHeader("Version");
-		saplDocumentGrid.addColumn(SaplDocument::getPublishedVersionNumberAsString).setHeader("Published Version");
-		saplDocumentGrid.addColumn(SaplDocument::getLastModified).setHeader("Last Modified");
-		saplDocumentGrid.addColumn(SaplDocument::getTypeAsString).setHeader("Type");
-		saplDocumentGrid.getColumns().forEach(col -> col.setAutoWidth(true));
-		saplDocumentGrid.addComponentColumn(saplDocument -> {
-			Button editButton = new Button("Edit", VaadinIcon.EDIT.create());
-			editButton.addClickListener(clickEvent -> {
-				String uriToNavigateTo = String.format("%s/%d", EditSaplDocumentView.ROUTE, saplDocument.getId());
-				editButton.getUI().ifPresent(ui -> ui.navigate(uriToNavigateTo));
-			});
-			editButton.setThemeName("primary");
+    private void initSaplDocumentGrid() {
+        // add columns
+        saplDocumentGrid.addColumn(SaplDocument::getName).setHeader("Name");
+        saplDocumentGrid.addColumn(SaplDocument::getCurrentVersionNumber).setHeader("Version");
+        saplDocumentGrid.addColumn(SaplDocument::getPublishedVersionNumberAsString).setHeader("Published Version");
+        saplDocumentGrid.addColumn(SaplDocument::getLastModified).setHeader("Last Modified");
+        saplDocumentGrid.addColumn(SaplDocument::getTypeAsString).setHeader("Type");
+        saplDocumentGrid.getColumns().forEach(col -> col.setAutoWidth(true));
+        saplDocumentGrid.addComponentColumn(saplDocument -> {
+            Button editButton = new Button("Edit", VaadinIcon.EDIT.create());
+            editButton.addClickListener(clickEvent -> {
+                String uriToNavigateTo = String.format("%s/%d", EditSaplDocumentView.ROUTE, saplDocument.getId());
+                editButton.getUI().ifPresent(ui -> ui.navigate(uriToNavigateTo));
+            });
+            editButton.setThemeName("primary");
 
-			HorizontalLayout componentsForEntry = new HorizontalLayout();
-			componentsForEntry.add(editButton);
-			return componentsForEntry;
-		});
+            HorizontalLayout componentsForEntry = new HorizontalLayout();
+            componentsForEntry.add(editButton);
+            return componentsForEntry;
+        });
 
-		// set data provider
-		CallbackDataProvider<SaplDocument, Void> dataProvider = DataProvider.fromCallbacks(query -> {
-			int offset = query.getOffset();
-			int limit  = query.getLimit();
+        // set data provider
+        CallbackDataProvider<SaplDocument, Void> dataProvider = DataProvider.fromCallbacks(query -> {
+            int offset = query.getOffset();
+            int limit  = query.getLimit();
 
-			return saplDocumentService.getAll().stream().skip(offset).limit(limit);
-		}, query -> (int) saplDocumentService.getAmount());
-		saplDocumentGrid.setItems(dataProvider);
+            return saplDocumentService.getAll().stream().skip(offset).limit(limit);
+        }, query -> (int) saplDocumentService.getAmount());
+        saplDocumentGrid.setItems(dataProvider);
 
-		saplDocumentGrid.setAllRowsVisible(true);
-	}
+        saplDocumentGrid.setAllRowsVisible(true);
+    }
 
 }

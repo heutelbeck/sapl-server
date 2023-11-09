@@ -1,5 +1,7 @@
 /*
- * Copyright © 2017-2021 Dominic Heutelbeck (dominic@heutelbeck.com)
+ * Copyright (C) 2017-2023 Dominic Heutelbeck (dominic@heutelbeck.com)
+ *
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,13 +30,13 @@ import lombok.NonNull;
  * {@link PolicyDocumentCombiningAlgorithm}.
  */
 public interface SelectedCombiningAlgorithmRepository
-		extends CrudRepository<SelectedCombiningAlgorithm, Long>, Serializable {
-	/**
-	 * Returns all instances of the {@link SelectedCombiningAlgorithm}s.
-	 * 
-	 * @return the instances
-	 */
-	@Override
-	@NonNull
-	Collection<SelectedCombiningAlgorithm> findAll();
+        extends CrudRepository<SelectedCombiningAlgorithm, Long>, Serializable {
+    /**
+     * Returns all instances of the {@link SelectedCombiningAlgorithm}s.
+     *
+     * @return the instances
+     */
+    @Override
+    @NonNull
+    Collection<SelectedCombiningAlgorithm> findAll();
 }

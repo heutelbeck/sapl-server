@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2017-2023 Dominic Heutelbeck (dominic@heutelbeck.com)
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package io.sapl.server.ce.ui.views.digitalpolicies;
 
 import java.util.Comparator;
@@ -34,60 +51,55 @@ import lombok.extern.slf4j.Slf4j;
 @Route(value = PublishedPoliciesView.ROUTE, layout = MainLayout.class)
 public class PublishedPoliciesView extends VerticalLayout {
 
-	public static final String ROUTE = "published";
+    public static final String ROUTE = "published";
 
-	private final transient SaplDocumentService saplDocumentService;
+    private final transient SaplDocumentService saplDocumentService;
 
-	private final Grid<PublishedSaplDocument> grid                               = new Grid<>();
-	private final VerticalLayout              layoutForSelectedPublishedDocument = new VerticalLayout();
-	private final TextField                   policyIdTextField                  = new TextField("Policy Identifier");
-	private final TextField                   publishedVersionTextField          = new TextField("Published Version");
-	private final Button                      openEditPageForPolicyButton        = new Button("Manage Policy");
-	private SaplEditor saplEditor;
+    private final Grid<PublishedSaplDocument> grid                               = new Grid<>();
+    private final VerticalLayout              layoutForSelectedPublishedDocument = new VerticalLayout();
+    private final TextField                   policyIdTextField                  = new TextField("Policy Identifier");
+    private final TextField                   publishedVersionTextField          = new TextField("Published Version");
+    private final Button                      openEditPageForPolicyButton        = new Button("Manage Policy");
+    private SaplEditor                        saplEditor;
 
-	@PostConstruct
-	private void initUI() {
-		var editorConfig = new SaplEditorConfiguration();
-		//editorConfig.setDarkTheme(true);
-		saplEditor = new SaplEditor(editorConfig);
-		var metadataLayout = new HorizontalLayout(policyIdTextField, publishedVersionTextField);
-		layoutForSelectedPublishedDocument.add(metadataLayout, openEditPageForPolicyButton, saplEditor);
-		layoutForSelectedPublishedDocument.setSizeFull();
-		var mainLayout = new SplitLayout(grid, layoutForSelectedPublishedDocument);
-		mainLayout.setSizeFull();
-		add(mainLayout);
+    @PostConstruct
+    private void initUI() {
+        var editorConfig = new SaplEditorConfiguration();
+        // editorConfig.setDarkTheme(true);
+        saplEditor = new SaplEditor(editorConfig);
+        var metadataLayout = new HorizontalLayout(policyIdTextField, publishedVersionTextField);
+        layoutForSelectedPublishedDocument.add(metadataLayout, openEditPageForPolicyButton, saplEditor);
+        layoutForSelectedPublishedDocument.setSizeFull();
+        var mainLayout = new SplitLayout(grid, layoutForSelectedPublishedDocument);
+        mainLayout.setSizeFull();
+        add(mainLayout);
 
-		initGrid();
+        initGrid();
 
-		layoutForSelectedPublishedDocument.setVisible(false);
+        layoutForSelectedPublishedDocument.setVisible(false);
 
-		saplEditor.setReadOnly(Boolean.TRUE);
-		openEditPageForPolicyButton.addClickListener(e -> {
-			PublishedSaplDocument selected = getSelected();
+        saplEditor.setReadOnly(Boolean.TRUE);
+        openEditPageForPolicyButton.addClickListener(e -> {
+            PublishedSaplDocument selected = getSelected();
 
-			String uriToNavigateTo = String.format("%s/%s", EditSaplDocumentView.ROUTE, selected.getSaplDocumentId());
-			getUI().ifPresent(ui -> ui.navigate(uriToNavigateTo));
-		});
-	}
+            String uriToNavigateTo = String.format("%s/%s", EditSaplDocumentView.ROUTE, selected.getSaplDocumentId());
+            getUI().ifPresent(ui -> ui.navigate(uriToNavigateTo));
+        });
+    }
 
-	private void initGrid() {
-		grid.addColumn(PublishedSaplDocument::getDocumentName)
-				.setHeader("Name")
-				.setSortable(true);
-		grid.getColumns().forEach(col -> col.setAutoWidth(true));
-		grid.setMultiSort(false);
-		grid.addComponentColumn(publishedDocument -> {
-			Button unpublishButton = new Button("Unpublish");
-			unpublishButton.addClickListener(clickEvent -> ConfirmUtils.letConfirm("Unpublish Document?",
-                    String.format("Should the document \"%s\" really be unpublished?",
-                            publishedDocument.getDocumentName()),
-                    () -> {
+    private void initGrid() {
+        grid.addColumn(PublishedSaplDocument::getDocumentName).setHeader("Name").setSortable(true);
+        grid.getColumns().forEach(col -> col.setAutoWidth(true));
+        grid.setMultiSort(false);
+        grid.addComponentColumn(publishedDocument -> {
+            Button unpublishButton = new Button("Unpublish");
+            unpublishButton.addClickListener(clickEvent -> ConfirmUtils.letConfirm("Unpublish Document?", String.format(
+                    "Should the document \"%s\" really be unpublished?", publishedDocument.getDocumentName()), () -> {
                         try {
                             saplDocumentService.unpublishPolicy(publishedDocument.getSaplDocumentId());
                         } catch (Throwable throwable) {
                             ErrorNotificationUtils.show("The document could not be unpublished.");
-                            log.error(String.format(
-                                    "The document with id %s could not be unpublished.",
+                            log.error(String.format("The document with id %s could not be unpublished.",
                                     publishedDocument.getSaplDocumentId()), throwable);
                             return;
                         }
@@ -95,49 +107,47 @@ public class PublishedPoliciesView extends VerticalLayout {
                     }, () -> {
                     }));
 
-			HorizontalLayout componentsForEntry = new HorizontalLayout();
-			componentsForEntry.add(unpublishButton);
+            HorizontalLayout componentsForEntry = new HorizontalLayout();
+            componentsForEntry.add(unpublishButton);
 
-			return componentsForEntry;
-		});
+            return componentsForEntry;
+        });
 
-		CallbackDataProvider<PublishedSaplDocument, Void> dataProvider = DataProvider.fromCallbacks(query -> {
-			Stream<PublishedSaplDocument> stream = saplDocumentService.getPublishedSaplDocuments().stream();
+        CallbackDataProvider<PublishedSaplDocument, Void> dataProvider = DataProvider.fromCallbacks(query -> {
+            Stream<PublishedSaplDocument> stream = saplDocumentService.getPublishedSaplDocuments().stream();
 
-			Optional<Comparator<PublishedSaplDocument>> comparator = query.getSortingComparator();
-			if (comparator.isPresent()) {
-				stream = stream.sorted(comparator.get());
-			}
+            Optional<Comparator<PublishedSaplDocument>> comparator = query.getSortingComparator();
+            if (comparator.isPresent()) {
+                stream = stream.sorted(comparator.get());
+            }
 
-			return stream
-					.skip(query.getOffset())
-					.limit(query.getLimit());
-		}, query -> (int) saplDocumentService.getPublishedAmount());
-		grid.setSelectionMode(Grid.SelectionMode.SINGLE);
-		grid.setAllRowsVisible(true);
-		grid.setPageSize(25);
-		grid.setItems(dataProvider);
-		grid.setMultiSort(false);
-		grid.addSelectionListener(selection -> {
-			Optional<PublishedSaplDocument> selectedItem = selection.getFirstSelectedItem();
-			selectedItem.ifPresentOrElse(selectedPublishedDocument -> {
-				layoutForSelectedPublishedDocument.setVisible(true);
+            return stream.skip(query.getOffset()).limit(query.getLimit());
+        }, query -> (int) saplDocumentService.getPublishedAmount());
+        grid.setSelectionMode(Grid.SelectionMode.SINGLE);
+        grid.setAllRowsVisible(true);
+        grid.setPageSize(25);
+        grid.setItems(dataProvider);
+        grid.setMultiSort(false);
+        grid.addSelectionListener(selection -> {
+            Optional<PublishedSaplDocument> selectedItem = selection.getFirstSelectedItem();
+            selectedItem.ifPresentOrElse(selectedPublishedDocument -> {
+                layoutForSelectedPublishedDocument.setVisible(true);
 
-				policyIdTextField.setValue(Long.toString(selectedPublishedDocument.getSaplDocumentId()));
-				publishedVersionTextField.setValue(Integer.toString(selectedPublishedDocument.getVersion()));
-				saplEditor.setDocument(selectedPublishedDocument.getDocument());
-			}, () -> layoutForSelectedPublishedDocument.setVisible(false));
-		});
-	}
+                policyIdTextField.setValue(Long.toString(selectedPublishedDocument.getSaplDocumentId()));
+                publishedVersionTextField.setValue(Integer.toString(selectedPublishedDocument.getVersion()));
+                saplEditor.setDocument(selectedPublishedDocument.getDocument());
+            }, () -> layoutForSelectedPublishedDocument.setVisible(false));
+        });
+    }
 
-	private PublishedSaplDocument getSelected() {
-		Optional<PublishedSaplDocument> optionalPersistedPublishedDocument = grid.getSelectedItems().stream()
-				.findFirst();
-		if (optionalPersistedPublishedDocument.isEmpty()) {
-			throw new IllegalStateException("not available if no published document is selected");
-		}
+    private PublishedSaplDocument getSelected() {
+        Optional<PublishedSaplDocument> optionalPersistedPublishedDocument = grid.getSelectedItems().stream()
+                .findFirst();
+        if (optionalPersistedPublishedDocument.isEmpty()) {
+            throw new IllegalStateException("not available if no published document is selected");
+        }
 
-		return optionalPersistedPublishedDocument.get();
-	}
+        return optionalPersistedPublishedDocument.get();
+    }
 
 }

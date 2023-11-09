@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2017-2023 Dominic Heutelbeck (dominic@heutelbeck.com)
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package io.sapl.server.ce.ui.views;
 
 import org.vaadin.lineawesome.LineAwesomeIcon;
@@ -39,103 +56,103 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class MainLayout extends AppLayout {
 
-	private H2 viewTitle;
+    private H2 viewTitle;
 
-	private final AuthenticatedUser			authenticatedUser;
-	private final AccessAnnotationChecker	accessChecker;
+    private final AuthenticatedUser       authenticatedUser;
+    private final AccessAnnotationChecker accessChecker;
 
-	@PostConstruct
-	public void init() {
-		setPrimarySection(Section.DRAWER);
-		addDrawerContent();
-		addHeaderContent();
-	}
+    @PostConstruct
+    public void init() {
+        setPrimarySection(Section.DRAWER);
+        addDrawerContent();
+        addHeaderContent();
+    }
 
-	private void addHeaderContent() {
-		var toggle = new DrawerToggle();
-		toggle.getElement().setAttribute("aria-label", "Menu toggle");
+    private void addHeaderContent() {
+        var toggle = new DrawerToggle();
+        toggle.getElement().setAttribute("aria-label", "Menu toggle");
 
-		viewTitle = new H2();
-		viewTitle.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE);
+        viewTitle = new H2();
+        viewTitle.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE);
 
-		addToNavbar(true, toggle, viewTitle);
-	}
+        addToNavbar(true, toggle, viewTitle);
+    }
 
-	private void addDrawerContent() {
+    private void addDrawerContent() {
 
-		var logoLayout = new HorizontalLayout();
-		logoLayout.setId("logo");
-		logoLayout.setAlignItems(FlexComponent.Alignment.CENTER);
-		logoLayout.setPadding(true);
-		var logo = new Image("images/SAPL-Logo.png", "SAPL Logo");
-		logo.setHeight("50px");
-		var appName = new H1("SAPL Server CE");
-		appName.addClassNames(LumoUtility.FontSize.XLARGE, LumoUtility.Margin.NONE);
-		logoLayout.add(logo, appName);
+        var logoLayout = new HorizontalLayout();
+        logoLayout.setId("logo");
+        logoLayout.setAlignItems(FlexComponent.Alignment.CENTER);
+        logoLayout.setPadding(true);
+        var logo = new Image("images/SAPL-Logo.png", "SAPL Logo");
+        logo.setHeight("50px");
+        var appName = new H1("SAPL Server CE");
+        appName.addClassNames(LumoUtility.FontSize.XLARGE, LumoUtility.Margin.NONE);
+        logoLayout.add(logo, appName);
 
-		var	header		= new Header(logoLayout);
-		var	scroller	= new Scroller(createNavigation());
+        var header   = new Header(logoLayout);
+        var scroller = new Scroller(createNavigation());
 
-		addToDrawer(header, scroller, createFooter());
-	}
+        addToDrawer(header, scroller, createFooter());
+    }
 
-	private AppNav createNavigation() {
-		var nav = new AppNav();
-		addItem(nav, "Digital Policies", DigitalPoliciesView.class, LineAwesomeIcon.FILE_SOLID);
-		addItem(nav, "Published Policies", PublishedPoliciesView.class, LineAwesomeIcon.FILE_ALT);
-		addItem(nav, "PDP Config", PDPConfigView.class, LineAwesomeIcon.COG_SOLID);
-		addItem(nav, "Libraries Documentation", LibrariesDocumentationView.class, LineAwesomeIcon.BOOK_SOLID);
-		addItem(nav, "Client Credentials", ClientCredentialsView.class, LineAwesomeIcon.KEY_SOLID);
-		return nav;
-	}
+    private AppNav createNavigation() {
+        var nav = new AppNav();
+        addItem(nav, "Digital Policies", DigitalPoliciesView.class, LineAwesomeIcon.FILE_SOLID);
+        addItem(nav, "Published Policies", PublishedPoliciesView.class, LineAwesomeIcon.FILE_ALT);
+        addItem(nav, "PDP Config", PDPConfigView.class, LineAwesomeIcon.COG_SOLID);
+        addItem(nav, "Libraries Documentation", LibrariesDocumentationView.class, LineAwesomeIcon.BOOK_SOLID);
+        addItem(nav, "Client Credentials", ClientCredentialsView.class, LineAwesomeIcon.KEY_SOLID);
+        return nav;
+    }
 
-	private void addItem(AppNav nav, String label, Class<? extends Component> view, LineAwesomeIcon icon) {
-		if (accessChecker.hasAccess(view)) {
-			nav.addItem(new AppNavItem(label, view, icon.create()));
-		}
-	}
+    private void addItem(AppNav nav, String label, Class<? extends Component> view, LineAwesomeIcon icon) {
+        if (accessChecker.hasAccess(view)) {
+            nav.addItem(new AppNavItem(label, view, icon.create()));
+        }
+    }
 
-	private Footer createFooter() {
-		var	layout		= new Footer();
-		var	maybeUser	= authenticatedUser.get();
-		if (maybeUser.isPresent()) {
-			var user = maybeUser.get();
+    private Footer createFooter() {
+        var layout    = new Footer();
+        var maybeUser = authenticatedUser.get();
+        if (maybeUser.isPresent()) {
+            var user = maybeUser.get();
 
-			var avatar = new Avatar(user.getUsername());
-			avatar.setThemeName("xsmall");
-			avatar.getElement().setAttribute("tabindex", "-1");
+            var avatar = new Avatar(user.getUsername());
+            avatar.setThemeName("xsmall");
+            avatar.getElement().setAttribute("tabindex", "-1");
 
-			var userMenu = new MenuBar();
-			userMenu.setThemeName("tertiary-inline contrast");
+            var userMenu = new MenuBar();
+            userMenu.setThemeName("tertiary-inline contrast");
 
-			var	userName	= userMenu.addItem("");
-			var	div			= new Div();
-			div.add(avatar);
-			div.add(user.getUsername());
-			div.add(new Icon("lumo", "dropdown"));
-			div.getElement().getStyle().set("display", "flex");
-			div.getElement().getStyle().set("align-items", "center");
-			div.getElement().getStyle().set("gap", "var(--lumo-space-s)");
-			userName.add(div);
-			userName.getSubMenu().addItem("Sign out", e -> authenticatedUser.logout());
+            var userName = userMenu.addItem("");
+            var div      = new Div();
+            div.add(avatar);
+            div.add(user.getUsername());
+            div.add(new Icon("lumo", "dropdown"));
+            div.getElement().getStyle().set("display", "flex");
+            div.getElement().getStyle().set("align-items", "center");
+            div.getElement().getStyle().set("gap", "var(--lumo-space-s)");
+            userName.add(div);
+            userName.getSubMenu().addItem("Sign out", e -> authenticatedUser.logout());
 
-			layout.add(userMenu);
-		} else {
-			var loginLink = new Anchor("login", "Sign in");
-			layout.add(loginLink);
-		}
+            layout.add(userMenu);
+        } else {
+            var loginLink = new Anchor("login", "Sign in");
+            layout.add(loginLink);
+        }
 
-		return layout;
-	}
+        return layout;
+    }
 
-	@Override
-	protected void afterNavigation() {
-		super.afterNavigation();
-		viewTitle.setText(getCurrentPageTitle());
-	}
+    @Override
+    protected void afterNavigation() {
+        super.afterNavigation();
+        viewTitle.setText(getCurrentPageTitle());
+    }
 
-	private String getCurrentPageTitle() {
-		var title = getContent().getClass().getAnnotation(PageTitle.class);
-		return title == null ? "" : title.value();
-	}
+    private String getCurrentPageTitle() {
+        var title = getContent().getClass().getAnnotation(PageTitle.class);
+        return title == null ? "" : title.value();
+    }
 }

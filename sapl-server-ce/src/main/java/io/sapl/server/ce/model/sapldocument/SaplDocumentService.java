@@ -1,5 +1,7 @@
 /*
- * Copyright © 2017-2021 Dominic Heutelbeck (dominic@heutelbeck.com)
+ * Copyright (C) 2017-2023 Dominic Heutelbeck (dominic@heutelbeck.com)
+ *
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,235 +55,235 @@ import reactor.core.publisher.Sinks.Many;
 @Service
 @RequiredArgsConstructor
 public class SaplDocumentService implements PrpUpdateEventSource {
-	public static final String DEFAULT_DOCUMENT_VALUE = "policy \"all deny\"\ndeny";
+    public static final String DEFAULT_DOCUMENT_VALUE = "policy \"all deny\"\ndeny";
 
-	private final SaplDocumentsRepository			saplDocumentRepository;
-	private final SaplDocumentsVersionRepository	saplDocumentVersionRepository;
-	private final PublishedSaplDocumentRepository	publishedSaplDocumentRepository;
-	private final SAPLInterpreter					saplInterpreter;
+    private final SaplDocumentsRepository         saplDocumentRepository;
+    private final SaplDocumentsVersionRepository  saplDocumentVersionRepository;
+    private final PublishedSaplDocumentRepository publishedSaplDocumentRepository;
+    private final SAPLInterpreter                 saplInterpreter;
 
-	private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
-			.withLocale(Locale.GERMANY).withZone(ZoneId.systemDefault());
+    private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
+            .withLocale(Locale.GERMANY).withZone(ZoneId.systemDefault());
 
-	private Many<PrpUpdateEvent> prpUpdateEventSink;
+    private Many<PrpUpdateEvent> prpUpdateEventSink;
 
-	@PostConstruct
-	public void init() {
-		prpUpdateEventSink = Sinks.many().replay().all();
-		// emit initial event
-		PrpUpdateEvent initialEvent = generateInitialPrpUpdateEvent();
-		prpUpdateEventSink.emitNext(initialEvent, EmitFailureHandler.FAIL_FAST);
-	}
+    @PostConstruct
+    public void init() {
+        prpUpdateEventSink = Sinks.many().replay().all();
+        // emit initial event
+        PrpUpdateEvent initialEvent = generateInitialPrpUpdateEvent();
+        prpUpdateEventSink.emitNext(initialEvent, EmitFailureHandler.FAIL_FAST);
+    }
 
-	@Override
-	public Flux<PrpUpdateEvent> getUpdates() {
-		return prpUpdateEventSink.asFlux();
-	}
+    @Override
+    public Flux<PrpUpdateEvent> getUpdates() {
+        return prpUpdateEventSink.asFlux();
+    }
 
-	@Override
-	public void dispose() {
-		// TODO. What is todo?
-	}
+    @Override
+    public void dispose() {
+        // TODO. What is todo?
+    }
 
-	public Collection<SaplDocument> getAll() {
-		return saplDocumentRepository.findAll();
-	}
+    public Collection<SaplDocument> getAll() {
+        return saplDocumentRepository.findAll();
+    }
 
-	public Optional<SaplDocument> getById(long id) {
-		return saplDocumentRepository.findById(id);
-	}
+    public Optional<SaplDocument> getById(long id) {
+        return saplDocumentRepository.findById(id);
+    }
 
-	public long getAmount() {
-		return saplDocumentRepository.count();
-	}
+    public long getAmount() {
+        return saplDocumentRepository.count();
+    }
 
-	public SaplDocument createDefault() {
-		String documentValue = DEFAULT_DOCUMENT_VALUE;
+    public SaplDocument createDefault() {
+        String documentValue = DEFAULT_DOCUMENT_VALUE;
 
-		DocumentAnalysisResult documentAnalysisResult = saplInterpreter.analyze(documentValue);
+        DocumentAnalysisResult documentAnalysisResult = saplInterpreter.analyze(documentValue);
 
-		DocumentType	type	= documentAnalysisResult.getType();
-		String			name	= documentAnalysisResult.getName();
+        DocumentType type = documentAnalysisResult.getType();
+        String       name = documentAnalysisResult.getName();
 
-		SaplDocument	saplDocumentToCreate	= new SaplDocument().setLastModified(getCurrentTimestampAsString())
-				.setName(name).setCurrentVersionNumber(1).setType(type);
-		SaplDocument	createdDocument			= saplDocumentRepository.save(saplDocumentToCreate);
+        SaplDocument saplDocumentToCreate = new SaplDocument().setLastModified(getCurrentTimestampAsString())
+                .setName(name).setCurrentVersionNumber(1).setType(type);
+        SaplDocument createdDocument      = saplDocumentRepository.save(saplDocumentToCreate);
 
-		SaplDocumentVersion initialSaplDocumentVersion = new SaplDocumentVersion().setSaplDocument(createdDocument)
-				.setVersionNumber(1).setDocumentContent(documentValue).setName(name);
-		saplDocumentVersionRepository.save(initialSaplDocumentVersion);
+        SaplDocumentVersion initialSaplDocumentVersion = new SaplDocumentVersion().setSaplDocument(createdDocument)
+                .setVersionNumber(1).setDocumentContent(documentValue).setName(name);
+        saplDocumentVersionRepository.save(initialSaplDocumentVersion);
 
-		return createdDocument;
-	}
+        return createdDocument;
+    }
 
-	public SaplDocumentVersion createVersion(long saplDocumentId, @NonNull String documentValue) {
-		SaplDocument saplDocument = getExistingById(saplDocumentId);
+    public SaplDocumentVersion createVersion(long saplDocumentId, @NonNull String documentValue) {
+        SaplDocument saplDocument = getExistingById(saplDocumentId);
 
-		DocumentAnalysisResult documentAnalysisResult = saplInterpreter.analyze(documentValue);
-		if (!documentAnalysisResult.isValid()) {
-			throw new IllegalArgumentException(String.format("document value is invalid (value: %s)", documentValue));
-		}
+        DocumentAnalysisResult documentAnalysisResult = saplInterpreter.analyze(documentValue);
+        if (!documentAnalysisResult.isValid()) {
+            throw new IllegalArgumentException(String.format("document value is invalid (value: %s)", documentValue));
+        }
 
-		int				newVersionNumber	= saplDocument.getCurrentVersionNumber() + 1;
-		DocumentType	type				= documentAnalysisResult.getType();
-		String			newName				= documentAnalysisResult.getName();
+        int          newVersionNumber = saplDocument.getCurrentVersionNumber() + 1;
+        DocumentType type             = documentAnalysisResult.getType();
+        String       newName          = documentAnalysisResult.getName();
 
-		SaplDocumentVersion newSaplDocumentVersion = new SaplDocumentVersion().setSaplDocument(saplDocument)
-				.setVersionNumber(newVersionNumber).setDocumentContent(documentValue).setName(newName);
-		saplDocumentVersionRepository.save(newSaplDocumentVersion);
+        SaplDocumentVersion newSaplDocumentVersion = new SaplDocumentVersion().setSaplDocument(saplDocument)
+                .setVersionNumber(newVersionNumber).setDocumentContent(documentValue).setName(newName);
+        saplDocumentVersionRepository.save(newSaplDocumentVersion);
 
-		saplDocument.setCurrentVersionNumber(newVersionNumber).setLastModified(getCurrentTimestampAsString())
-				.setType(type).setName(newName);
-		saplDocumentRepository.save(saplDocument);
+        saplDocument.setCurrentVersionNumber(newVersionNumber).setLastModified(getCurrentTimestampAsString())
+                .setType(type).setName(newName);
+        saplDocumentRepository.save(saplDocument);
 
-		return newSaplDocumentVersion;
-	}
+        return newSaplDocumentVersion;
+    }
 
-	@Transactional(rollbackFor = Throwable.class)
-	public void publishPolicyVersion(long saplDocumentId, int versionToPublish)
-			throws PublishedDocumentNameCollisionException {
-		SaplDocument	saplDocument	= getExistingById(saplDocumentId);
-		var				updateEvents	= new ArrayList<Update>(2);
+    @Transactional(rollbackFor = Throwable.class)
+    public void publishPolicyVersion(long saplDocumentId, int versionToPublish)
+            throws PublishedDocumentNameCollisionException {
+        SaplDocument saplDocument = getExistingById(saplDocumentId);
+        var          updateEvents = new ArrayList<Update>(2);
 
-		// unpublish other version if published
-		if (saplDocument.getPublishedVersion() != null) {
-			SaplDocument saplDocumentToUnpublish = getExistingById(saplDocumentId);
+        // unpublish other version if published
+        if (saplDocument.getPublishedVersion() != null) {
+            SaplDocument saplDocumentToUnpublish = getExistingById(saplDocumentId);
 
-			SaplDocumentVersion publishedVersion = saplDocumentToUnpublish.getPublishedVersion();
-			if (publishedVersion != null) {
+            SaplDocumentVersion publishedVersion = saplDocumentToUnpublish.getPublishedVersion();
+            if (publishedVersion != null) {
 
-				// update persisted published documents
-				Iterable<PublishedSaplDocument> deletedPublishedSaplDocuments = deletePersistedPublishedSaplDocumentsByName(
-						publishedVersion.getName());
-				for (var doc : deletedPublishedSaplDocuments) {
-					updateEvents.add(convertSaplDocumentToUpdateOfPrpUpdateEvent(doc, PrpUpdateEvent.Type.WITHDRAW));
-				}
+                // update persisted published documents
+                Iterable<PublishedSaplDocument> deletedPublishedSaplDocuments = deletePersistedPublishedSaplDocumentsByName(
+                        publishedVersion.getName());
+                for (var doc : deletedPublishedSaplDocuments) {
+                    updateEvents.add(convertSaplDocumentToUpdateOfPrpUpdateEvent(doc, PrpUpdateEvent.Type.WITHDRAW));
+                }
 
-				// update persisted document
-				saplDocumentToUnpublish.setPublishedVersion(null);
-				saplDocumentRepository.save(saplDocumentToUnpublish);
+                // update persisted document
+                saplDocumentToUnpublish.setPublishedVersion(null);
+                saplDocumentRepository.save(saplDocumentToUnpublish);
 
-				log.info("unpublish version {} of SAPL document with id {} (name: {})",
-						publishedVersion.getVersionNumber(), saplDocumentId, saplDocumentToUnpublish.getName());
-			}
-		}
+                log.info("unpublish version {} of SAPL document with id {} (name: {})",
+                        publishedVersion.getVersionNumber(), saplDocumentId, saplDocumentToUnpublish.getName());
+            }
+        }
 
-		SaplDocumentVersion saplDocumentVersionToPublish = saplDocument.getVersion(versionToPublish);
+        SaplDocumentVersion saplDocumentVersionToPublish = saplDocument.getVersion(versionToPublish);
 
-		// update persisted published documents
-		PublishedSaplDocument createdPublishedSaplDocument = createPersistedPublishedSaplDocument(
-				saplDocumentVersionToPublish);
+        // update persisted published documents
+        PublishedSaplDocument createdPublishedSaplDocument = createPersistedPublishedSaplDocument(
+                saplDocumentVersionToPublish);
 
-		// update persisted document
-		saplDocument.setPublishedVersion(saplDocumentVersionToPublish).setLastModified(getCurrentTimestampAsString());
-		saplDocumentRepository.save(saplDocument);
+        // update persisted document
+        saplDocument.setPublishedVersion(saplDocumentVersionToPublish).setLastModified(getCurrentTimestampAsString());
+        saplDocumentRepository.save(saplDocument);
 
-		log.info("publish version {} of SAPL document with id {} (name: {})",
-				saplDocumentVersionToPublish.getVersionNumber(), saplDocumentId,
-				saplDocumentVersionToPublish.getName());
+        log.info("publish version {} of SAPL document with id {} (name: {})",
+                saplDocumentVersionToPublish.getVersionNumber(), saplDocumentId,
+                saplDocumentVersionToPublish.getName());
 
-		updateEvents.add(
-				convertSaplDocumentToUpdateOfPrpUpdateEvent(createdPublishedSaplDocument, PrpUpdateEvent.Type.PUBLISH));
+        updateEvents.add(
+                convertSaplDocumentToUpdateOfPrpUpdateEvent(createdPublishedSaplDocument, PrpUpdateEvent.Type.PUBLISH));
 
-		var prpUpdateEvent = new PrpUpdateEvent(updateEvents);
-		prpUpdateEventSink.emitNext(prpUpdateEvent, EmitFailureHandler.FAIL_FAST);
-	}
+        var prpUpdateEvent = new PrpUpdateEvent(updateEvents);
+        prpUpdateEventSink.emitNext(prpUpdateEvent, EmitFailureHandler.FAIL_FAST);
+    }
 
-	@Transactional
-	public void unpublishPolicy(long saplDocumentId) {
-		SaplDocument saplDocumentToUnpublish = getExistingById(saplDocumentId);
+    @Transactional
+    public void unpublishPolicy(long saplDocumentId) {
+        SaplDocument saplDocumentToUnpublish = getExistingById(saplDocumentId);
 
-		SaplDocumentVersion publishedVersion = saplDocumentToUnpublish.getPublishedVersion();
-		if (publishedVersion == null) {
-			return;
-		}
+        SaplDocumentVersion publishedVersion = saplDocumentToUnpublish.getPublishedVersion();
+        if (publishedVersion == null) {
+            return;
+        }
 
-		// update persisted published documents
-		Iterable<PublishedSaplDocument> deletedPublishedSaplDocuments = deletePersistedPublishedSaplDocumentsByName(
-				publishedVersion.getName());
+        // update persisted published documents
+        Iterable<PublishedSaplDocument> deletedPublishedSaplDocuments = deletePersistedPublishedSaplDocumentsByName(
+                publishedVersion.getName());
 
-		// update persisted document
-		saplDocumentToUnpublish.setPublishedVersion(null);
-		saplDocumentRepository.save(saplDocumentToUnpublish);
+        // update persisted document
+        saplDocumentToUnpublish.setPublishedVersion(null);
+        saplDocumentRepository.save(saplDocumentToUnpublish);
 
-		log.info("unpublish version {} of SAPL document with id {} (name: {})", publishedVersion.getVersionNumber(),
-				saplDocumentId, saplDocumentToUnpublish.getName());
+        log.info("unpublish version {} of SAPL document with id {} (name: {})", publishedVersion.getVersionNumber(),
+                saplDocumentId, saplDocumentToUnpublish.getName());
 
-		notifyAboutChangedPublicationOfSaplDocument(PrpUpdateEvent.Type.WITHDRAW, deletedPublishedSaplDocuments);
-	}
+        notifyAboutChangedPublicationOfSaplDocument(PrpUpdateEvent.Type.WITHDRAW, deletedPublishedSaplDocuments);
+    }
 
-	public Collection<PublishedSaplDocument> getPublishedSaplDocuments() {
-		return publishedSaplDocumentRepository.findAll();
-	}
+    public Collection<PublishedSaplDocument> getPublishedSaplDocuments() {
+        return publishedSaplDocumentRepository.findAll();
+    }
 
-	public long getPublishedAmount() {
-		return publishedSaplDocumentRepository.count();
-	}
+    public long getPublishedAmount() {
+        return publishedSaplDocumentRepository.count();
+    }
 
-	private SaplDocument getExistingById(long saplDocumentId) {
-		Optional<SaplDocument> optionalSaplDocument = getById(saplDocumentId);
-		if (optionalSaplDocument.isEmpty()) {
-			throw new IllegalArgumentException(
-					String.format("SAPL document with id %d is not available", saplDocumentId));
-		}
+    private SaplDocument getExistingById(long saplDocumentId) {
+        Optional<SaplDocument> optionalSaplDocument = getById(saplDocumentId);
+        if (optionalSaplDocument.isEmpty()) {
+            throw new IllegalArgumentException(
+                    String.format("SAPL document with id %d is not available", saplDocumentId));
+        }
 
-		return optionalSaplDocument.get();
-	}
+        return optionalSaplDocument.get();
+    }
 
-	private String getCurrentTimestampAsString() {
-		return dateFormatter.format(Instant.now());
-	}
+    private String getCurrentTimestampAsString() {
+        return dateFormatter.format(Instant.now());
+    }
 
-	private PrpUpdateEvent generateInitialPrpUpdateEvent() {
-		List<PrpUpdateEvent.Update> updates = publishedSaplDocumentRepository.findAll().stream()
-				.map(publishedSaplDocument -> convertSaplDocumentToUpdateOfPrpUpdateEvent(publishedSaplDocument,
-						PrpUpdateEvent.Type.PUBLISH))
-				.toList();
-		return new PrpUpdateEvent(updates);
-	}
+    private PrpUpdateEvent generateInitialPrpUpdateEvent() {
+        List<PrpUpdateEvent.Update> updates = publishedSaplDocumentRepository.findAll().stream()
+                .map(publishedSaplDocument -> convertSaplDocumentToUpdateOfPrpUpdateEvent(publishedSaplDocument,
+                        PrpUpdateEvent.Type.PUBLISH))
+                .toList();
+        return new PrpUpdateEvent(updates);
+    }
 
-	private PrpUpdateEvent.Update convertSaplDocumentToUpdateOfPrpUpdateEvent(
-			PublishedSaplDocument publishedSaplDocument, PrpUpdateEvent.Type prpUpdateEventType) {
-		String document = publishedSaplDocument.getDocument();
+    private PrpUpdateEvent.Update convertSaplDocumentToUpdateOfPrpUpdateEvent(
+            PublishedSaplDocument publishedSaplDocument, PrpUpdateEvent.Type prpUpdateEventType) {
+        String document = publishedSaplDocument.getDocument();
 
-		SAPL sapl = saplInterpreter.parse(document);
-		return new Update(prpUpdateEventType, sapl, document);
-	}
+        SAPL sapl = saplInterpreter.parse(document);
+        return new Update(prpUpdateEventType, sapl, document);
+    }
 
-	private Iterable<PublishedSaplDocument> deletePersistedPublishedSaplDocumentsByName(String name) {
-		Collection<PublishedSaplDocument> publishedDocumentsWithName = publishedSaplDocumentRepository
-				.findByDocumentName(name);
-		publishedSaplDocumentRepository.deleteAll(publishedDocumentsWithName);
+    private Iterable<PublishedSaplDocument> deletePersistedPublishedSaplDocumentsByName(String name) {
+        Collection<PublishedSaplDocument> publishedDocumentsWithName = publishedSaplDocumentRepository
+                .findByDocumentName(name);
+        publishedSaplDocumentRepository.deleteAll(publishedDocumentsWithName);
 
-		return publishedDocumentsWithName;
-	}
+        return publishedDocumentsWithName;
+    }
 
-	private PublishedSaplDocument createPersistedPublishedSaplDocument(SaplDocumentVersion saplDocumentVersion)
-			throws PublishedDocumentNameCollisionException {
-		PublishedSaplDocument publishedSaplDocument = new PublishedSaplDocument();
-		publishedSaplDocument.importSaplDocumentVersion(saplDocumentVersion);
+    private PublishedSaplDocument createPersistedPublishedSaplDocument(SaplDocumentVersion saplDocumentVersion)
+            throws PublishedDocumentNameCollisionException {
+        PublishedSaplDocument publishedSaplDocument = new PublishedSaplDocument();
+        publishedSaplDocument.importSaplDocumentVersion(saplDocumentVersion);
 
-		PublishedSaplDocument createdPublishedSaplDocument = publishedSaplDocumentRepository
-				.save(publishedSaplDocument);
+        PublishedSaplDocument createdPublishedSaplDocument = publishedSaplDocumentRepository
+                .save(publishedSaplDocument);
 
-		// enforce checking constraints in transaction
-		try {
-			publishedSaplDocumentRepository.findAll();
-		} catch (DataIntegrityViolationException ex) {
-			throw new PublishedDocumentNameCollisionException(saplDocumentVersion.getName(), ex);
-		}
+        // enforce checking constraints in transaction
+        try {
+            publishedSaplDocumentRepository.findAll();
+        } catch (DataIntegrityViolationException ex) {
+            throw new PublishedDocumentNameCollisionException(saplDocumentVersion.getName(), ex);
+        }
 
-		return createdPublishedSaplDocument;
-	}
+        return createdPublishedSaplDocument;
+    }
 
-	private void notifyAboutChangedPublicationOfSaplDocument(PrpUpdateEvent.Type prpUpdateEventType,
-			Iterable<PublishedSaplDocument> publishedSaplDocuments) {
-		List<PrpUpdateEvent.Update> updateEvents = Streamable.of(publishedSaplDocuments)
-				.map(publishedSaplDocument -> convertSaplDocumentToUpdateOfPrpUpdateEvent(publishedSaplDocument,
-						prpUpdateEventType))
-				.toList();
+    private void notifyAboutChangedPublicationOfSaplDocument(PrpUpdateEvent.Type prpUpdateEventType,
+            Iterable<PublishedSaplDocument> publishedSaplDocuments) {
+        List<PrpUpdateEvent.Update> updateEvents = Streamable.of(publishedSaplDocuments)
+                .map(publishedSaplDocument -> convertSaplDocumentToUpdateOfPrpUpdateEvent(publishedSaplDocument,
+                        prpUpdateEventType))
+                .toList();
 
-		PrpUpdateEvent prpUpdateEvent = new PrpUpdateEvent(updateEvents);
-		prpUpdateEventSink.emitNext(prpUpdateEvent, EmitFailureHandler.FAIL_FAST);
-	}
+        PrpUpdateEvent prpUpdateEvent = new PrpUpdateEvent(updateEvents);
+        prpUpdateEventSink.emitNext(prpUpdateEvent, EmitFailureHandler.FAIL_FAST);
+    }
 }

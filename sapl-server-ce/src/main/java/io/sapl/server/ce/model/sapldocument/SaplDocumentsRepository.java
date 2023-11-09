@@ -1,5 +1,7 @@
 /*
- * Copyright © 2017-2021 Dominic Heutelbeck (dominic@heutelbeck.com)
+ * Copyright (C) 2017-2023 Dominic Heutelbeck (dominic@heutelbeck.com)
+ *
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,12 +28,12 @@ import lombok.NonNull;
  * Interface for a repository for accessing persisted {@link SaplDocument}.
  */
 public interface SaplDocumentsRepository extends CrudRepository<SaplDocument, Long>, Serializable {
-	/**
-	 * Returns all instances of the {@link SaplDocument}s.
-	 * 
-	 * @return the instances
-	 */
-	@Override
-	@NonNull
-	Collection<SaplDocument> findAll();
+    /**
+     * Returns all instances of the {@link SaplDocument}s.
+     *
+     * @return the instances
+     */
+    @Override
+    @NonNull
+    Collection<SaplDocument> findAll();
 }

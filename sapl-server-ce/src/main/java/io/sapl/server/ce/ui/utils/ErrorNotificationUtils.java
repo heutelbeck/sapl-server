@@ -1,5 +1,7 @@
 /*
- * Copyright © 2017-2021 Dominic Heutelbeck (dominic@heutelbeck.com)
+ * Copyright (C) 2017-2023 Dominic Heutelbeck (dominic@heutelbeck.com)
+ *
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,37 +35,37 @@ import lombok.experimental.UtilityClass;
  */
 @UtilityClass
 public final class ErrorNotificationUtils {
-	/**
-	 * Shows an error notification with a specified error message.
-	 * 
-	 * @param errorMessage the error message to show
-	 */
-	public static void show(@NonNull String errorMessage) {
-		var notification = new Notification();
-		notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+    /**
+     * Shows an error notification with a specified error message.
+     *
+     * @param errorMessage the error message to show
+     */
+    public static void show(@NonNull String errorMessage) {
+        var notification = new Notification();
+        notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
 
-		var text = new Div(new Text(errorMessage));
+        var text = new Div(new Text(errorMessage));
 
-		var closeButton = new Button(new Icon("lumo", "cross"));
-		closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
-		closeButton.getElement().setAttribute("aria-label", "Close");
-		closeButton.addClickListener(event -> notification.close());
+        var closeButton = new Button(new Icon("lumo", "cross"));
+        closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+        closeButton.getElement().setAttribute("aria-label", "Close");
+        closeButton.addClickListener(event -> notification.close());
 
-		var layout = new HorizontalLayout(text, closeButton);
-		layout.setAlignItems(Alignment.CENTER);
+        var layout = new HorizontalLayout(text, closeButton);
+        layout.setAlignItems(Alignment.CENTER);
 
-		notification.add(layout);
-		notification.setDuration(5000);
-		notification.open();
-	}
+        notification.add(layout);
+        notification.setDuration(5000);
+        notification.open();
+    }
 
-	/**
-	 * Shows an error notification with a specified error message via an instance of
-	 * {@link Throwable}.
-	 * 
-	 * @param throwable the {@link Throwable} to show its message
-	 */
-	public static void show(@NonNull Throwable throwable) {
-		show(throwable.getMessage());
-	}
+    /**
+     * Shows an error notification with a specified error message via an instance of
+     * {@link Throwable}.
+     *
+     * @param throwable the {@link Throwable} to show its message
+     */
+    public static void show(@NonNull Throwable throwable) {
+        show(throwable.getMessage());
+    }
 }

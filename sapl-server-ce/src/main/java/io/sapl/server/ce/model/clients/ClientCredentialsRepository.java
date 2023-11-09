@@ -1,5 +1,7 @@
 /*
- * Copyright © 2017-2021 Dominic Heutelbeck (dominic@heutelbeck.com)
+ * Copyright (C) 2017-2023 Dominic Heutelbeck (dominic@heutelbeck.com)
+ *
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,29 +29,29 @@ import org.springframework.data.repository.query.Param;
 import lombok.NonNull;
 
 public interface ClientCredentialsRepository extends CrudRepository<ClientCredentials, Long>, Serializable {
-	/**
-	 * Returns all instances of the {@link ClientCredentials}s.
-	 * 
-	 * @return the instances
-	 */
-	@NonNull
-	@Override
-	Collection<ClientCredentials> findAll();
+    /**
+     * Returns all instances of the {@link ClientCredentials}s.
+     *
+     * @return the instances
+     */
+    @NonNull
+    @Override
+    Collection<ClientCredentials> findAll();
 
-	/**
-	 * Gets the {@link ClientCredentials} with a specific key.
-	 * 
-	 * @param key of the credentials
-	 * @return the {@link ClientCredentials}
-	 */
-	@Query(value = "SELECT c FROM ClientCredentials c WHERE c.key = :key")
-	Optional<ClientCredentials> findByKey(@Param(value = "key") String key);
+    /**
+     * Gets the {@link ClientCredentials} with a specific key.
+     *
+     * @param key of the credentials
+     * @return the {@link ClientCredentials}
+     */
+    @Query(value = "SELECT c FROM ClientCredentials c WHERE c.key = :key")
+    Optional<ClientCredentials> findByKey(@Param(value = "key") String key);
 
-	/**
-	 * Gets the {@link ClientCredentials} with a specific apiKey.
-	 *
-	 * @return the {@link ClientCredentials}
-	 */
-	@Query(value = "SELECT c FROM ClientCredentials c WHERE c.authType = io.sapl.server.ce.model.clients.AuthType.ApiKey")
-	List<ClientCredentials> getApiKeyCredentials();
+    /**
+     * Gets the {@link ClientCredentials} with a specific apiKey.
+     *
+     * @return the {@link ClientCredentials}
+     */
+    @Query(value = "SELECT c FROM ClientCredentials c WHERE c.authType = io.sapl.server.ce.model.clients.AuthType.ApiKey")
+    List<ClientCredentials> getApiKeyCredentials();
 }

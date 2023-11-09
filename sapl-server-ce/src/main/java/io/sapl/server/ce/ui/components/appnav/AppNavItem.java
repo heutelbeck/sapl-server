@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2017-2023 Dominic Heutelbeck (dominic@heutelbeck.com)
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package io.sapl.server.ce.ui.components.appnav;
 
 import java.util.Optional;
@@ -20,12 +37,11 @@ import com.vaadin.flow.server.VaadinService;
 @Tag("vcf-nav-item")
 public class AppNavItem extends Component {
 
-	/**
+    /**
      * Creates a menu item which does not link to any view but only shows the given
      * label.
-     * 
-     * @param label
-     *            the label for the item
+     *
+     * @param label the label for the item
      */
     public AppNavItem(String label) {
         setLabel(label);
@@ -33,11 +49,9 @@ public class AppNavItem extends Component {
 
     /**
      * Creates a new menu item using the given label that links to the given path.
-     * 
-     * @param label
-     *            the label for the item
-     * @param path
-     *            the path to link to
+     *
+     * @param label the label for the item
+     * @param path  the path to link to
      */
     public AppNavItem(String label, String path) {
         setPath(path);
@@ -46,11 +60,9 @@ public class AppNavItem extends Component {
 
     /**
      * Creates a new menu item using the given label that links to the given view.
-     * 
-     * @param label
-     *            the label for the item
-     * @param view
-     *            the view to link to
+     *
+     * @param label the label for the item
+     * @param view  the view to link to
      */
     public AppNavItem(String label, Class<? extends Component> view) {
         setPath(view);
@@ -60,13 +72,10 @@ public class AppNavItem extends Component {
     /**
      * Creates a new menu item using the given label and icon that links to the
      * given path.
-     * 
-     * @param label
-     *            the label for the item
-     * @param path
-     *            the path to link to
-     * @param icon
-     *            the icon for the item
+     *
+     * @param label the label for the item
+     * @param path  the path to link to
+     * @param icon  the icon for the item
      */
     public AppNavItem(String label, String path, Component icon) {
         setPath(path);
@@ -76,13 +85,10 @@ public class AppNavItem extends Component {
 
     /**
      * Creates a new menu item using the given label that links to the given view.
-     * 
-     * @param label
-     *            the label for the item
-     * @param view
-     *            the view to link to
-     * @param icon
-     *            the icon for the item
+     *
+     * @param label the label for the item
+     * @param view  the view to link to
+     * @param icon  the icon for the item
      */
     public AppNavItem(String label, Class<? extends Component> view, Component icon) {
         setPath(view);
@@ -92,9 +98,8 @@ public class AppNavItem extends Component {
 
     /**
      * Adds menu item(s) inside this item, creating a hierarchy.
-     * 
-     * @param appNavItems
-     *            the menu item(s) to add
+     *
+     * @param appNavItems the menu item(s) to add
      * @return this item for chaining
      */
     public AppNavItem addItem(AppNavItem... appNavItems) {
@@ -110,9 +115,8 @@ public class AppNavItem extends Component {
      * Removes the given menu item from this item.
      * <p>
      * If the given menu item is not a child of this menu item, does nothing.
-     * 
-     * @param appNavItem
-     *            the menu item to remove
+     *
+     * @param appNavItem the menu item to remove
      * @return this item for chaining
      */
     public AppNavItem removeItem(AppNavItem appNavItem) {
@@ -126,7 +130,7 @@ public class AppNavItem extends Component {
 
     /**
      * Removes all menu items from this item.
-     * 
+     *
      * @return this item for chaining
      */
     public AppNavItem removeAllItems() {
@@ -136,7 +140,7 @@ public class AppNavItem extends Component {
 
     /**
      * Gets the label for the item.
-     * 
+     *
      * @return the label or null if no label has been set
      */
     public String getLabel() {
@@ -147,9 +151,8 @@ public class AppNavItem extends Component {
      * Set a textual label for the item.
      * <p>
      * The label is also available for screen reader users.
-     * 
-     * @param label
-     *            the label to set
+     *
+     * @param label the label to set
      * @return this instance for chaining
      */
     public AppNavItem setLabel(String label) {
@@ -171,9 +174,8 @@ public class AppNavItem extends Component {
 
     /**
      * Sets the path this item links to.
-     * 
-     * @param path
-     *            the path to link to
+     *
+     * @param path the path to link to
      * @return this instance for chaining
      */
     public AppNavItem setPath(String path) {
@@ -183,9 +185,8 @@ public class AppNavItem extends Component {
 
     /**
      * Sets the view this item links to.
-     * 
-     * @param view
-     *            the view to link to
+     *
+     * @param view the view to link to
      * @return this instance for chaining
      */
     public AppNavItem setPath(Class<? extends Component> view) {
@@ -227,9 +228,8 @@ public class AppNavItem extends Component {
      * Sets the icon for the item.
      * <p>
      * Can also be used to set a custom component to be shown in front of the label.
-     * 
-     * @param icon
-     *            the icon to show
+     *
+     * @param icon the icon to show
      * @return this instance for chaining
      */
     public AppNavItem setIcon(Component icon) {
@@ -246,8 +246,7 @@ public class AppNavItem extends Component {
     /**
      * Sets the expanded status of the item.
      *
-     * @param value
-     *            true to expand the item, false to collapse it
+     * @param value true to expand the item, false to collapse it
      */
     public AppNavItem setExpanded(boolean value) {
         if (value) {

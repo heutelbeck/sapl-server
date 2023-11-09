@@ -1,5 +1,7 @@
 /*
- * Copyright © 2017-2021 Dominic Heutelbeck (dominic@heutelbeck.com)
+ * Copyright (C) 2017-2023 Dominic Heutelbeck (dominic@heutelbeck.com)
+ *
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,45 +32,45 @@ import io.sapl.vaadin.SaplEditorConfiguration;
 @Configuration
 @ComponentScan("io.sapl.grammar.ide.contentassist")
 class EditorConfiguration {
-	/**
-	 * Registers the bean {@link ServletRegistrationBean} with generic type
-	 * {@link SAPLServlet}.
-	 * 
-	 * @return the value
-	 */
-	@Bean
-	ServletRegistrationBean<SAPLServlet> registerXTextRegistrationBean() {
-		ServletRegistrationBean<SAPLServlet> registration = new ServletRegistrationBean<>(new SAPLServlet(),
-				"/xtext-service/*");
-		registration.setName("XtextServices");
-		registration.setAsyncSupported(true);
-		return registration;
-	}
+    /**
+     * Registers the bean {@link ServletRegistrationBean} with generic type
+     * {@link SAPLServlet}.
+     *
+     * @return the value
+     */
+    @Bean
+    ServletRegistrationBean<SAPLServlet> registerXTextRegistrationBean() {
+        ServletRegistrationBean<SAPLServlet> registration = new ServletRegistrationBean<>(new SAPLServlet(),
+                "/xtext-service/*");
+        registration.setName("XtextServices");
+        registration.setAsyncSupported(true);
+        return registration;
+    }
 
-	/**
-	 * Registers the bean {@link SaplEditorConfiguration}.
-	 * 
-	 * @return the value
-	 */
-	@Bean
-	SaplEditorConfiguration registerSaplEditorConfiguration() {
-		SaplEditorConfiguration saplEditorConfiguration = new SaplEditorConfiguration();
-		saplEditorConfiguration.setAutoCloseBrackets(true);
-		saplEditorConfiguration.setHasLineNumbers(true);
-		saplEditorConfiguration.setMatchBrackets(true);
-		saplEditorConfiguration.setTextUpdateDelay(1);
+    /**
+     * Registers the bean {@link SaplEditorConfiguration}.
+     *
+     * @return the value
+     */
+    @Bean
+    SaplEditorConfiguration registerSaplEditorConfiguration() {
+        SaplEditorConfiguration saplEditorConfiguration = new SaplEditorConfiguration();
+        saplEditorConfiguration.setAutoCloseBrackets(true);
+        saplEditorConfiguration.setHasLineNumbers(true);
+        saplEditorConfiguration.setMatchBrackets(true);
+        saplEditorConfiguration.setTextUpdateDelay(1);
 
-		return saplEditorConfiguration;
-	}
+        return saplEditorConfiguration;
+    }
 
-	@Bean
-	JsonEditorConfiguration registerJsonEditorConfiguration() {
-		JsonEditorConfiguration configuration = new JsonEditorConfiguration();
-		configuration.setAutoCloseBrackets(true);
-		configuration.setHasLineNumbers(true);
-		configuration.setMatchBrackets(true);
-		configuration.setTextUpdateDelay(1);
+    @Bean
+    JsonEditorConfiguration registerJsonEditorConfiguration() {
+        JsonEditorConfiguration configuration = new JsonEditorConfiguration();
+        configuration.setAutoCloseBrackets(true);
+        configuration.setHasLineNumbers(true);
+        configuration.setMatchBrackets(true);
+        configuration.setTextUpdateDelay(1);
 
-		return configuration;
-	}
+        return configuration;
+    }
 }

@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2017-2023 Dominic Heutelbeck (dominic@heutelbeck.com)
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package io.sapl.server.ce.security;
 
 import io.sapl.server.ce.security.apikey.ApiKeyPayloadExchangeAuthenticationConverterService;
@@ -34,9 +51,9 @@ import reactor.core.publisher.Mono;
 public class RSocketSecurityConfig {
 
     @Value("${io.sapl.server.allowBasicAuth:#{true}}")
-    private boolean  allowBasicAuth;
+    private boolean allowBasicAuth;
     @Value("${io.sapl.server.allowApiKeyAuth:#{true}}")
-    private boolean  allowApiKeyAuth;
+    private boolean allowApiKeyAuth;
 
     @Value("${io.sapl.server.allowOauth2Auth:#{false}}")
     private boolean allowOauth2Auth;
@@ -44,12 +61,11 @@ public class RSocketSecurityConfig {
     @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri:#{null}}")
     private String jwtIssuerURI;
 
-    private final PasswordEncoder passwordEncoder;
-    private final UserDetailsService userDetailsService;
+    private final PasswordEncoder                                     passwordEncoder;
+    private final UserDetailsService                                  userDetailsService;
     private final ApiKeyPayloadExchangeAuthenticationConverterService apiKeyPayloadExchangeAuthenticationConverterService;
 
-
-    ReactiveUserDetailsService rsocketUserDetailsService = new ReactiveUserDetailsService(){
+    ReactiveUserDetailsService rsocketUserDetailsService = new ReactiveUserDetailsService() {
         @Override
         public Mono<UserDetails> findByUsername(String username) {
             return Mono.just(userDetailsService.loadUserByUsername(username));
@@ -59,7 +75,6 @@ public class RSocketSecurityConfig {
     private static void customize(RSocketSecurity.AuthorizePayloadsSpec spec) {
         spec.anyRequest().authenticated().anyExchange().permitAll();
     }
-
 
     /**
      * The PayloadSocketAcceptorInterceptor Bean (rsocketPayloadAuthorization)
@@ -74,7 +89,7 @@ public class RSocketSecurityConfig {
         UserDetailsRepositoryReactiveAuthenticationManager simpleManager = null;
         if (allowBasicAuth) {
             log.info("configuring BasicAuth for RSocket authentication");
-            simpleManager = new  UserDetailsRepositoryReactiveAuthenticationManager(rsocketUserDetailsService);
+            simpleManager = new UserDetailsRepositoryReactiveAuthenticationManager(rsocketUserDetailsService);
             simpleManager.setPasswordEncoder(passwordEncoder);
         }
 
@@ -82,29 +97,28 @@ public class RSocketSecurityConfig {
         JwtReactiveAuthenticationManager jwtManager = null;
         if (allowOauth2Auth) {
             log.info("configuring Oauth2 authentication with jwtIssuerURI: " + jwtIssuerURI);
-            jwtManager = new JwtReactiveAuthenticationManager(
-                    ReactiveJwtDecoders.fromIssuerLocation(jwtIssuerURI));
+            jwtManager = new JwtReactiveAuthenticationManager(ReactiveJwtDecoders.fromIssuerLocation(jwtIssuerURI));
         }
 
         UserDetailsRepositoryReactiveAuthenticationManager finalSimpleManager = simpleManager;
-        JwtReactiveAuthenticationManager finalJwtManager = jwtManager;
-        AuthenticationPayloadInterceptor auth               = new AuthenticationPayloadInterceptor(
+        JwtReactiveAuthenticationManager                   finalJwtManager    = jwtManager;
+        AuthenticationPayloadInterceptor                   auth               = new AuthenticationPayloadInterceptor(
                 a -> {
-                    if (finalSimpleManager != null
-                            && a instanceof UsernamePasswordAuthenticationToken) {
-                        return finalSimpleManager.authenticate(a);
-                    } else if (finalJwtManager != null
-                            && a instanceof BearerTokenAuthenticationToken) {
-                        return finalJwtManager
-                                .authenticate(
-                                        a);
-                    } else {
-                        throw new IllegalArgumentException(
-                                "Unsupported Authentication Type "
-                                        + a.getClass()
-                                        .getSimpleName());
-                    }
-                });
+                                                                                          if (finalSimpleManager != null
+                                                                                                  && a instanceof UsernamePasswordAuthenticationToken) {
+                                                                                              return finalSimpleManager
+                                                                                                      .authenticate(a);
+                                                                                          } else if (finalJwtManager != null
+                                                                                                  && a instanceof BearerTokenAuthenticationToken) {
+                                                                                              return finalJwtManager
+                                                                                                      .authenticate(a);
+                                                                                          } else {
+                                                                                              throw new IllegalArgumentException(
+                                                                                                      "Unsupported Authentication Type "
+                                                                                                              + a.getClass()
+                                                                                                                      .getSimpleName());
+                                                                                          }
+                                                                                      });
         auth.setAuthenticationConverter(new AuthenticationPayloadExchangeConverter());
         auth.setOrder(PayloadInterceptorOrder.AUTHENTICATION.getOrder());
         security.addPayloadInterceptor(auth);
@@ -112,10 +126,9 @@ public class RSocketSecurityConfig {
         // Configure ApiKey authentication
         if (allowApiKeyAuth) {
             log.info("configuring ApiKey for RSocket authentication");
-            ReactiveAuthenticationManager manager           = new ApiKeyReactiveAuthenticationManager();
+            ReactiveAuthenticationManager    manager           = new ApiKeyReactiveAuthenticationManager();
             AuthenticationPayloadInterceptor apikeyInterceptor = new AuthenticationPayloadInterceptor(manager);
-            apikeyInterceptor
-                    .setAuthenticationConverter(apiKeyPayloadExchangeAuthenticationConverterService);
+            apikeyInterceptor.setAuthenticationConverter(apiKeyPayloadExchangeAuthenticationConverterService);
             apikeyInterceptor.setOrder(PayloadInterceptorOrder.AUTHENTICATION.getOrder());
             security.addPayloadInterceptor(apikeyInterceptor);
         }

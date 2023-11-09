@@ -1,5 +1,7 @@
 /*
- * Copyright © 2017-2021 Dominic Heutelbeck (dominic@heutelbeck.com)
+ * Copyright (C) 2017-2023 Dominic Heutelbeck (dominic@heutelbeck.com)
+ *
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,90 +47,90 @@ import lombok.extern.slf4j.Slf4j;
 @Route(value = EditVariableView.ROUTE, layout = MainLayout.class)
 public class EditVariableView extends VerticalLayout implements HasUrlParameter<Long> {
 
-	public static final String ROUTE = "pdp-config/edit-variable";
+    public static final String ROUTE = "pdp-config/edit-variable";
 
-	private final VariablesService variableService;
+    private final VariablesService variableService;
 
-	private long variableId;
+    private long variableId;
 
-	private final TextField nameTextField = new TextField("Variable Name");
+    private final TextField nameTextField = new TextField("Variable Name");
 // TODO: 	private JsonEditor jsonEditor;
-	private final TextField jsonEditor   = new TextField("Variable Value");
-	private final Button    saveButton   = new Button("Save");
-	private final Button    cancelButton = new Button("Cancel");
+    private final TextField jsonEditor   = new TextField("Variable Value");
+    private final Button    saveButton   = new Button("Save");
+    private final Button    cancelButton = new Button("Cancel");
 
-	/**
-	 * The {@link Variable} to edit.
-	 */
-	private Variable variable;
+    /**
+     * The {@link Variable} to edit.
+     */
+    private Variable variable;
 
-	@PostConstruct
-	private void init() {
-		add(nameTextField, jsonEditor, new HorizontalLayout( cancelButton,saveButton));
-	}
+    @PostConstruct
+    private void init() {
+        add(nameTextField, jsonEditor, new HorizontalLayout(cancelButton, saveButton));
+    }
 
-	@Override
-	public void setParameter(BeforeEvent event, Long parameter) {
-		variableId = parameter;
+    @Override
+    public void setParameter(BeforeEvent event, Long parameter) {
+        variableId = parameter;
 
-		reloadVariable();
-		addListener();
+        reloadVariable();
+        addListener();
 
-		addAttachListener(__ -> {
-			if (variable == null) {
-				log.warn("variable with id {} is not existing, redirect to list view", parameter);
-				getUI().ifPresent(ui -> ui.navigate(PDPConfigView.ROUTE));
-			}
-		});
-	}
+        addAttachListener(__ -> {
+            if (variable == null) {
+                log.warn("variable with id {} is not existing, redirect to list view", parameter);
+                getUI().ifPresent(ui -> ui.navigate(PDPConfigView.ROUTE));
+            }
+        });
+    }
 
-	private void reloadVariable() {
-		Optional<Variable> optionalVariable = variableService.getById(variableId);
-		if (optionalVariable.isEmpty()) {
-			// Vaadin UI object is not available yet, redirect to list view via attach
-			// listener
-			return;
-		}
+    private void reloadVariable() {
+        Optional<Variable> optionalVariable = variableService.getById(variableId);
+        if (optionalVariable.isEmpty()) {
+            // Vaadin UI object is not available yet, redirect to list view via attach
+            // listener
+            return;
+        }
 
-		variable = optionalVariable.get();
+        variable = optionalVariable.get();
 
-		setUI();
-	}
+        setUI();
+    }
 
-	/**
-	 * Imports the previously set instance of {@link Variable} to the UI.
-	 */
-	private void setUI() {
-		nameTextField.setValue(variable.getName());
-		jsonEditor.setValue(variable.getJsonValue());
-	}
+    /**
+     * Imports the previously set instance of {@link Variable} to the UI.
+     */
+    private void setUI() {
+        nameTextField.setValue(variable.getName());
+        jsonEditor.setValue(variable.getJsonValue());
+    }
 
-	private void addListener() {
-		saveButton.addClickListener(clickEvent -> {
-			String name      = nameTextField.getValue();
-			String jsonValue = jsonEditor.getValue();
+    private void addListener() {
+        saveButton.addClickListener(clickEvent -> {
+            String name      = nameTextField.getValue();
+            String jsonValue = jsonEditor.getValue();
 
-			try {
-				variableService.edit(variableId, name, jsonValue);
-			} catch (InvalidJsonException ex) {
-				log.error("cannot edit variable due to invalid json", ex);
-				ErrorNotificationUtils.show("The value of the variable contains invalid JSON.");
-				return;
-			} catch (InvalidVariableNameException ex) {
-				log.error("cannot create variable due to invalid name", ex);
-				ErrorNotificationUtils.show(String.format("The name is invalid (min length: %d, max length: %d).",
-						VariablesService.MIN_NAME_LENGTH, VariablesService.MAX_NAME_LENGTH));
-				return;
-			} catch (DuplicatedVariableNameException ex) {
-				log.error("cannot edit variable due to duplicated name", ex);
-				ErrorNotificationUtils.show("The name is already used by another variable.");
-				return;
-			}
+            try {
+                variableService.edit(variableId, name, jsonValue);
+            } catch (InvalidJsonException ex) {
+                log.error("cannot edit variable due to invalid json", ex);
+                ErrorNotificationUtils.show("The value of the variable contains invalid JSON.");
+                return;
+            } catch (InvalidVariableNameException ex) {
+                log.error("cannot create variable due to invalid name", ex);
+                ErrorNotificationUtils.show(String.format("The name is invalid (min length: %d, max length: %d).",
+                        VariablesService.MIN_NAME_LENGTH, VariablesService.MAX_NAME_LENGTH));
+                return;
+            } catch (DuplicatedVariableNameException ex) {
+                log.error("cannot edit variable due to duplicated name", ex);
+                ErrorNotificationUtils.show("The name is already used by another variable.");
+                return;
+            }
 
-			cancelButton.getUI().ifPresent(ui -> ui.navigate(PDPConfigView.ROUTE));
-		});
+            cancelButton.getUI().ifPresent(ui -> ui.navigate(PDPConfigView.ROUTE));
+        });
 
-		cancelButton.addClickListener(clickEvent -> getUI().ifPresent(ui -> ui.navigate(PDPConfigView.ROUTE)));
-	}
+        cancelButton.addClickListener(clickEvent -> getUI().ifPresent(ui -> ui.navigate(PDPConfigView.ROUTE)));
+    }
 
 }

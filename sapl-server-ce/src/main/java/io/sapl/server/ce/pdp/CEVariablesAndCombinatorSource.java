@@ -1,5 +1,7 @@
 /*
- * Copyright © 2017-2021 Dominic Heutelbeck (dominic@heutelbeck.com)
+ * Copyright (C) 2017-2023 Dominic Heutelbeck (dominic@heutelbeck.com)
+ *
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,48 +47,48 @@ import reactor.core.publisher.Sinks.Many;
 @RequiredArgsConstructor
 public class CEVariablesAndCombinatorSource implements VariablesAndCombinatorSource, PDPConfigurationPublisher {
 
-	private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final ObjectMapper MAPPER = new ObjectMapper();
 
-	private Many<Collection<Variable>>				variablesProcessorSink;
-	private Many<PolicyDocumentCombiningAlgorithm>	combiningAlgorithmSink;
+    private Many<Collection<Variable>>             variablesProcessorSink;
+    private Many<PolicyDocumentCombiningAlgorithm> combiningAlgorithmSink;
 
-	@PostConstruct
-	public void init() {
-		variablesProcessorSink	= Sinks.many().replay().all();
-		combiningAlgorithmSink	= Sinks.many().replay().all();
-	}
+    @PostConstruct
+    public void init() {
+        variablesProcessorSink = Sinks.many().replay().all();
+        combiningAlgorithmSink = Sinks.many().replay().all();
+    }
 
-	@Override
-	public Flux<Optional<Map<String, JsonNode>>> getVariables() {
-		return variablesProcessorSink.asFlux().map(CEVariablesAndCombinatorSource::variablesCollectionToMap)
-				.map(Optional::of);
-	}
+    @Override
+    public Flux<Optional<Map<String, JsonNode>>> getVariables() {
+        return variablesProcessorSink.asFlux().map(CEVariablesAndCombinatorSource::variablesCollectionToMap)
+                .map(Optional::of);
+    }
 
-	@Override
-	public Flux<Optional<CombiningAlgorithm>> getCombiningAlgorithm() {
-		return combiningAlgorithmSink.asFlux().map(CombiningAlgorithmFactory::getCombiningAlgorithm).map(Optional::of);
-	}
+    @Override
+    public Flux<Optional<CombiningAlgorithm>> getCombiningAlgorithm() {
+        return combiningAlgorithmSink.asFlux().map(CombiningAlgorithmFactory::getCombiningAlgorithm).map(Optional::of);
+    }
 
-	@Override
-	public void publishCombiningAlgorithm(@NonNull PolicyDocumentCombiningAlgorithm algorithm) {
-		combiningAlgorithmSink.emitNext(algorithm, EmitFailureHandler.FAIL_FAST);
-	}
+    @Override
+    public void publishCombiningAlgorithm(@NonNull PolicyDocumentCombiningAlgorithm algorithm) {
+        combiningAlgorithmSink.emitNext(algorithm, EmitFailureHandler.FAIL_FAST);
+    }
 
-	@Override
-	public void publishVariables(@NonNull Collection<Variable> variables) {
-		variablesProcessorSink.emitNext(variables, EmitFailureHandler.FAIL_FAST);
-	}
+    @Override
+    public void publishVariables(@NonNull Collection<Variable> variables) {
+        variablesProcessorSink.emitNext(variables, EmitFailureHandler.FAIL_FAST);
+    }
 
-	private static Map<String, JsonNode> variablesCollectionToMap(@NonNull Collection<Variable> variables) {
-		Map<String, JsonNode> variablesAsMap = Maps.newHashMapWithExpectedSize(variables.size());
-		for (Variable variable : variables) {
-			try {
-				variablesAsMap.put(variable.getName(), MAPPER.readTree(variable.getJsonValue()));
-			} catch (JsonProcessingException e) {
-				log.error("Ignoring variable {} not valid JSON.", variable.getName());
-			}
-		}
+    private static Map<String, JsonNode> variablesCollectionToMap(@NonNull Collection<Variable> variables) {
+        Map<String, JsonNode> variablesAsMap = Maps.newHashMapWithExpectedSize(variables.size());
+        for (Variable variable : variables) {
+            try {
+                variablesAsMap.put(variable.getName(), MAPPER.readTree(variable.getJsonValue()));
+            } catch (JsonProcessingException e) {
+                log.error("Ignoring variable {} not valid JSON.", variable.getName());
+            }
+        }
 
-		return variablesAsMap;
-	}
+        return variablesAsMap;
+    }
 }

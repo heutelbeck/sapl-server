@@ -1,5 +1,7 @@
 /*
- * Copyright © 2017-2021 Dominic Heutelbeck (dominic@heutelbeck.com)
+ * Copyright (C) 2017-2023 Dominic Heutelbeck (dominic@heutelbeck.com)
+ *
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,36 +37,36 @@ import lombok.ToString;
 @Table(name = "ClientCredentials")
 public class ClientCredentials {
 
-	/**
-	 * The unique identifier.
-	 */
-	@Id
-	@GeneratedValue
-	@Column(name = "Id", nullable = false)
-	private Long id;
+    /**
+     * The unique identifier.
+     */
+    @Id
+    @GeneratedValue
+    @Column(name = "Id", nullable = false)
+    private Long id;
 
-	/**
-	 * The key (user)
-	 */
-	@Column(length = 250, name = "clientKey", unique = true) // MariaDB / MySQL do not like a column with the name "key"
-	private String key;
+    /**
+     * The key (user)
+     */
+    @Column(length = 250, name = "clientKey", unique = true) // MariaDB / MySQL do not like a column with the name "key"
+    private String key;
 
-	/**
-	 * The client type (Basic or APIKEY)
-	 */
-	@NotNull
-	@Enumerated(EnumType.STRING)
-	private AuthType authType = AuthType.Basic;
+    /**
+     * The client type (Basic or APIKEY)
+     */
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private AuthType authType = AuthType.Basic;
 
-	/**
-	 * The encoded secret (hashed / salted password or ApiKey).
-	 */
-	@Column(length = 512, name = "clientEncodedSecret")
-	private String encodedSecret;
+    /**
+     * The encoded secret (hashed / salted password or ApiKey).
+     */
+    @Column(length = 512, name = "clientEncodedSecret")
+    private String encodedSecret;
 
-	public ClientCredentials(String key, AuthType authType, String encodedSecret) {
-		this.key           = key;
-		this.authType 	   = authType;
-		this.encodedSecret = encodedSecret;
-	}
+    public ClientCredentials(String key, AuthType authType, String encodedSecret) {
+        this.key           = key;
+        this.authType      = authType;
+        this.encodedSecret = encodedSecret;
+    }
 }

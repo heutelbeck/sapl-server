@@ -1,5 +1,7 @@
 /*
- * Copyright © 2017-2021 Dominic Heutelbeck (dominic@heutelbeck.com)
+ * Copyright (C) 2017-2023 Dominic Heutelbeck (dominic@heutelbeck.com)
+ *
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,52 +37,52 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 public class CombiningAlgorithmService {
-	public static final PolicyDocumentCombiningAlgorithm DEFAULT = PolicyDocumentCombiningAlgorithm.DENY_UNLESS_PERMIT;
+    public static final PolicyDocumentCombiningAlgorithm DEFAULT = PolicyDocumentCombiningAlgorithm.DENY_UNLESS_PERMIT;
 
-	private final SelectedCombiningAlgorithmRepository selectedCombiningAlgorithmRepository;
-	private final PDPConfigurationPublisher pdpConfigurationPublisher;
+    private final SelectedCombiningAlgorithmRepository selectedCombiningAlgorithmRepository;
+    private final PDPConfigurationPublisher            pdpConfigurationPublisher;
 
-	@PostConstruct
-	public void init() {
-		pdpConfigurationPublisher.publishCombiningAlgorithm(getSelected());
-	}
+    @PostConstruct
+    public void init() {
+        pdpConfigurationPublisher.publishCombiningAlgorithm(getSelected());
+    }
 
-	/**
-	 * Gets the selected combining algorithm.
-	 * 
-	 * @return the selected combining algorithm
-	 */
-	public PolicyDocumentCombiningAlgorithm getSelected() {
-		Collection<SelectedCombiningAlgorithm> entities = selectedCombiningAlgorithmRepository.findAll();
-		if (entities.isEmpty()) {
-			selectedCombiningAlgorithmRepository
-					.save(new SelectedCombiningAlgorithm(CombiningAlgorithmService.DEFAULT));
-			return CombiningAlgorithmService.DEFAULT;
-		}
+    /**
+     * Gets the selected combining algorithm.
+     *
+     * @return the selected combining algorithm
+     */
+    public PolicyDocumentCombiningAlgorithm getSelected() {
+        Collection<SelectedCombiningAlgorithm> entities = selectedCombiningAlgorithmRepository.findAll();
+        if (entities.isEmpty()) {
+            selectedCombiningAlgorithmRepository
+                    .save(new SelectedCombiningAlgorithm(CombiningAlgorithmService.DEFAULT));
+            return CombiningAlgorithmService.DEFAULT;
+        }
 
-		SelectedCombiningAlgorithm relevantEntity = Iterables.get(entities, 0);
-		return relevantEntity.getSelection();
-	}
+        SelectedCombiningAlgorithm relevantEntity = Iterables.get(entities, 0);
+        return relevantEntity.getSelection();
+    }
 
-	/**
-	 * Gets the available / selectable combining algorithms.
-	 * 
-	 * @return the algorithm types
-	 */
-	public PolicyDocumentCombiningAlgorithm[] getAvailable() {
-		return PolicyDocumentCombiningAlgorithm.values();
-	}
+    /**
+     * Gets the available / selectable combining algorithms.
+     *
+     * @return the algorithm types
+     */
+    public PolicyDocumentCombiningAlgorithm[] getAvailable() {
+        return PolicyDocumentCombiningAlgorithm.values();
+    }
 
-	/**
-	 * Sets the combining algorithm.
-	 * 
-	 * @param combiningAlgorithm the combining algorithm to set
-	 */
-	public void setSelected(@NonNull PolicyDocumentCombiningAlgorithm combiningAlgorithm) {
-		selectedCombiningAlgorithmRepository.deleteAll();
-		selectedCombiningAlgorithmRepository.save(new SelectedCombiningAlgorithm(combiningAlgorithm));
-		pdpConfigurationPublisher.publishCombiningAlgorithm(combiningAlgorithm);
+    /**
+     * Sets the combining algorithm.
+     *
+     * @param combiningAlgorithm the combining algorithm to set
+     */
+    public void setSelected(@NonNull PolicyDocumentCombiningAlgorithm combiningAlgorithm) {
+        selectedCombiningAlgorithmRepository.deleteAll();
+        selectedCombiningAlgorithmRepository.save(new SelectedCombiningAlgorithm(combiningAlgorithm));
+        pdpConfigurationPublisher.publishCombiningAlgorithm(combiningAlgorithm);
 
-		log.info("set policy document combining algorithm: {}", combiningAlgorithm);
-	}
+        log.info("set policy document combining algorithm: {}", combiningAlgorithm);
+    }
 }

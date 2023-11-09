@@ -1,5 +1,7 @@
 /*
- * Copyright © 2017-2021 Dominic Heutelbeck (dominic@heutelbeck.com)
+ * Copyright (C) 2017-2023 Dominic Heutelbeck (dominic@heutelbeck.com)
+ *
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,11 +24,11 @@ import lombok.NonNull;
  */
 public class InvalidJsonException extends Exception {
 
-	public InvalidJsonException(@NonNull String invalidJson) {
-		this(invalidJson, null);
-	}
+    public InvalidJsonException(@NonNull String invalidJson) {
+        this(invalidJson, null);
+    }
 
-	public InvalidJsonException(@NonNull String invalidJson, Throwable innerEx) {
-		super(String.format("the provided JSON is invalid: %s", invalidJson));
-	}
+    public InvalidJsonException(@NonNull String invalidJson, Throwable innerEx) {
+        super(String.format("the provided JSON is invalid: %s", invalidJson));
+    }
 }

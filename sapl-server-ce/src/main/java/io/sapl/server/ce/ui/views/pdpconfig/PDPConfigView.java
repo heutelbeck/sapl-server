@@ -1,5 +1,7 @@
 /*
- * Copyright © 2017-2021 Dominic Heutelbeck (dominic@heutelbeck.com)
+ * Copyright (C) 2017-2023 Dominic Heutelbeck (dominic@heutelbeck.com)
+ *
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,134 +50,133 @@ import lombok.extern.slf4j.Slf4j;
 @Route(value = PDPConfigView.ROUTE, layout = MainLayout.class)
 public class PDPConfigView extends VerticalLayout {
 
-	public static final String ROUTE = "pdp-config";
+    public static final String ROUTE = "pdp-config";
 
-	private final CombiningAlgorithmService combiningAlgorithmService;
-	private final VariablesService          variablesService;
+    private final CombiningAlgorithmService combiningAlgorithmService;
+    private final VariablesService          variablesService;
 
-	private final ComboBox<String> comboBoxCombAlgo     = new ComboBox<>("Combining Algorithm");
-	private final Grid<Variable>   variablesGrid        = new Grid<>();
-	private final Button           createVariableButton = new Button("New Variable");
+    private final ComboBox<String> comboBoxCombAlgo     = new ComboBox<>("Combining Algorithm");
+    private final Grid<Variable>   variablesGrid        = new Grid<>();
+    private final Button           createVariableButton = new Button("New Variable");
 
-	private boolean isIgnoringNextCombiningAlgorithmComboBoxChange;
+    private boolean isIgnoringNextCombiningAlgorithmComboBoxChange;
 
-	@PostConstruct
-	private void init() {
-		add(comboBoxCombAlgo, createVariableButton, variablesGrid);
+    @PostConstruct
+    private void init() {
+        add(comboBoxCombAlgo, createVariableButton, variablesGrid);
 
-		initUiForCombiningAlgorithm();
-		initUiForVariables();
-	}
+        initUiForCombiningAlgorithm();
+        initUiForVariables();
+    }
 
-	private void initUiForCombiningAlgorithm() {
-		PolicyDocumentCombiningAlgorithm[] availableCombiningAlgorithms          = combiningAlgorithmService
-				.getAvailable();
-		String[]                           availableCombiningAlgorithmsAsStrings = PolicyDocumentCombiningAlgorithmEncoding
-				.encode(availableCombiningAlgorithms);
+    private void initUiForCombiningAlgorithm() {
+        PolicyDocumentCombiningAlgorithm[] availableCombiningAlgorithms          = combiningAlgorithmService
+                .getAvailable();
+        String[]                           availableCombiningAlgorithmsAsStrings = PolicyDocumentCombiningAlgorithmEncoding
+                .encode(availableCombiningAlgorithms);
 
-		comboBoxCombAlgo.setItems(availableCombiningAlgorithmsAsStrings);
+        comboBoxCombAlgo.setItems(availableCombiningAlgorithmsAsStrings);
 
-		PolicyDocumentCombiningAlgorithm selectedCombiningAlgorithm = combiningAlgorithmService.getSelected();
-		comboBoxCombAlgo.setValue(PolicyDocumentCombiningAlgorithmEncoding.encode(selectedCombiningAlgorithm));
+        PolicyDocumentCombiningAlgorithm selectedCombiningAlgorithm = combiningAlgorithmService.getSelected();
+        comboBoxCombAlgo.setValue(PolicyDocumentCombiningAlgorithmEncoding.encode(selectedCombiningAlgorithm));
 
-		comboBoxCombAlgo.addValueChangeListener(changedEvent -> {
-			if (isIgnoringNextCombiningAlgorithmComboBoxChange) {
-				isIgnoringNextCombiningAlgorithmComboBoxChange = false;
-				return;
-			}
+        comboBoxCombAlgo.addValueChangeListener(changedEvent -> {
+            if (isIgnoringNextCombiningAlgorithmComboBoxChange) {
+                isIgnoringNextCombiningAlgorithmComboBoxChange = false;
+                return;
+            }
 
-			var encodedEntry          = changedEvent.getValue();
-			var newCombiningAlgorithm = PolicyDocumentCombiningAlgorithmEncoding.decode(encodedEntry);
+            var encodedEntry          = changedEvent.getValue();
+            var newCombiningAlgorithm = PolicyDocumentCombiningAlgorithmEncoding.decode(encodedEntry);
 
-			ConfirmUtils.letConfirm("",
-					"The combining algorithm describes how to come to the final decision while evaluating all published policies.\n\nPlease consider the consequences and confirm the action.",
-					() -> combiningAlgorithmService.setSelected(newCombiningAlgorithm),
-					() -> {
-						isIgnoringNextCombiningAlgorithmComboBoxChange = true;
-						comboBoxCombAlgo.setValue(changedEvent.getOldValue());
-					});
-		});
-	}
+            ConfirmUtils.letConfirm("",
+                    "The combining algorithm describes how to come to the final decision while evaluating all published policies.\n\nPlease consider the consequences and confirm the action.",
+                    () -> combiningAlgorithmService.setSelected(newCombiningAlgorithm), () -> {
+                        isIgnoringNextCombiningAlgorithmComboBoxChange = true;
+                        comboBoxCombAlgo.setValue(changedEvent.getOldValue());
+                    });
+        });
+    }
 
-	private void initUiForVariables() {
-		createVariableButton.addClickListener(clickEvent -> showDialogForVariableCreation());
+    private void initUiForVariables() {
+        createVariableButton.addClickListener(clickEvent -> showDialogForVariableCreation());
 
-		initVariablesGrid();
-	}
+        initVariablesGrid();
+    }
 
-	private void showDialogForVariableCreation() {
-		CreateVariable dialogContent = new CreateVariable();
+    private void showDialogForVariableCreation() {
+        CreateVariable dialogContent = new CreateVariable();
 
-		Dialog createDialog = new Dialog(dialogContent);
-		createDialog.setWidth("600px");
-		createDialog.setModal(true);
-		createDialog.setCloseOnEsc(false);
-		createDialog.setCloseOnOutsideClick(false);
+        Dialog createDialog = new Dialog(dialogContent);
+        createDialog.setWidth("600px");
+        createDialog.setModal(true);
+        createDialog.setCloseOnEsc(false);
+        createDialog.setCloseOnOutsideClick(false);
 
-		dialogContent.setUserConfirmedListener(isConfirmed -> {
-			if (isConfirmed) {
-				String name = dialogContent.getNameOfVariableToCreate();
-				try {
-					variablesService.create(name);
-				} catch (InvalidVariableNameException ex) {
-					log.error("cannot create variable due to invalid name", ex);
-					ErrorNotificationUtils.show(String.format("The name is invalid (min length: %d, max length: %d).",
-							VariablesService.MIN_NAME_LENGTH, VariablesService.MAX_NAME_LENGTH));
-					return;
-				} catch (DuplicatedVariableNameException ex) {
-					log.error("cannot create variable due to duplicated name", ex);
-					ErrorNotificationUtils.show("The name is already used by another variable.");
-					return;
-				}
+        dialogContent.setUserConfirmedListener(isConfirmed -> {
+            if (isConfirmed) {
+                String name = dialogContent.getNameOfVariableToCreate();
+                try {
+                    variablesService.create(name);
+                } catch (InvalidVariableNameException ex) {
+                    log.error("cannot create variable due to invalid name", ex);
+                    ErrorNotificationUtils.show(String.format("The name is invalid (min length: %d, max length: %d).",
+                            VariablesService.MIN_NAME_LENGTH, VariablesService.MAX_NAME_LENGTH));
+                    return;
+                } catch (DuplicatedVariableNameException ex) {
+                    log.error("cannot create variable due to duplicated name", ex);
+                    ErrorNotificationUtils.show("The name is already used by another variable.");
+                    return;
+                }
 
-				// reload grid after creation
-				variablesGrid.getDataProvider().refreshAll();
-			}
+                // reload grid after creation
+                variablesGrid.getDataProvider().refreshAll();
+            }
 
-			createDialog.close();
-		});
+            createDialog.close();
+        });
 
-		createDialog.open();
-	}
+        createDialog.open();
+    }
 
-	private void initVariablesGrid() {
-		// add columns
-		variablesGrid.addColumn(Variable::getName).setHeader("Name");
-		variablesGrid.addColumn(Variable::getJsonValue).setHeader("JSON Value");
-		variablesGrid.addComponentColumn(variable -> {
-			Button editButton = new Button("Edit", VaadinIcon.EDIT.create());
-			editButton.addClickListener(clickEvent -> {
-				String uriToNavigateTo = String.format("%s/%d", EditVariableView.ROUTE, variable.getId());
-				editButton.getUI().ifPresent(ui -> ui.navigate(uriToNavigateTo));
-			});
-			editButton.setThemeName("primary");
+    private void initVariablesGrid() {
+        // add columns
+        variablesGrid.addColumn(Variable::getName).setHeader("Name");
+        variablesGrid.addColumn(Variable::getJsonValue).setHeader("JSON Value");
+        variablesGrid.addComponentColumn(variable -> {
+            Button editButton = new Button("Edit", VaadinIcon.EDIT.create());
+            editButton.addClickListener(clickEvent -> {
+                String uriToNavigateTo = String.format("%s/%d", EditVariableView.ROUTE, variable.getId());
+                editButton.getUI().ifPresent(ui -> ui.navigate(uriToNavigateTo));
+            });
+            editButton.setThemeName("primary");
 
-			Button deleteButton = new Button("Delete", VaadinIcon.FILE_REMOVE.create());
-			deleteButton.addClickListener(clickEvent -> {
-				variablesService.delete(variable.getId());
+            Button deleteButton = new Button("Delete", VaadinIcon.FILE_REMOVE.create());
+            deleteButton.addClickListener(clickEvent -> {
+                variablesService.delete(variable.getId());
 
-				// trigger refreshing variable grid
-				variablesGrid.getDataProvider().refreshAll();
-			});
-			deleteButton.setThemeName("primary");
+                // trigger refreshing variable grid
+                variablesGrid.getDataProvider().refreshAll();
+            });
+            deleteButton.setThemeName("primary");
 
-			HorizontalLayout componentsForEntry = new HorizontalLayout();
-			componentsForEntry.add(editButton);
-			componentsForEntry.add(deleteButton);
+            HorizontalLayout componentsForEntry = new HorizontalLayout();
+            componentsForEntry.add(editButton);
+            componentsForEntry.add(deleteButton);
 
-			return componentsForEntry;
-		});
+            return componentsForEntry;
+        });
 
-		// set data provider
-		CallbackDataProvider<Variable, Void> dataProvider = DataProvider.fromCallbacks(query -> {
-			int offset = query.getOffset();
-			int limit  = query.getLimit();
+        // set data provider
+        CallbackDataProvider<Variable, Void> dataProvider = DataProvider.fromCallbacks(query -> {
+            int offset = query.getOffset();
+            int limit  = query.getLimit();
 
-			return variablesService.getAll().stream().skip(offset).limit(limit);
-		}, query -> (int) variablesService.getAmount());
-		variablesGrid.setItems(dataProvider);
+            return variablesService.getAll().stream().skip(offset).limit(limit);
+        }, query -> (int) variablesService.getAmount());
+        variablesGrid.setItems(dataProvider);
 
-		variablesGrid.setAllRowsVisible(true);
-	}
+        variablesGrid.setAllRowsVisible(true);
+    }
 
 }

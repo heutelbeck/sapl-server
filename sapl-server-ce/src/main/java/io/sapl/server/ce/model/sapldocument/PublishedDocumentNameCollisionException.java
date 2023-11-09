@@ -1,5 +1,7 @@
 /*
- * Copyright © 2017-2021 Dominic Heutelbeck (dominic@heutelbeck.com)
+ * Copyright (C) 2017-2023 Dominic Heutelbeck (dominic@heutelbeck.com)
+ *
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,14 +25,14 @@ import lombok.NonNull;
  */
 public class PublishedDocumentNameCollisionException extends Exception {
 
-	/**
-	 * Creates a new instance of the {@link PublishedDocumentNameCollisionException}
-	 * class.
-	 * 
-	 * @param name    the name of the already published SAPL document
-	 * @param innerEx the inner exception
-	 */
-	public PublishedDocumentNameCollisionException(@NonNull String name, @NonNull Throwable innerEx) {
-		super(String.format("Another SAPL document with name \"%s\" is already published.", name), innerEx);
-	}
+    /**
+     * Creates a new instance of the {@link PublishedDocumentNameCollisionException}
+     * class.
+     *
+     * @param name    the name of the already published SAPL document
+     * @param innerEx the inner exception
+     */
+    public PublishedDocumentNameCollisionException(@NonNull String name, @NonNull Throwable innerEx) {
+        super(String.format("Another SAPL document with name \"%s\" is already published.", name), innerEx);
+    }
 }

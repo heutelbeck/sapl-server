@@ -1,5 +1,7 @@
 /*
- * Copyright © 2017-2021 Dominic Heutelbeck (dominic@heutelbeck.com)
+ * Copyright (C) 2017-2023 Dominic Heutelbeck (dominic@heutelbeck.com)
+ *
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,163 +53,157 @@ import java.util.stream.Stream;
 @Route(value = ClientCredentialsView.ROUTE, layout = MainLayout.class)
 public class ClientCredentialsView extends VerticalLayout {
 
-	public static final String ROUTE = "clients";
+    public static final String ROUTE = "clients";
 
-	private final ClientDetailsService clientCredentialsService;
+    private final ClientDetailsService clientCredentialsService;
 
-	private final Grid<ClientCredentials> clientCredentialsGrid = new Grid<>();
-	private final Button newBasicClientButton = new Button("New Baisc Client");
-	private final Button newApiKeyClientButton = new Button("New ApiKey Client");
+    private final Grid<ClientCredentials> clientCredentialsGrid = new Grid<>();
+    private final Button                  newBasicClientButton  = new Button("New Baisc Client");
+    private final Button                  newApiKeyClientButton = new Button("New ApiKey Client");
 
-	@PostConstruct
-	private void init() {
-		var createButtons = new HorizontalLayout();
-		createButtons.add(newBasicClientButton, newApiKeyClientButton);
-		add(createButtons, clientCredentialsGrid);
-		clientCredentialsGrid.getStyle().set("font-family", "\"Courier\", monospace");
+    @PostConstruct
+    private void init() {
+        var createButtons = new HorizontalLayout();
+        createButtons.add(newBasicClientButton, newApiKeyClientButton);
+        add(createButtons, clientCredentialsGrid);
+        clientCredentialsGrid.getStyle().set("font-family", "\"Courier\", monospace");
 
-		newBasicClientButton.addClickListener(e -> createBasicClient());
-		newApiKeyClientButton.addClickListener(e -> createApiKeyClient());
+        newBasicClientButton.addClickListener(e -> createBasicClient());
+        newApiKeyClientButton.addClickListener(e -> createApiKeyClient());
 
-		initClientCredentialsGrid();
-	}
+        initClientCredentialsGrid();
+    }
 
-	private void createBasicClient() {
-		Tuple2<ClientCredentials, String> clientCredentialsWithSecret;
-		try {
-			clientCredentialsWithSecret = clientCredentialsService.createBasicDefault();
-		} catch (Exception e) {
-			ErrorNotificationUtils.show("The client cannot be created due to an internal error. "+e.getMessage());
-			return;
-		}
-		showDialogForCreatedBasicClient(
-				clientCredentialsWithSecret.getT1().getKey(),
-				clientCredentialsWithSecret.getT2()
-		);
-		clientCredentialsGrid.getDataProvider().refreshAll();
-	}
+    private void createBasicClient() {
+        Tuple2<ClientCredentials, String> clientCredentialsWithSecret;
+        try {
+            clientCredentialsWithSecret = clientCredentialsService.createBasicDefault();
+        } catch (Exception e) {
+            ErrorNotificationUtils.show("The client cannot be created due to an internal error. " + e.getMessage());
+            return;
+        }
+        showDialogForCreatedBasicClient(clientCredentialsWithSecret.getT1().getKey(),
+                clientCredentialsWithSecret.getT2());
+        clientCredentialsGrid.getDataProvider().refreshAll();
+    }
 
-	private void createApiKeyClient() {
-		Tuple2<ClientCredentials, String> clientCredentialsWithApiKey;
-		try {
-			clientCredentialsWithApiKey = clientCredentialsService.createApiKeyDefault();
-		} catch (Exception e) {
-			ErrorNotificationUtils.show("The client cannot be created due to an internal error. "+e.getMessage());
-			return;
-		}
-		showDialogForCreatedApiKeyClient(
-				clientCredentialsWithApiKey.getT1().getKey(),
-				clientCredentialsWithApiKey.getT2()
-		);
-		clientCredentialsGrid.getDataProvider().refreshAll();
-	}
+    private void createApiKeyClient() {
+        Tuple2<ClientCredentials, String> clientCredentialsWithApiKey;
+        try {
+            clientCredentialsWithApiKey = clientCredentialsService.createApiKeyDefault();
+        } catch (Exception e) {
+            ErrorNotificationUtils.show("The client cannot be created due to an internal error. " + e.getMessage());
+            return;
+        }
+        showDialogForCreatedApiKeyClient(clientCredentialsWithApiKey.getT1().getKey(),
+                clientCredentialsWithApiKey.getT2());
+        clientCredentialsGrid.getDataProvider().refreshAll();
+    }
 
-	private void initClientCredentialsGrid() {
-		clientCredentialsGrid.addColumn(ClientCredentials::getKey).setHeader("Key").setSortable(true);
-		clientCredentialsGrid.addColumn(ClientCredentials::getAuthType).setHeader("Auth Type").setSortable(true);
+    private void initClientCredentialsGrid() {
+        clientCredentialsGrid.addColumn(ClientCredentials::getKey).setHeader("Key").setSortable(true);
+        clientCredentialsGrid.addColumn(ClientCredentials::getAuthType).setHeader("Auth Type").setSortable(true);
 
-		clientCredentialsGrid.addComponentColumn(currentClientCredential -> {
-			Button deleteButton = new Button("Delete", LineAwesomeIcon.TRASH_SOLID.create());
-			deleteButton.setThemeName("primary");
-			deleteButton.addClickListener(clickEvent -> deleteClient(currentClientCredential));
+        clientCredentialsGrid.addComponentColumn(currentClientCredential -> {
+            Button deleteButton = new Button("Delete", LineAwesomeIcon.TRASH_SOLID.create());
+            deleteButton.setThemeName("primary");
+            deleteButton.addClickListener(clickEvent -> deleteClient(currentClientCredential));
 
-			HorizontalLayout componentsForEntry = new HorizontalLayout();
-			componentsForEntry.add(deleteButton);
+            HorizontalLayout componentsForEntry = new HorizontalLayout();
+            componentsForEntry.add(deleteButton);
 
-			return componentsForEntry;
-		});
+            return componentsForEntry;
+        });
 
-		// set data provider
-		CallbackDataProvider<ClientCredentials, Void> dataProvider = DataProvider.fromCallbacks(query -> {
-			Stream<ClientCredentials> stream = clientCredentialsService.getAll().stream();
+        // set data provider
+        CallbackDataProvider<ClientCredentials, Void> dataProvider = DataProvider.fromCallbacks(query -> {
+            Stream<ClientCredentials> stream = clientCredentialsService.getAll().stream();
 
-			Optional<Comparator<ClientCredentials>> optionalComparator = query.getSortingComparator();
-			if (optionalComparator.isPresent()) {
-				stream = stream.sorted(optionalComparator.get());
-			}
+            Optional<Comparator<ClientCredentials>> optionalComparator = query.getSortingComparator();
+            if (optionalComparator.isPresent()) {
+                stream = stream.sorted(optionalComparator.get());
+            }
 
-			return stream.skip(query.getOffset()).limit(query.getLimit());
-		}, query -> (int) clientCredentialsService.getAmount());
-		clientCredentialsGrid.setItems(dataProvider);
-	}
+            return stream.skip(query.getOffset()).limit(query.getLimit());
+        }, query -> (int) clientCredentialsService.getAmount());
+        clientCredentialsGrid.setItems(dataProvider);
+    }
 
-	private void deleteClient(ClientCredentials currentClientCredential) {
-		ConfirmUtils
-				.letConfirm("Delete Client",
-						String.format("Should the client credentials with key \"%s\" really be deleted?",
-								currentClientCredential.getKey()),
-						() -> executeDeletionOfClient(currentClientCredential), () -> {
-						});
-	}
+    private void deleteClient(ClientCredentials currentClientCredential) {
+        ConfirmUtils.letConfirm("Delete Client",
+                String.format("Should the client credentials with key \"%s\" really be deleted?",
+                        currentClientCredential.getKey()),
+                () -> executeDeletionOfClient(currentClientCredential), () -> {
+                });
+    }
 
-	private void executeDeletionOfClient(ClientCredentials currentClientCredential) {
-		long idOfClientToRemove = currentClientCredential.getId();
-		try {
-			clientCredentialsService.delete(idOfClientToRemove);
-		} catch (Exception e) {
-			ErrorNotificationUtils
-					.show("The client cannot be deleted due to an internal error. "+e.getMessage());
-			return;
-		}
-		clientCredentialsGrid.getDataProvider().refreshAll();
-	}
+    private void executeDeletionOfClient(ClientCredentials currentClientCredential) {
+        long idOfClientToRemove = currentClientCredential.getId();
+        try {
+            clientCredentialsService.delete(idOfClientToRemove);
+        } catch (Exception e) {
+            ErrorNotificationUtils.show("The client cannot be deleted due to an internal error. " + e.getMessage());
+            return;
+        }
+        clientCredentialsGrid.getDataProvider().refreshAll();
+    }
 
-	private void showDialogForCreatedBasicClient(@NonNull String key, @NonNull String secret) {
-		var layout = new VerticalLayout();
-		var text   = new Span(
-				"A new Basic client has been created. The following secret will only be shown once and is not recoverable. Make sure to write it down.");
+    private void showDialogForCreatedBasicClient(@NonNull String key, @NonNull String secret) {
+        var layout = new VerticalLayout();
+        var text   = new Span(
+                "A new Basic client has been created. The following secret will only be shown once and is not recoverable. Make sure to write it down.");
 
-		var keyField = new TextField("Client Key");
-		keyField.setValue(key);
-		keyField.setReadOnly(true);
-		keyField.setWidthFull();
+        var keyField = new TextField("Client Key");
+        keyField.setValue(key);
+        keyField.setReadOnly(true);
+        keyField.setWidthFull();
 
-		var secretField = new TextField("Client Secret");
-		secretField.setValue(secret);
-		secretField.setReadOnly(true);
-		secretField.setWidthFull();
+        var secretField = new TextField("Client Secret");
+        secretField.setValue(secret);
+        secretField.setReadOnly(true);
+        secretField.setWidthFull();
 
-		layout.add(text, keyField, secretField);
+        layout.add(text, keyField, secretField);
 
-		Dialog dialog = new Dialog(layout);
-		dialog.setHeaderTitle("Client Created");
-		var closeButton = new Button(new Icon("lumo", "cross"), e -> dialog.close());
-		closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-		dialog.getHeader().add(closeButton);
-		dialog.setWidth("600px");
-		dialog.setModal(true);
-		dialog.setCloseOnEsc(false);
-		dialog.setCloseOnOutsideClick(false);
-		dialog.open();
-	}
+        Dialog dialog = new Dialog(layout);
+        dialog.setHeaderTitle("Client Created");
+        var closeButton = new Button(new Icon("lumo", "cross"), e -> dialog.close());
+        closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        dialog.getHeader().add(closeButton);
+        dialog.setWidth("600px");
+        dialog.setModal(true);
+        dialog.setCloseOnEsc(false);
+        dialog.setCloseOnOutsideClick(false);
+        dialog.open();
+    }
 
-	private void showDialogForCreatedApiKeyClient(@NonNull String key, @NonNull String apiKey) {
-		var layout = new VerticalLayout();
-		var text   = new Span(
-				"A new ApiKey client has been created. The following secret will only be shown once and is not recoverable. Make sure to write it down.");
+    private void showDialogForCreatedApiKeyClient(@NonNull String key, @NonNull String apiKey) {
+        var layout = new VerticalLayout();
+        var text   = new Span(
+                "A new ApiKey client has been created. The following secret will only be shown once and is not recoverable. Make sure to write it down.");
 
-		var keyField = new TextField("Client Key");
-		keyField.setValue(key);
-		keyField.setReadOnly(true);
-		keyField.setWidthFull();
+        var keyField = new TextField("Client Key");
+        keyField.setValue(key);
+        keyField.setReadOnly(true);
+        keyField.setWidthFull();
 
-		var apikeyField = new TextArea("API Key");
-		apikeyField.setValue(apiKey);
-		apikeyField.setReadOnly(true);
-		apikeyField.setWidthFull();
+        var apikeyField = new TextArea("API Key");
+        apikeyField.setValue(apiKey);
+        apikeyField.setReadOnly(true);
+        apikeyField.setWidthFull();
 
-		layout.add(text, keyField, apikeyField);
+        layout.add(text, keyField, apikeyField);
 
-		Dialog dialog = new Dialog(layout);
-		dialog.setHeaderTitle("Client Created");
-		var closeButton = new Button(new Icon("lumo", "cross"), e -> dialog.close());
-		closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-		dialog.getHeader().add(closeButton);
-		dialog.setWidth("600px");
-		dialog.setModal(true);
-		dialog.setCloseOnEsc(false);
-		dialog.setCloseOnOutsideClick(false);
-		dialog.open();
-	}
+        Dialog dialog = new Dialog(layout);
+        dialog.setHeaderTitle("Client Created");
+        var closeButton = new Button(new Icon("lumo", "cross"), e -> dialog.close());
+        closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        dialog.getHeader().add(closeButton);
+        dialog.setWidth("600px");
+        dialog.setModal(true);
+        dialog.setCloseOnEsc(false);
+        dialog.setCloseOnOutsideClick(false);
+        dialog.open();
+    }
 
 }

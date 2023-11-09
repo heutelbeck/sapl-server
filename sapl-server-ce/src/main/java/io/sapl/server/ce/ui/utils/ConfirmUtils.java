@@ -1,5 +1,7 @@
 /*
- * Copyright © 2017-2021 Dominic Heutelbeck (dominic@heutelbeck.com)
+ * Copyright (C) 2017-2023 Dominic Heutelbeck (dominic@heutelbeck.com)
+ *
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,37 +27,37 @@ import lombok.experimental.UtilityClass;
  */
 @UtilityClass
 public class ConfirmUtils {
-	/**
-	 * Lets the user confirm a specific message.
-	 * 
-	 * @param header           the dialog title
-	 * @param message          the message to confirm
-	 * @param confirmedHandler the handler for confirmation
-	 * @param cancelledHandler the handler for cancellation
-	 */
-	public static void letConfirm(@NonNull String header, @NonNull String message, Runnable confirmedHandler,
-			Runnable cancelledHandler) {
-		var dialog = new ConfirmDialog();
-		dialog.setHeader(header);
-		dialog.setText(message);
+    /**
+     * Lets the user confirm a specific message.
+     *
+     * @param header           the dialog title
+     * @param message          the message to confirm
+     * @param confirmedHandler the handler for confirmation
+     * @param cancelledHandler the handler for cancellation
+     */
+    public static void letConfirm(@NonNull String header, @NonNull String message, Runnable confirmedHandler,
+            Runnable cancelledHandler) {
+        var dialog = new ConfirmDialog();
+        dialog.setHeader(header);
+        dialog.setText(message);
 
-		dialog.setCancelable(true);
-		dialog.addCancelListener(event -> cancelledHandler.run());
+        dialog.setCancelable(true);
+        dialog.addCancelListener(event -> cancelledHandler.run());
 
-		dialog.setConfirmText("Ok");
-		dialog.setConfirmButtonTheme("error primary");
-		dialog.addConfirmListener(event -> confirmedHandler.run());
+        dialog.setConfirmText("Ok");
+        dialog.setConfirmButtonTheme("error primary");
+        dialog.addConfirmListener(event -> confirmedHandler.run());
 
-		dialog.open();
-	}
-	
-	public static void inform(@NonNull String header, @NonNull String message, Runnable confirmedHandler) {
-		var dialog = new ConfirmDialog();
-		dialog.setHeader(header);
-		dialog.setText(message);
-		dialog.setCancelable(false);
-		dialog.setConfirmText("Ok");
-		dialog.addConfirmListener(event -> confirmedHandler.run());
-		dialog.open();
-	}
+        dialog.open();
+    }
+
+    public static void inform(@NonNull String header, @NonNull String message, Runnable confirmedHandler) {
+        var dialog = new ConfirmDialog();
+        dialog.setHeader(header);
+        dialog.setText(message);
+        dialog.setCancelable(false);
+        dialog.setConfirmText("Ok");
+        dialog.addConfirmListener(event -> confirmedHandler.run());
+        dialog.open();
+    }
 }

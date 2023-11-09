@@ -1,5 +1,7 @@
 /*
- * Copyright © 2017-2021 Dominic Heutelbeck (dominic@heutelbeck.com)
+ * Copyright (C) 2017-2023 Dominic Heutelbeck (dominic@heutelbeck.com)
+ *
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,171 +50,161 @@ import lombok.RequiredArgsConstructor;
 @Route(value = LibrariesDocumentationView.ROUTE, layout = MainLayout.class)
 public class LibrariesDocumentationView extends VerticalLayout {
 
-	public static final String ROUTE = "libraries";
+    public static final String ROUTE = "libraries";
 
-	private final FunctionLibrariesDocumentation       functionLibrariesDocumentation;
-	private final PolicyInformationPointsDocumentation policyInformationPointsDocumentation;
+    private final FunctionLibrariesDocumentation       functionLibrariesDocumentation;
+    private final PolicyInformationPointsDocumentation policyInformationPointsDocumentation;
 
-	private final Grid<LibraryDocumentation>                functionLibsGrid                   = new Grid<>();
-	private final VerticalLayout                            showCurrentFunctionLibLayout       = new VerticalLayout();
-	private final Div                                       descriptionOfCurrentFunctionLibDiv = new Div();
-	private final Grid<Entry<String, String>>               functionsOfCurrentFunctionLibGrid  = new Grid<>();
-	private final Grid<PolicyInformationPointDocumentation> pipsGrid                           = new Grid<>();
-	private final VerticalLayout                            showCurrentPipLayout               = new VerticalLayout();
-	private final Div                                       descriptionOfCurrentPipDiv         = new Div();
-	private final Grid<Entry<String, String>>               functionsOfCurrentPipGrid          = new Grid<>();
+    private final Grid<LibraryDocumentation>                functionLibsGrid                   = new Grid<>();
+    private final VerticalLayout                            showCurrentFunctionLibLayout       = new VerticalLayout();
+    private final Div                                       descriptionOfCurrentFunctionLibDiv = new Div();
+    private final Grid<Entry<String, String>>               functionsOfCurrentFunctionLibGrid  = new Grid<>();
+    private final Grid<PolicyInformationPointDocumentation> pipsGrid                           = new Grid<>();
+    private final VerticalLayout                            showCurrentPipLayout               = new VerticalLayout();
+    private final Div                                       descriptionOfCurrentPipDiv         = new Div();
+    private final Grid<Entry<String, String>>               functionsOfCurrentPipGrid          = new Grid<>();
 
-	@PostConstruct
-	private void init() {
-		add(new H1("Function Libraries"));
-		functionLibsGrid.setWidthFull();
-		showCurrentFunctionLibLayout.add(descriptionOfCurrentFunctionLibDiv, functionsOfCurrentFunctionLibGrid);
-		var functionsLayout = new SplitLayout(functionLibsGrid, showCurrentFunctionLibLayout);
-		functionsLayout.setWidthFull();
-		add(functionsLayout);
+    @PostConstruct
+    private void init() {
+        add(new H1("Function Libraries"));
+        functionLibsGrid.setWidthFull();
+        showCurrentFunctionLibLayout.add(descriptionOfCurrentFunctionLibDiv, functionsOfCurrentFunctionLibGrid);
+        var functionsLayout = new SplitLayout(functionLibsGrid, showCurrentFunctionLibLayout);
+        functionsLayout.setWidthFull();
+        add(functionsLayout);
 
-		add(new H1("Policy Information Points"));
-		pipsGrid.setWidthFull();
-		showCurrentPipLayout.add(descriptionOfCurrentPipDiv, functionsOfCurrentPipGrid);
-		var pipsLayout = new SplitLayout(pipsGrid, showCurrentPipLayout);
-		pipsLayout.setWidthFull();
-		add(pipsLayout);
+        add(new H1("Policy Information Points"));
+        pipsGrid.setWidthFull();
+        showCurrentPipLayout.add(descriptionOfCurrentPipDiv, functionsOfCurrentPipGrid);
+        var pipsLayout = new SplitLayout(pipsGrid, showCurrentPipLayout);
+        pipsLayout.setWidthFull();
+        add(pipsLayout);
 
-		initUiForFunctions();
-		initUiForPips();
-	}
+        initUiForFunctions();
+        initUiForPips();
+    }
 
-	private void initUiForFunctions() {
-		showCurrentFunctionLibLayout.setVisible(false);
+    private void initUiForFunctions() {
+        showCurrentFunctionLibLayout.setVisible(false);
 
-		Collection<LibraryDocumentation>                 availableFunctionLibs                 = functionLibrariesDocumentation
-				.documentation();
-		CallbackDataProvider<LibraryDocumentation, Void> dataProviderForCurrentFunctionLibGrid = DataProvider
-				.fromCallbacks(query -> {
-																											int offset = query
-																													.getOffset();
-																											int limit = query
-																													.getLimit();
+        Collection<LibraryDocumentation>                 availableFunctionLibs                 = functionLibrariesDocumentation
+                .documentation();
+        CallbackDataProvider<LibraryDocumentation, Void> dataProviderForCurrentFunctionLibGrid = DataProvider
+                .fromCallbacks(query -> {
+                                                                                                           int offset = query
+                                                                                                                   .getOffset();
+                                                                                                           int limit = query
+                                                                                                                   .getLimit();
 
-																											return availableFunctionLibs
-																													.stream()
-																													.skip(offset)
-																													.limit(limit);
-																										},
-						query -> availableFunctionLibs.size());
+                                                                                                           return availableFunctionLibs
+                                                                                                                   .stream()
+                                                                                                                   .skip(offset)
+                                                                                                                   .limit(limit);
+                                                                                                       },
+                        query -> availableFunctionLibs.size());
 
-		functionLibsGrid.setSelectionMode(SelectionMode.SINGLE);
-		functionLibsGrid.addColumn(LibraryDocumentation::getName)
-				.setHeader("Name");
-		functionLibsGrid.addColumn(LibraryDocumentation::getDescription)
-				.setHeader("Description");
-		functionsOfCurrentFunctionLibGrid.addColumn(Entry::getKey)
-				.setHeader("Function");
-		functionsOfCurrentFunctionLibGrid.addColumn(Entry::getValue)
-				.setHeader("Documentation")
-				.setFlexGrow(5);
-		functionsOfCurrentFunctionLibGrid.addThemeVariants(GridVariant.LUMO_WRAP_CELL_CONTENT);
-		functionsOfCurrentFunctionLibGrid.setSelectionMode(SelectionMode.NONE);
-		functionLibsGrid.addSelectionListener(selection -> {
-			Optional<LibraryDocumentation> optionalSelectedFunctionLib = selection.getFirstSelectedItem();
-			optionalSelectedFunctionLib.ifPresentOrElse((LibraryDocumentation selectedFunctionLib) -> {
-				showCurrentFunctionLibLayout.setVisible(true);
+        functionLibsGrid.setSelectionMode(SelectionMode.SINGLE);
+        functionLibsGrid.addColumn(LibraryDocumentation::getName).setHeader("Name");
+        functionLibsGrid.addColumn(LibraryDocumentation::getDescription).setHeader("Description");
+        functionsOfCurrentFunctionLibGrid.addColumn(Entry::getKey).setHeader("Function");
+        functionsOfCurrentFunctionLibGrid.addColumn(Entry::getValue).setHeader("Documentation").setFlexGrow(5);
+        functionsOfCurrentFunctionLibGrid.addThemeVariants(GridVariant.LUMO_WRAP_CELL_CONTENT);
+        functionsOfCurrentFunctionLibGrid.setSelectionMode(SelectionMode.NONE);
+        functionLibsGrid.addSelectionListener(selection -> {
+            Optional<LibraryDocumentation> optionalSelectedFunctionLib = selection.getFirstSelectedItem();
+            optionalSelectedFunctionLib.ifPresentOrElse((LibraryDocumentation selectedFunctionLib) -> {
+                showCurrentFunctionLibLayout.setVisible(true);
 
-				descriptionOfCurrentFunctionLibDiv.setText(selectedFunctionLib.getDescription());
+                descriptionOfCurrentFunctionLibDiv.setText(selectedFunctionLib.getDescription());
 
-				var                                               documentation                                    = selectedFunctionLib
-						.getDocumentation();
-				var                                               documentationAsEntrySet                          = documentation
-						.entrySet();
-				CallbackDataProvider<Entry<String, String>, Void> dataProviderForFunctionsOfCurrentFunctionLibGrid = DataProvider
-						.fromCallbacks(query -> {
-																																int offset = query
-																																		.getOffset();
-																																int limit = query
-																																		.getLimit();
+                var                                               documentation                                    = selectedFunctionLib
+                        .getDocumentation();
+                var                                               documentationAsEntrySet                          = documentation
+                        .entrySet();
+                CallbackDataProvider<Entry<String, String>, Void> dataProviderForFunctionsOfCurrentFunctionLibGrid = DataProvider
+                        .fromCallbacks(query -> {
+                                                                                                                               int offset = query
+                                                                                                                                       .getOffset();
+                                                                                                                               int limit = query
+                                                                                                                                       .getLimit();
 
-																																return documentationAsEntrySet
-																																		.stream()
-																																		.skip(offset)
-																																		.limit(limit);
-																															},
-								query -> documentationAsEntrySet.size());
+                                                                                                                               return documentationAsEntrySet
+                                                                                                                                       .stream()
+                                                                                                                                       .skip(offset)
+                                                                                                                                       .limit(limit);
+                                                                                                                           },
+                                query -> documentationAsEntrySet.size());
 
-				functionsOfCurrentFunctionLibGrid.setItems(dataProviderForFunctionsOfCurrentFunctionLibGrid);
-			}, () -> showCurrentFunctionLibLayout.setVisible(false));
-		});
-		functionLibsGrid.setItems(dataProviderForCurrentFunctionLibGrid);
+                functionsOfCurrentFunctionLibGrid.setItems(dataProviderForFunctionsOfCurrentFunctionLibGrid);
+            }, () -> showCurrentFunctionLibLayout.setVisible(false));
+        });
+        functionLibsGrid.setItems(dataProviderForCurrentFunctionLibGrid);
 
-		// preselect first function lib if available
-		if (!availableFunctionLibs.isEmpty()) {
-			functionLibsGrid.select(availableFunctionLibs.iterator().next());
-		}
-	}
+        // preselect first function lib if available
+        if (!availableFunctionLibs.isEmpty()) {
+            functionLibsGrid.select(availableFunctionLibs.iterator().next());
+        }
+    }
 
-	private void initUiForPips() {
-		showCurrentPipLayout.setVisible(false);
+    private void initUiForPips() {
+        showCurrentPipLayout.setVisible(false);
 
-		Collection<PolicyInformationPointDocumentation>                 availablePips                 = policyInformationPointsDocumentation
-				.documentation();
-		CallbackDataProvider<PolicyInformationPointDocumentation, Void> dataProviderForCurrentPipGrid = DataProvider
-				.fromCallbacks(query -> {
-																													int offset = query
-																															.getOffset();
-																													int limit = query
-																															.getLimit();
+        Collection<PolicyInformationPointDocumentation>                 availablePips                 = policyInformationPointsDocumentation
+                .documentation();
+        CallbackDataProvider<PolicyInformationPointDocumentation, Void> dataProviderForCurrentPipGrid = DataProvider
+                .fromCallbacks(query -> {
+                                                                                                                  int offset = query
+                                                                                                                          .getOffset();
+                                                                                                                  int limit = query
+                                                                                                                          .getLimit();
 
-																													return availablePips
-																															.stream()
-																															.skip(offset)
-																															.limit(limit);
-																												},
-						query -> availablePips.size());
+                                                                                                                  return availablePips
+                                                                                                                          .stream()
+                                                                                                                          .skip(offset)
+                                                                                                                          .limit(limit);
+                                                                                                              },
+                        query -> availablePips.size());
 
-		pipsGrid.setSelectionMode(SelectionMode.SINGLE);
-		pipsGrid.addColumn(PolicyInformationPointDocumentation::getName)
-				.setHeader("Name");
-		pipsGrid.addColumn(PolicyInformationPointDocumentation::getDescription)
-				.setHeader("Description");
-		functionsOfCurrentPipGrid.addColumn(Entry::getKey)
-				.setHeader("Function");
-		functionsOfCurrentPipGrid.addColumn(Entry::getValue)
-				.setHeader("Documentation")
-				.setFlexGrow(5);
-		functionsOfCurrentPipGrid.addThemeVariants(GridVariant.LUMO_WRAP_CELL_CONTENT);
-		functionsOfCurrentPipGrid.setSelectionMode(SelectionMode.NONE);
-		pipsGrid.addSelectionListener(selection -> {
-			Optional<PolicyInformationPointDocumentation> optionalSelectedPip = selection.getFirstSelectedItem();
-			optionalSelectedPip.ifPresentOrElse((PolicyInformationPointDocumentation selectedPip) -> {
-				showCurrentPipLayout.setVisible(true);
+        pipsGrid.setSelectionMode(SelectionMode.SINGLE);
+        pipsGrid.addColumn(PolicyInformationPointDocumentation::getName).setHeader("Name");
+        pipsGrid.addColumn(PolicyInformationPointDocumentation::getDescription).setHeader("Description");
+        functionsOfCurrentPipGrid.addColumn(Entry::getKey).setHeader("Function");
+        functionsOfCurrentPipGrid.addColumn(Entry::getValue).setHeader("Documentation").setFlexGrow(5);
+        functionsOfCurrentPipGrid.addThemeVariants(GridVariant.LUMO_WRAP_CELL_CONTENT);
+        functionsOfCurrentPipGrid.setSelectionMode(SelectionMode.NONE);
+        pipsGrid.addSelectionListener(selection -> {
+            Optional<PolicyInformationPointDocumentation> optionalSelectedPip = selection.getFirstSelectedItem();
+            optionalSelectedPip.ifPresentOrElse((PolicyInformationPointDocumentation selectedPip) -> {
+                showCurrentPipLayout.setVisible(true);
 
-				descriptionOfCurrentPipDiv.setText(selectedPip.getDescription());
+                descriptionOfCurrentPipDiv.setText(selectedPip.getDescription());
 
-				Map<String, String>                               documentation                            = selectedPip
-						.getDocumentation();
-				Set<Entry<String, String>>                        documentationAsEntrySet                  = documentation
-						.entrySet();
-				CallbackDataProvider<Entry<String, String>, Void> dataProviderForFunctionsOfCurrentPipGrid = DataProvider
-						.fromCallbacks(query -> {
-																														int offset = query
-																																.getOffset();
-																														int limit = query
-																																.getLimit();
+                Map<String, String>                               documentation                            = selectedPip
+                        .getDocumentation();
+                Set<Entry<String, String>>                        documentationAsEntrySet                  = documentation
+                        .entrySet();
+                CallbackDataProvider<Entry<String, String>, Void> dataProviderForFunctionsOfCurrentPipGrid = DataProvider
+                        .fromCallbacks(query -> {
+                                                                                                                       int offset = query
+                                                                                                                               .getOffset();
+                                                                                                                       int limit = query
+                                                                                                                               .getLimit();
 
-																														return documentationAsEntrySet
-																																.stream()
-																																.skip(offset)
-																																.limit(limit);
-																													},
-								query -> documentationAsEntrySet.size());
-				functionsOfCurrentPipGrid.setItems(dataProviderForFunctionsOfCurrentPipGrid);
-			}, () -> showCurrentPipLayout.setVisible(false));
-		});
-		pipsGrid.setItems(dataProviderForCurrentPipGrid);
+                                                                                                                       return documentationAsEntrySet
+                                                                                                                               .stream()
+                                                                                                                               .skip(offset)
+                                                                                                                               .limit(limit);
+                                                                                                                   },
+                                query -> documentationAsEntrySet.size());
+                functionsOfCurrentPipGrid.setItems(dataProviderForFunctionsOfCurrentPipGrid);
+            }, () -> showCurrentPipLayout.setVisible(false));
+        });
+        pipsGrid.setItems(dataProviderForCurrentPipGrid);
 
-		// preselect first PIP if available
-		if (!availablePips.isEmpty()) {
-			pipsGrid.select(availablePips.iterator().next());
-		}
-	}
+        // preselect first PIP if available
+        if (!availablePips.isEmpty()) {
+            pipsGrid.select(availablePips.iterator().next());
+        }
+    }
 
 }

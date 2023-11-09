@@ -1,5 +1,7 @@
 /*
- * Copyright © 2017-2021 Dominic Heutelbeck (dominic@heutelbeck.com)
+ * Copyright (C) 2017-2023 Dominic Heutelbeck (dominic@heutelbeck.com)
+ *
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,82 +44,84 @@ import java.util.concurrent.ThreadLocalRandom;
 @RequiredArgsConstructor
 public class ClientDetailsService implements UserDetailsService {
 
-	public static final String	CLIENT	= "SAPL_CLIENT";
-	public static final String	ADMIN	= "ADMIN";
+    public static final String CLIENT = "SAPL_CLIENT";
+    public static final String ADMIN  = "ADMIN";
 
-	@Value("${io.sapl.server.accesscontrol.admin-username:#{null}}")
-	private String								adminUsername;
-	@Value("${io.sapl.server.accesscontrol.encoded-admin-password:#{null}}")
-	private String								encodedAdminPassword;
-	private final ClientCredentialsRepository	clientCredentialsRepository;
-	private final PasswordEncoder				passwordEncoder;
+    @Value("${io.sapl.server.accesscontrol.admin-username:#{null}}")
+    private String                            adminUsername;
+    @Value("${io.sapl.server.accesscontrol.encoded-admin-password:#{null}}")
+    private String                            encodedAdminPassword;
+    private final ClientCredentialsRepository clientCredentialsRepository;
+    private final PasswordEncoder             passwordEncoder;
 
+    @PostConstruct
+    void validateSecuritySettings() {
+        if (adminUsername == null) {
+            log.error(
+                    "Admin username undefined. To define the username, specify it in the property 'io.sapl.server.accesscontrol.admin-username'.");
+        }
+        if (encodedAdminPassword == null) {
+            log.error(
+                    "Admin password undefined. To define the password, specify it in the property 'io.sapl.server.accesscontrol.encoded-admin-password'. The password is expected in encoded form using Argon2.");
+        }
+        if (adminUsername == null || encodedAdminPassword == null) {
+            throw new IllegalStateException("Administrator credentials missing.");
+        }
+    }
 
-	@PostConstruct
-	void validateSecuritySettings() {
-		if (adminUsername == null) {
-			log.error(
-					"Admin username undefined. To define the username, specify it in the property 'io.sapl.server.accesscontrol.admin-username'.");
-		}
-		if (encodedAdminPassword == null) {
-			log.error(
-					"Admin password undefined. To define the password, specify it in the property 'io.sapl.server.accesscontrol.encoded-admin-password'. The password is expected in encoded form using Argon2.");
-		}
-		if (adminUsername == null || encodedAdminPassword == null) {
-			throw new IllegalStateException("Administrator credentials missing.");
-		}
-	}
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        if (adminUsername.equals(username)) {
+            return org.springframework.security.core.userdetails.User.withUsername(adminUsername)
+                    .password(encodedAdminPassword).roles(ADMIN).build();
+        }
 
-	@Override
-	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		if (adminUsername.equals(username)) {
-			return org.springframework.security.core.userdetails.User.withUsername(adminUsername)
-					.password(encodedAdminPassword).roles(ADMIN).build();
-		}
+        var clientCredentials = clientCredentialsRepository.findByKey(username)
+                .orElseThrow(() -> new UsernameNotFoundException(
+                        String.format("client credentials with key \"%s\" not found", username)));
 
-		var clientCredentials = clientCredentialsRepository.findByKey(username)
-				.orElseThrow(() -> new UsernameNotFoundException(
-						String.format("client credentials with key \"%s\" not found", username)));
+        return org.springframework.security.core.userdetails.User.withUsername(clientCredentials.getKey())
+                .password(clientCredentials.getEncodedSecret()).authorities(CLIENT).build();
+    }
 
-		return org.springframework.security.core.userdetails.User.withUsername(clientCredentials.getKey())
-				.password(clientCredentials.getEncodedSecret()).authorities(CLIENT).build();
-	}
+    public Collection<ClientCredentials> getAll() {
+        return clientCredentialsRepository.findAll();
+    }
 
-	public Collection<ClientCredentials> getAll() {
-		return clientCredentialsRepository.findAll();
-	}
+    public long getAmount() {
+        return clientCredentialsRepository.count();
+    }
 
-	public long getAmount() {
-		return clientCredentialsRepository.count();
-	}
+    public Tuple2<ClientCredentials, String> createBasicDefault() {
+        var key               = Base64Id.randomID();
+        var secret            = Base64Id.randomID();
+        var clientCredentials = clientCredentialsRepository
+                .save(new ClientCredentials(key, AuthType.Basic, encodeSecret(secret)));
+        return Tuples.of(clientCredentials, secret);
+    }
 
-	public Tuple2<ClientCredentials, String> createBasicDefault() {
-		var	key					= Base64Id.randomID();
-		var	secret				= Base64Id.randomID();
-		var	clientCredentials	= clientCredentialsRepository.save(new ClientCredentials(key, AuthType.Basic, encodeSecret(secret)));
-		return Tuples.of(clientCredentials, secret);
-	}
+    public Tuple2<ClientCredentials, String> createApiKeyDefault() {
+        var key               = Base64Id.randomID();
+        var apiKey            = generateRandomApiKey();
+        var clientCredentials = clientCredentialsRepository
+                .save(new ClientCredentials(key, AuthType.ApiKey, encodeSecret(apiKey)));
+        return Tuples.of(clientCredentials, apiKey);
+    }
 
-	public Tuple2<ClientCredentials, String> createApiKeyDefault() {
-		var	key					= Base64Id.randomID();
-		var	apiKey				= generateRandomApiKey();
-		var	clientCredentials	= clientCredentialsRepository.save(new ClientCredentials(key, AuthType.ApiKey, encodeSecret(apiKey)));
-		return Tuples.of(clientCredentials, apiKey);
-	}
+    private static String generateRandomApiKey() {
+        int    length      = 512;
+        Random random      = ThreadLocalRandom.current();
+        byte[] randomBytes = new byte[length];
+        random.nextBytes(randomBytes);
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes).replace("-", "").substring(0,
+                length);
+    }
 
-	private static String generateRandomApiKey(){
-		int length = 512;
-		Random random = ThreadLocalRandom.current();
-		byte[] randomBytes = new byte[length];
-		random.nextBytes(randomBytes);
-		return Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes).replace("-","").substring(0, length);
-	}
+    public void delete(@NonNull Long id) {
+        clientCredentialsRepository.deleteById(id);
+    }
 
-	public void delete(@NonNull Long id) {
-		clientCredentialsRepository.deleteById(id);
-	}
-
-	public String encodeSecret(@NonNull String secret) {
-		return passwordEncoder.encode(secret);
-	}
+    public String encodeSecret(@NonNull String secret) {
+        return passwordEncoder.encode(secret);
+    }
 }
