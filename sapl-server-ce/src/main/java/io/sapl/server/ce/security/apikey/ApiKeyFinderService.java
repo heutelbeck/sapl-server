@@ -17,12 +17,14 @@
  */
 package io.sapl.server.ce.security.apikey;
 
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-
-import io.sapl.server.ce.model.clients.ClientCredentials;
+import io.sapl.server.ce.model.clients.AuthType;
 import io.sapl.server.ce.model.clients.ClientCredentialsRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -30,12 +32,16 @@ public class ApiKeyFinderService {
     private final PasswordEncoder             passwordEncoder;
     private final ClientCredentialsRepository clientCredentialsRepository;
 
-    public boolean isApiKeyAssociatedWithClientCredentials(String apiKey) {
-        for (ClientCredentials c : clientCredentialsRepository.getApiKeyCredentials()) {
-            if (passwordEncoder.matches(apiKey, c.getEncodedSecret())) {
-                return true;
-            }
+    public boolean isApiKeyAssociatedWithClientCredentials(String apiKey) throws AuthenticationException {
+        // extract key from apiKey
+        var apiKeyComponents = apiKey.split("\\.");
+        if (apiKeyComponents.length == 2) {
+            var key = apiKeyComponents[0];
+            var c   = clientCredentialsRepository.findByKey(key)
+                    .orElseThrow(() -> new UsernameNotFoundException("Provided apiKey client credentials not found"));
+            return c.getAuthType().equals(AuthType.ApiKey) && passwordEncoder.matches(apiKey, c.getEncodedSecret());
+        } else {
+            throw new AuthenticationServiceException("Invalid apiKey");
         }
-        return false;
     }
 }

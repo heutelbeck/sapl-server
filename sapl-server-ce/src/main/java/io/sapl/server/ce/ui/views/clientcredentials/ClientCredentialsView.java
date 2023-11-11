@@ -88,15 +88,14 @@ public class ClientCredentialsView extends VerticalLayout {
     }
 
     private void createApiKeyClient() {
-        Tuple2<ClientCredentials, String> clientCredentialsWithApiKey;
+        String clientCredentialsWithApiKey;
         try {
             clientCredentialsWithApiKey = clientCredentialsService.createApiKeyDefault();
         } catch (Exception e) {
             ErrorNotificationUtils.show("The client cannot be created due to an internal error. " + e.getMessage());
             return;
         }
-        showDialogForCreatedApiKeyClient(clientCredentialsWithApiKey.getT1().getKey(),
-                clientCredentialsWithApiKey.getT2());
+        showDialogForCreatedApiKeyClient(clientCredentialsWithApiKey);
         clientCredentialsGrid.getDataProvider().refreshAll();
     }
 
@@ -177,22 +176,17 @@ public class ClientCredentialsView extends VerticalLayout {
         dialog.open();
     }
 
-    private void showDialogForCreatedApiKeyClient(@NonNull String key, @NonNull String apiKey) {
+    private void showDialogForCreatedApiKeyClient(@NonNull String apiKey) {
         var layout = new VerticalLayout();
         var text   = new Span(
                 "A new ApiKey client has been created. The following secret will only be shown once and is not recoverable. Make sure to write it down.");
-
-        var keyField = new TextField("Client Key");
-        keyField.setValue(key);
-        keyField.setReadOnly(true);
-        keyField.setWidthFull();
 
         var apikeyField = new TextArea("API Key");
         apikeyField.setValue(apiKey);
         apikeyField.setReadOnly(true);
         apikeyField.setWidthFull();
 
-        layout.add(text, keyField, apikeyField);
+        layout.add(text, apikeyField);
 
         Dialog dialog = new Dialog(layout);
         dialog.setHeaderTitle("Client Created");

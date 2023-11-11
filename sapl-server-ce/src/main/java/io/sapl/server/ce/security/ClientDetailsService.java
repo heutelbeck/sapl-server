@@ -29,15 +29,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.keygen.Base64StringKeyGenerator;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
 
-import java.util.Base64;
 import java.util.Collection;
-import java.util.Random;
-import java.util.concurrent.ThreadLocalRandom;
 
 @Slf4j
 @Component
@@ -100,21 +98,13 @@ public class ClientDetailsService implements UserDetailsService {
         return Tuples.of(clientCredentials, secret);
     }
 
-    public Tuple2<ClientCredentials, String> createApiKeyDefault() {
-        var key               = Base64Id.randomID();
-        var apiKey            = generateRandomApiKey();
-        var clientCredentials = clientCredentialsRepository
-                .save(new ClientCredentials(key, AuthType.ApiKey, encodeSecret(apiKey)));
-        return Tuples.of(clientCredentials, apiKey);
-    }
-
-    private static String generateRandomApiKey() {
-        int    length      = 512;
-        Random random      = ThreadLocalRandom.current();
-        byte[] randomBytes = new byte[length];
-        random.nextBytes(randomBytes);
-        return Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes).replace("-", "").substring(0,
-                length);
+    public String createApiKeyDefault() {
+        var key = Base64Id.randomID();
+        // apiKey needs to be a combination of <key>.<secret> to identify the client in
+        // the authentication process
+        var apiKey = key + "." + new Base64StringKeyGenerator(32).generateKey();
+        clientCredentialsRepository.save(new ClientCredentials(key, AuthType.ApiKey, encodeSecret(apiKey)));
+        return apiKey;
     }
 
     public void delete(@NonNull Long id) {

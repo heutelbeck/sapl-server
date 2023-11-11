@@ -46,13 +46,11 @@ public class ApiKeaderHeaderAuthFilterService extends GenericFilterBean {
             throws IOException, ServletException {
         var request  = (HttpServletRequest) servletRequest;
         var response = (HttpServletResponse) servletResponse;
-        // if header token is not valid, send un-athorized error back
+        // if header token is not valid, send un-authorized error back
         String apiKey = request.getHeader(apiKeyHeaderName);
         if (StringUtils.isNotEmpty(apiKey)) {
             if (apiKeyFinderService.isApiKeyAssociatedWithClientCredentials(apiKey)) {
-                Authentication auth = new ApiKeyAuthenticationToken();
-                auth.setAuthenticated(true);
-                SecurityContextHolder.getContext().setAuthentication(auth);
+                SecurityContextHolder.getContext().setAuthentication(new ApiKeyAuthenticationToken());
             } else {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             }

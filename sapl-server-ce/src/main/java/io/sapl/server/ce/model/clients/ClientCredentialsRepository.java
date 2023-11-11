@@ -17,16 +17,14 @@
  */
 package io.sapl.server.ce.model.clients;
 
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-
+import lombok.NonNull;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
-import lombok.NonNull;
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.Optional;
 
 public interface ClientCredentialsRepository extends CrudRepository<ClientCredentials, Long>, Serializable {
     /**
@@ -46,12 +44,4 @@ public interface ClientCredentialsRepository extends CrudRepository<ClientCreden
      */
     @Query(value = "SELECT c FROM ClientCredentials c WHERE c.key = :key")
     Optional<ClientCredentials> findByKey(@Param(value = "key") String key);
-
-    /**
-     * Gets the {@link ClientCredentials} with a specific apiKey.
-     *
-     * @return the {@link ClientCredentials}
-     */
-    @Query(value = "SELECT c FROM ClientCredentials c WHERE c.authType = io.sapl.server.ce.model.clients.AuthType.ApiKey")
-    List<ClientCredentials> getApiKeyCredentials();
 }
