@@ -62,7 +62,7 @@ public class ApiKeyService {
 
     public void removeFromCache(String cacheKey) {
         CaffeineCache apiKeyCache = (CaffeineCache) cacheManager.getCache("ApiKeyCache");
-        if ( apiKeyCache != null ) {
+        if (apiKeyCache != null) {
             var nativeCache = apiKeyCache.getNativeCache();
             for (Map.Entry<Object, Object> entry : nativeCache.asMap().entrySet()) {
                 var cacheEntry = entry.getKey();
