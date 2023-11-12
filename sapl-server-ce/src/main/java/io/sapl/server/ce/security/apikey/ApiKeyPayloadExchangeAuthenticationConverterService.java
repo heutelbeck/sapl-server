@@ -34,21 +34,18 @@ import reactor.core.publisher.Mono;
 @Component
 @RequiredArgsConstructor
 public class ApiKeyPayloadExchangeAuthenticationConverterService implements PayloadExchangeAuthenticationConverter {
-    @Value("${io.sapl.server.accesscontrol.apiKeyHeaderName:API_KEY}")
-    private String apiKeyHeaderName = "API_KEY";
-
-    private String                    apiKeyMimeTypeValue = String
-            .valueOf(MimeType.valueOf("messaging/" + apiKeyHeaderName));
-    private final ApiKeyFinderService apiKeyFinderService;
+    private final ApiKeyService apiKeyService;
 
     @Override
     public Mono<Authentication> convert(PayloadExchange exchange) {
-        ByteBuf           metadata          = exchange.getPayload().metadata();
-        CompositeMetadata compositeMetadata = new CompositeMetadata(metadata, false);
+        var               apiKeyMimeTypeValue = String
+                .valueOf(MimeType.valueOf("messaging/" + apiKeyService.getApiKeyHeaderName()));
+        ByteBuf           metadata            = exchange.getPayload().metadata();
+        CompositeMetadata compositeMetadata   = new CompositeMetadata(metadata, false);
         for (CompositeMetadata.Entry entry : compositeMetadata) {
             if (apiKeyMimeTypeValue.equals(entry.getMimeType())) {
                 String apikey = entry.getContent().toString(StandardCharsets.UTF_8);
-                if (apiKeyFinderService.isApiKeyAssociatedWithClientCredentials(apikey)) {
+                if (apiKeyService.isValidApiKey(apikey)) {
                     return Mono.just(new ApiKeyAuthenticationToken());
                 } else {
                     return Mono.error(() -> new ApiKeyAuthenticationException("ApiKey not authorized"));

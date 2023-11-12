@@ -21,6 +21,7 @@ import com.heutelbeck.uuid.Base64Id;
 import io.sapl.server.ce.model.clients.AuthType;
 import io.sapl.server.ce.model.clients.ClientCredentials;
 import io.sapl.server.ce.model.clients.ClientCredentialsRepository;
+import io.sapl.server.ce.security.apikey.ApiKeyService;
 import jakarta.annotation.PostConstruct;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -42,8 +43,9 @@ import java.util.Collection;
 @RequiredArgsConstructor
 public class ClientDetailsService implements UserDetailsService {
 
-    public static final String CLIENT = "SAPL_CLIENT";
-    public static final String ADMIN  = "ADMIN";
+    public static final String  CLIENT = "SAPL_CLIENT";
+    public static final String  ADMIN  = "ADMIN";
+    private final ApiKeyService apiKeyService;
 
     @Value("${io.sapl.server.accesscontrol.admin-username:#{null}}")
     private String                            adminUsername;
@@ -107,8 +109,11 @@ public class ClientDetailsService implements UserDetailsService {
         return apiKey;
     }
 
-    public void delete(@NonNull Long id) {
-        clientCredentialsRepository.deleteById(id);
+    public void delete(@NonNull ClientCredentials clientCredential) {
+        clientCredentialsRepository.deleteById(clientCredential.getId());
+        if (clientCredential.getAuthType().equals(AuthType.ApiKey)) {
+            apiKeyService.removeFromCache(clientCredential.getKey());
+        }
     }
 
     public String encodeSecret(@NonNull String secret) {

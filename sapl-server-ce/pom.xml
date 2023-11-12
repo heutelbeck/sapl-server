@@ -103,11 +103,9 @@
 			<artifactId>spring-security-crypto</artifactId>
 			<version>6.1.5</version>
 		</dependency>
-		<!-- bouncycastle holds a full Java-based implementation of the Argon2 algorithm -->
 		<dependency>
-			<groupId>org.bouncycastle</groupId>
-			<artifactId>bcpkix-jdk15on</artifactId>
-			<version>1.70</version>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-cache</artifactId>
 		</dependency>
 
 		<!-- Utilities -->
@@ -120,6 +118,17 @@
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.github.ben-manes.caffeine</groupId>
+			<artifactId>caffeine</artifactId>
+			<version>3.1.5</version>
+		</dependency>
+		<!-- bouncycastle holds a full Java-based implementation of the Argon2 algorithm -->
+		<dependency>
+			<groupId>org.bouncycastle</groupId>
+			<artifactId>bcpkix-jdk15on</artifactId>
+			<version>1.70</version>
 		</dependency>
 
 		<!-- Vaadin -->

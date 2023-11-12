@@ -19,21 +19,36 @@ package io.sapl.server.ce.security.apikey;
 
 import io.sapl.server.ce.model.clients.AuthType;
 import io.sapl.server.ce.model.clients.ClientCredentialsRepository;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.caffeine.CaffeineCache;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
+
+@Slf4j
 @Service
 @RequiredArgsConstructor
-public class ApiKeyFinderService {
+public class ApiKeyService {
     private final PasswordEncoder             passwordEncoder;
     private final ClientCredentialsRepository clientCredentialsRepository;
+    private final CacheManager                cacheManager;
 
-    public boolean isApiKeyAssociatedWithClientCredentials(String apiKey) throws AuthenticationException {
-        // extract key from apiKey
+    @Getter
+    @Value("${io.sapl.server.apiKeyHeaderName:API_KEY}")
+    private String apiKeyHeaderName;
+
+    @Cacheable(value = "ApiKeyCache", unless = "#result == false")
+    public boolean isValidApiKey(String apiKey) throws AuthenticationException {
+        // extract client key from apiKey
         var apiKeyComponents = apiKey.split("\\.");
         if (apiKeyComponents.length == 2) {
             var key = apiKeyComponents[0];
@@ -42,6 +57,21 @@ public class ApiKeyFinderService {
             return c.getAuthType().equals(AuthType.ApiKey) && passwordEncoder.matches(apiKey, c.getEncodedSecret());
         } else {
             throw new AuthenticationServiceException("Invalid apiKey");
+        }
+    }
+
+    public void removeFromCache(String cacheKey) {
+        CaffeineCache apiKeyCache = (CaffeineCache) cacheManager.getCache("ApiKeyCache");
+        if ( apiKeyCache != null ) {
+            var nativeCache = apiKeyCache.getNativeCache();
+            for (Map.Entry<Object, Object> entry : nativeCache.asMap().entrySet()) {
+                var cacheEntry = entry.getKey();
+                log.info("checking entry: " + cacheEntry);
+                if (cacheEntry.toString().startsWith(cacheKey + ".")) {
+                    log.info("removing entry: " + cacheEntry);
+                    apiKeyCache.evict(cacheEntry);
+                }
+            }
         }
     }
 }

@@ -40,6 +40,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.vaadin.lineawesome.LineAwesomeIcon;
 import reactor.util.function.Tuple2;
 
@@ -47,6 +48,7 @@ import java.util.Comparator;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+@Slf4j
 @RolesAllowed("ADMIN")
 @RequiredArgsConstructor
 @PageTitle("Client Credentials")
@@ -137,9 +139,8 @@ public class ClientCredentialsView extends VerticalLayout {
     }
 
     private void executeDeletionOfClient(ClientCredentials currentClientCredential) {
-        long idOfClientToRemove = currentClientCredential.getId();
         try {
-            clientCredentialsService.delete(idOfClientToRemove);
+            clientCredentialsService.delete(currentClientCredential);
         } catch (Exception e) {
             ErrorNotificationUtils.show("The client cannot be deleted due to an internal error. " + e.getMessage());
             return;
