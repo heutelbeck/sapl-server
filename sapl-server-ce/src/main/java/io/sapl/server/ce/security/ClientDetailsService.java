@@ -92,9 +92,17 @@ public class ClientDetailsService implements UserDetailsService {
         return clientCredentialsRepository.count();
     }
 
+    /**
+     * Generates a random key with key length of 256 bit encoded in base64
+     * @return base64 encoded secret
+     */
+    private String generateSecret() {
+        return new Base64StringKeyGenerator(32).generateKey();
+    }
+
     public Tuple2<ClientCredentials, String> createBasicDefault() {
         var key               = Base64Id.randomID();
-        var secret            = Base64Id.randomID();
+        var secret            = generateSecret();
         var clientCredentials = clientCredentialsRepository
                 .save(new ClientCredentials(key, AuthType.Basic, encodeSecret(secret)));
         return Tuples.of(clientCredentials, secret);
@@ -104,7 +112,7 @@ public class ClientDetailsService implements UserDetailsService {
         var key = Base64Id.randomID();
         // apiKey needs to be a combination of <key>.<secret> to identify the client in
         // the authentication process
-        var apiKey = key + "." + new Base64StringKeyGenerator(32).generateKey();
+        var apiKey = key + "." + generateSecret();
         clientCredentialsRepository.save(new ClientCredentials(key, AuthType.ApiKey, encodeSecret(apiKey)));
         return apiKey;
     }
