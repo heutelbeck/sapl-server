@@ -26,6 +26,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -36,6 +37,7 @@ import org.springframework.security.oauth2.jwt.JwtDecoders;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.header.HeaderWriterFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import com.vaadin.flow.spring.security.VaadinWebSecurity;
@@ -100,11 +102,23 @@ public class HttpSecurityConfiguration extends VaadinWebSecurity {
 		if (allowApiKeyAuth) {
 			log.info("configuring ApiKey for Http authentication");
 			http = http.addFilterAt(apiKeyAuthenticationFilterService, UsernamePasswordAuthenticationFilter.class);
+
 		}
+
+        // fix sporadic spring-security issue 9175: https://github.com/spring-projects/spring-security/issues/9175#issuecomment-661879599
+        http.headers(headers -> headers
+                .withObjectPostProcessor(new ObjectPostProcessor<HeaderWriterFilter>() {
+                    @Override
+                    public HeaderWriterFilter postProcess(HeaderWriterFilter headerWriterFilter) {
+                        headerWriterFilter.setShouldWriteHeadersEagerly(true);
+                        return headerWriterFilter;
+                    }
+                })
+        );
 
 		if (allowOauth2Auth) {
 			log.info("configuring Oauth2 authentication with jwtIssuerURI: " + jwtIssuerURI);
-			http = http.oauth2ResourceServer(oauth2 -> oauth2.jwt(
+			http.oauth2ResourceServer(oauth2 -> oauth2.jwt(
 					jwtConfigurer -> jwtConfigurer.jwtAuthenticationConverter(jwtAuthenticationConverter())
 			));
 		}

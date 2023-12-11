@@ -21,7 +21,6 @@ import java.io.IOException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.GenericFilterBean;
@@ -37,24 +36,23 @@ import lombok.RequiredArgsConstructor;
 @Component
 @RequiredArgsConstructor
 public class ApiKeaderHeaderAuthFilterService extends GenericFilterBean {
-    @Value("${io.sapl.server.accesscontrol.apiKeyHeaderName:API_KEY}")
-    private String                    apiKeyHeaderName;
-    private final ApiKeyFinderService apiKeyFinderService;
+    private final ApiKeyService apiKeyService;
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
             throws IOException, ServletException {
-        var request  = (HttpServletRequest) servletRequest;
-        var response = (HttpServletResponse) servletResponse;
-        // if header token is not valid, send un-athorized error back
-        String apiKey = request.getHeader(apiKeyHeaderName);
-        if (StringUtils.isNotEmpty(apiKey)) {
-            if (apiKeyFinderService.isApiKeyAssociatedWithClientCredentials(apiKey)) {
-                Authentication auth = new ApiKeyAuthenticationToken();
-                auth.setAuthenticated(true);
-                SecurityContextHolder.getContext().setAuthentication(auth);
-            } else {
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        // checking apiKey Header only if the request is not yet authorized
+        if (SecurityContextHolder.getContext().getAuthentication() == null) {
+            var request  = (HttpServletRequest) servletRequest;
+            var response = (HttpServletResponse) servletResponse;
+            // if header token is not valid, send un-authorized error back
+            String apiKey = request.getHeader(apiKeyService.getApiKeyHeaderName());
+            if (StringUtils.isNotEmpty(apiKey)) {
+                if (apiKeyService.isValidApiKey(apiKey)) {
+                    SecurityContextHolder.getContext().setAuthentication(new ApiKeyAuthenticationToken());
+                } else {
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                }
             }
         }
         filterChain.doFilter(servletRequest, servletResponse);

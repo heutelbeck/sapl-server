@@ -21,6 +21,7 @@ import com.heutelbeck.uuid.Base64Id;
 import io.sapl.server.ce.model.clients.AuthType;
 import io.sapl.server.ce.model.clients.ClientCredentials;
 import io.sapl.server.ce.model.clients.ClientCredentialsRepository;
+import io.sapl.server.ce.security.apikey.ApiKeyService;
 import jakarta.annotation.PostConstruct;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -29,23 +30,22 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.keygen.Base64StringKeyGenerator;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
 
-import java.util.Base64;
 import java.util.Collection;
-import java.util.Random;
-import java.util.concurrent.ThreadLocalRandom;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class ClientDetailsService implements UserDetailsService {
 
-    public static final String CLIENT = "SAPL_CLIENT";
-    public static final String ADMIN  = "ADMIN";
+    public static final String  CLIENT = "SAPL_CLIENT";
+    public static final String  ADMIN  = "ADMIN";
+    private final ApiKeyService apiKeyService;
 
     @Value("${io.sapl.server.accesscontrol.admin-username:#{null}}")
     private String                            adminUsername;
@@ -92,33 +92,36 @@ public class ClientDetailsService implements UserDetailsService {
         return clientCredentialsRepository.count();
     }
 
+    /**
+     * Generates a random key with key length of 256 bit encoded in base64
+     * @return base64 encoded secret
+     */
+    private String generateSecret() {
+        return new Base64StringKeyGenerator(32).generateKey();
+    }
+
     public Tuple2<ClientCredentials, String> createBasicDefault() {
         var key               = Base64Id.randomID();
-        var secret            = Base64Id.randomID();
+        var secret            = generateSecret();
         var clientCredentials = clientCredentialsRepository
                 .save(new ClientCredentials(key, AuthType.Basic, encodeSecret(secret)));
         return Tuples.of(clientCredentials, secret);
     }
 
-    public Tuple2<ClientCredentials, String> createApiKeyDefault() {
-        var key               = Base64Id.randomID();
-        var apiKey            = generateRandomApiKey();
-        var clientCredentials = clientCredentialsRepository
-                .save(new ClientCredentials(key, AuthType.ApiKey, encodeSecret(apiKey)));
-        return Tuples.of(clientCredentials, apiKey);
+    public String createApiKeyDefault() {
+        var key = Base64Id.randomID();
+        // apiKey needs to be a combination of <key>.<secret> to identify the client in
+        // the authentication process
+        var apiKey = key + "." + generateSecret();
+        clientCredentialsRepository.save(new ClientCredentials(key, AuthType.ApiKey, encodeSecret(apiKey)));
+        return apiKey;
     }
 
-    private static String generateRandomApiKey() {
-        int    length      = 512;
-        Random random      = ThreadLocalRandom.current();
-        byte[] randomBytes = new byte[length];
-        random.nextBytes(randomBytes);
-        return Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes).replace("-", "").substring(0,
-                length);
-    }
-
-    public void delete(@NonNull Long id) {
-        clientCredentialsRepository.deleteById(id);
+    public void delete(@NonNull ClientCredentials clientCredential) {
+        clientCredentialsRepository.deleteById(clientCredential.getId());
+        if (clientCredential.getAuthType().equals(AuthType.ApiKey)) {
+            apiKeyService.removeFromCache(clientCredential.getKey());
+        }
     }
 
     public String encodeSecret(@NonNull String secret) {
