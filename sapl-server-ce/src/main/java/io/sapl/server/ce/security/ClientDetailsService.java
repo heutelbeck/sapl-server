@@ -94,6 +94,7 @@ public class ClientDetailsService implements UserDetailsService {
 
     /**
      * Generates a random key with key length of 256 bit encoded in base64
+     *
      * @return base64 encoded secret
      */
     private String generateSecret() {
