@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2023 Dominic Heutelbeck (dominic@heutelbeck.com)
+ * Copyright (C) 2017-2024 Dominic Heutelbeck (dominic@heutelbeck.com)
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -42,13 +42,13 @@ public class AuthenticationCacheConfig {
     private Integer apiKeyCachingMaxSize;
 
     @Bean
-    public Caffeine<Object, Object> caffeineConfig() {
+    Caffeine<Object, Object> caffeineConfig() {
         return Caffeine.newBuilder().expireAfterAccess(apiKeyCachingExpireSeconds, TimeUnit.SECONDS).initialCapacity(10)
                 .maximumSize(apiKeyCachingMaxSize);
     }
 
     @Bean
-    public CacheManager cacheManager(Caffeine caffeine) {
+    CacheManager cacheManager(Caffeine<Object, Object> caffeine) {
         if (apiKeyCachingEnabled) {
             CaffeineCacheManager caffeineCacheManager = new CaffeineCacheManager();
             caffeineCacheManager.setCaffeine(caffeine);

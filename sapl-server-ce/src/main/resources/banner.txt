@@ -1,7 +1,7 @@
-${AnsiColor.BRIGHT_BLUE}   ____${AnsiColor.CYAN}___   ${AnsiColor.GREEN}___  ${AnsiColor.YELLOW}__     ${AnsiColor.BRIGHT_RED}___       __  __            _         __  _             ${AnsiColor.BRIGHT_MAGENTA}____                       ${AnsiColor.MAGENTA}____ ____${AnsiColor.DEFAULT}
-${AnsiColor.BRIGHT_BLUE}  / __${AnsiColor.CYAN}/ _ | ${AnsiColor.GREEN}/ _ \${AnsiColor.YELLOW}/ /    ${AnsiColor.BRIGHT_RED}/ _ |__ __/ /_/ /  ___  ____(_)_____ _/ /_(_)__  ___    ${AnsiColor.BRIGHT_MAGENTA}/ __/__ _____  _____ ____  ${AnsiColor.MAGENTA}/ __// __/${AnsiColor.DEFAULT}
-${AnsiColor.BRIGHT_BLUE} _\ \${AnsiColor.CYAN}/ __ |${AnsiColor.GREEN}/ ___${AnsiColor.YELLOW}/ /__  ${AnsiColor.BRIGHT_RED}/ __ / // / __/ _ \/ _ \/ __/ /_ / _ `/ __/ / _ \/ _ \  ${AnsiColor.BRIGHT_MAGENTA}_\ \/ -_) __/ |/ / -_) __/ ${AnsiColor.MAGENTA}/ /_ / _/  ${AnsiColor.DEFAULT}
-${AnsiColor.BRIGHT_BLUE}/___${AnsiColor.CYAN}/_/ |_${AnsiColor.GREEN}/_/  ${AnsiColor.YELLOW}/____/ ${AnsiColor.BRIGHT_RED}/_/ |_\_,_/\__/_//_/\___/_/ /_//__|_,_/\__/_/\___/_//_/ ${AnsiColor.BRIGHT_MAGENTA}/___/\__/_/  |___/\__/_/   ${AnsiColor.MAGENTA}/___//___/  ${AnsiColor.DEFAULT}
+${AnsiColor.BRIGHT_BLUE}   ____${AnsiColor.CYAN}___   ${AnsiColor.GREEN}___  ${AnsiColor.YELLOW}__     ${AnsiColor.BRIGHT_MAGENTA}____                       ${AnsiColor.MAGENTA}____ ____${AnsiColor.DEFAULT}
+${AnsiColor.BRIGHT_BLUE}  / __${AnsiColor.CYAN}/ _ | ${AnsiColor.GREEN}/ _ \${AnsiColor.YELLOW}/ /    ${AnsiColor.BRIGHT_MAGENTA}/ __/__ _____  _____ ____  ${AnsiColor.MAGENTA}/ __// __/${AnsiColor.DEFAULT}
+${AnsiColor.BRIGHT_BLUE} _\ \${AnsiColor.CYAN}/ __ |${AnsiColor.GREEN}/ ___${AnsiColor.YELLOW}/ /__  ${AnsiColor.BRIGHT_MAGENTA}_\ \/ -_) __/ |/ / -_) __/ ${AnsiColor.MAGENTA}/ /_ / _/  ${AnsiColor.DEFAULT}
+${AnsiColor.BRIGHT_BLUE}/___${AnsiColor.CYAN}/_/ |_${AnsiColor.GREEN}/_/  ${AnsiColor.YELLOW}/____/ ${AnsiColor.BRIGHT_MAGENTA}/___/\__/_/  |___/\__/_/   ${AnsiColor.MAGENTA} \__//___/  ${AnsiColor.DEFAULT}
                                                                                                                     
  Version:     ${AnsiColor.BRIGHT_GREEN}${application.version}${AnsiColor.DEFAULT}   
  Spring-Boot: ${AnsiColor.BRIGHT_GREEN}${spring-boot.version}${AnsiColor.DEFAULT}
