@@ -21,12 +21,14 @@ import static org.springframework.security.config.Customizer.withDefaults;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -63,6 +65,8 @@ public class HttpSecurityConfiguration extends VaadinWebSecurity {
 
     private final ApiKeaderHeaderAuthFilterService apiKeyAuthenticationFilterService;
 
+    @Autowired
+    private CustomAuthenticationProvider customAuthenticationProvider;
     /**
      * Decodes JSON Web Token (JWT) according to the configuration that was
      * initialized by the OpenID Provider specified in the jwtIssuerURI.
@@ -148,4 +152,7 @@ public class HttpSecurityConfiguration extends VaadinWebSecurity {
         setLoginView(http, LoginView.class);
     }
 
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth.authenticationProvider(customAuthenticationProvider);
+    }
 }

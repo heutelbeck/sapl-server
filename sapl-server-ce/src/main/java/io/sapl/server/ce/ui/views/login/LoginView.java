@@ -78,6 +78,9 @@ public class LoginView extends LoginOverlay implements BeforeEnterObserver {
             if (!loginSuccessful) {
                 event.getSource().setError(true);
                 // event.getSource().setErrorText("Custom error message");
+                LoginI18n.ErrorMessage errorMessage = new LoginI18n.ErrorMessage();
+                errorMessage.setMessage("Token error");
+                i18n.setErrorMessage(errorMessage);
             }
         });
     }
@@ -89,7 +92,6 @@ public class LoginView extends LoginOverlay implements BeforeEnterObserver {
             setOpened(false);
             event.forwardTo("");
         }
-
         setError(event.getLocation().getQueryParameters().getParameters().containsKey("error"));
     }
 }
