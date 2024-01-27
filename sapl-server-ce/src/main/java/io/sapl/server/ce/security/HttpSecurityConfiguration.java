@@ -17,10 +17,11 @@
  */
 package io.sapl.server.ce.security;
 
-import static org.springframework.security.config.Customizer.withDefaults;
-
-import java.util.List;
-
+import com.vaadin.flow.spring.security.VaadinWebSecurity;
+import io.sapl.server.ce.security.apikey.ApiKeaderHeaderAuthFilterService;
+import io.sapl.server.ce.ui.views.login.LoginView;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -33,7 +34,10 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
+import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtDecoders;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
@@ -42,20 +46,21 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.header.HeaderWriterFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
-import com.vaadin.flow.spring.security.VaadinWebSecurity;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
-import io.sapl.server.ce.security.apikey.ApiKeaderHeaderAuthFilterService;
-import io.sapl.server.ce.ui.views.login.LoginView;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import static org.springframework.security.config.Customizer.withDefaults;
 
 @Slf4j
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class HttpSecurityConfiguration extends VaadinWebSecurity {
+    private final KeycloakLogoutHandler keycloakLogoutHandler;
     @Value("${io.sapl.server.allowApiKeyAuth:#{true}}")
-    private boolean allowApiKeyAuth;
+    private boolean                     allowApiKeyAuth;
 
     @Value("${io.sapl.server.allowOauth2Auth:#{false}}")
     private boolean allowOauth2Auth;
@@ -67,6 +72,7 @@ public class HttpSecurityConfiguration extends VaadinWebSecurity {
 
     @Autowired
     private CustomAuthenticationProvider customAuthenticationProvider;
+
     /**
      * Decodes JSON Web Token (JWT) according to the configuration that was
      * initialized by the OpenID Provider specified in the jwtIssuerURI.
@@ -147,6 +153,8 @@ public class HttpSecurityConfiguration extends VaadinWebSecurity {
         // Xtext services
         http.csrf(csrf -> csrf.ignoringRequestMatchers(new AntPathRequestMatcher("/xtext-service/**")));
 
+        http.oauth2Login().and().logout().addLogoutHandler(keycloakLogoutHandler).logoutSuccessUrl("/");
+
         super.configure(http);
 
         setLoginView(http, LoginView.class);
@@ -154,5 +162,23 @@ public class HttpSecurityConfiguration extends VaadinWebSecurity {
 
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.authenticationProvider(customAuthenticationProvider);
+    }
+
+    @Bean
+    public GrantedAuthoritiesMapper userAuthoritiesMapperForKeycloak() {
+        return authorities -> {
+            Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
+            var                   authority         = authorities.iterator().next();
+            if (authority instanceof OidcUserAuthority oidcUserAuthority) {
+                var userInfo = oidcUserAuthority.getUserInfo();
+                if (userInfo.hasClaim("realm_access")) {
+                    var realmAccess = userInfo.getClaimAsMap("realm_access");
+                    var roles       = (Collection<String>) realmAccess.get("roles");
+                    mappedAuthorities.addAll(roles.stream()
+                            .map(role -> new SimpleGrantedAuthority("ROLE_" + role.toUpperCase())).toList());
+                }
+            }
+            return mappedAuthorities;
+        };
     }
 }
