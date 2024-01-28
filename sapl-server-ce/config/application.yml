@@ -36,7 +36,7 @@ io.sapl:
       maxSize: 10000
 
     # Optional: configure Oauth2 (jwt) authentication
-    allowOauth2Auth: False
+    allowOauth2Auth: True
 
   pdp.embedded:
 # The following options enable or disable different levels of logging for decisions.
@@ -63,13 +63,15 @@ io.sapl:
 
 # Configures Oauth2 JWT Issuer-Uri required when io.sapl.server.allowOauth2Auth is true
 spring.security.oauth2.resourceserver.jwt:
-  issuer-uri: http://auth-server:8080/default
-
+  issuer-uri: http://localhost:9000/realms/SAPL
+  
 spring:
   datasource:
-    url: jdbc:h2:file:~/sapl/db
-    username: sa
-    password: password
+    url: jdbc:mariadb://localhost:3306/saplce
+    username: saplce
+    password: Test12345
+    driver-class-name: org.mariadb.jdbc.Driver
+  jpa.properties.hibernate.dialect: org.hibernate.dialect.MariaDBDialect
 
 # Http TLS/SSL configuration
 server:
@@ -100,3 +102,19 @@ logging.level:
   #"root": DEBUG
   "[io.sapl]": DEBUG
   "[io.sapl.server.ce]": DEBUG
+
+spring.security.oauth2.client:
+  registration:
+     keycloak:
+       client-id: sapl
+#       client-secret: jadajada
+       scope: openid
+       authorization-grant-type: authorization_code
+#       redirect-uri: http://localhost:8443/login/oauth2/keycloak
+#   provider:
+#     keycloak:
+#       issuer-uri: http://localhost:9000/realms/sapl
+
+spring.security.oauth2.client.provider.keycloak:
+  issuer-uri: http://localhost:9000/realms/SAPL
+  user-name-attribute: preferred_username
