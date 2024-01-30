@@ -51,61 +51,6 @@
 	</dependencyManagement>
 
 	<dependencies>
-		<!-- Keycloak -->
-		<dependency>
-			<groupId>org.keycloak</groupId>
-			<artifactId>keycloak-events-api</artifactId>
-			<version>1.8.1.Final</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.keycloak</groupId>
-			<artifactId>keycloak-core</artifactId>
-			<version>23.0.4</version>
-		</dependency>
-		<dependency>
-			<groupId>org.keycloak</groupId>
-			<artifactId>keycloak-saml-adapter-api-public</artifactId>
-			<version>23.0.4</version>
-		</dependency>
-		<dependency>
-			<groupId>org.keycloak</groupId>
-			<artifactId>keycloak-admin-client</artifactId>
-			<version>23.0.4</version>
-		</dependency>
-		<dependency>
-			<groupId>org.keycloak</groupId>
-			<artifactId>keycloak-oidc-client-adapter-pom</artifactId>
-			<version>23.0.4</version>
-			<type>pom</type>
-		</dependency>
-		<dependency>
-			<groupId>org.keycloak</groupId>
-			<artifactId>keycloak-adapter-core</artifactId>
-			<version>23.0.4</version>
-		</dependency>
-		<dependency>
-			<groupId>org.keycloak</groupId>
-			<artifactId>keycloak-saml-adapter-core</artifactId>
-			<version>23.0.4</version>
-		</dependency>
-		<dependency>
-			<groupId>org.keycloak</groupId>
-			<artifactId>keycloak-common</artifactId>
-			<version>23.0.4</version>
-		</dependency>
-		<dependency>
-			<groupId>org.keycloak</groupId>
-			<artifactId>keycloak-services</artifactId>
-			<version>23.0.4</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.keycloak</groupId>
-			<artifactId>keycloak-services</artifactId>
-			<version>23.0.4</version>
-			<scope>provided</scope>
-		</dependency>
 		<!-- SAPL -->
 		<dependency>
 			<groupId>io.sapl</groupId>
@@ -208,8 +153,7 @@
 		<dependency>
 			<groupId>org.mariadb.jdbc</groupId>
 			<artifactId>mariadb-java-client</artifactId>
-		        <version>3.3.2</version>	
-                        <scope>runtime</scope>
+			<scope>runtime</scope>
 		</dependency>
 
 		<!-- Rsocket -->
@@ -232,11 +176,6 @@
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-oauth2-jose</artifactId>
-		</dependency>
-		<!--- Login mit einem oauth2 Client -->
-		<dependency>
-    			<groupId>org.springframework.boot</groupId>
-    			<artifactId>spring-boot-starter-oauth2-client</artifactId>
 		</dependency>
 
 		<!-- Test -->
