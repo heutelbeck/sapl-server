@@ -52,6 +52,9 @@ import lombok.extern.slf4j.Slf4j;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class HttpSecurityConfiguration extends VaadinWebSecurity {
+    @Value("${io.sapl.server.allowBasicAuth:#{false}}")
+    private boolean allowBasicAuth;
+
     @Value("${io.sapl.server.allowApiKeyAuth:#{true}}")
     private boolean allowApiKeyAuth;
 
@@ -106,6 +109,7 @@ public class HttpSecurityConfiguration extends VaadinWebSecurity {
 		}
 
         // fix sporadic spring-security issue 9175: https://github.com/spring-projects/spring-security/issues/9175#issuecomment-661879599
+        //noinspection unchecked
         http.headers(headers -> headers
                 .withObjectPostProcessor(new ObjectPostProcessor<HeaderWriterFilter>() {
                     @Override
@@ -123,9 +127,12 @@ public class HttpSecurityConfiguration extends VaadinWebSecurity {
 			));
 		}
 
-		http.httpBasic(withDefaults()) // offer basic authentication
-			// all requests to this end point require the CLIENT role
-			.authorizeHttpRequests(authz -> authz.anyRequest().hasAnyAuthority(ClientDetailsService.CLIENT));
+        if (allowBasicAuth){
+            http.httpBasic(withDefaults()); // offer basic authentication
+        }
+
+        // all requests to this end point require the CLIENT role
+        http.authorizeHttpRequests(authz -> authz.anyRequest().hasAnyAuthority(ClientDetailsService.CLIENT));
 
 		// @formatter:on
         return http.build();
