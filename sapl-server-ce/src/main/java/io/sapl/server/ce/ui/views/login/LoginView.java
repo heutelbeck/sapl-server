@@ -31,15 +31,6 @@ import io.sapl.server.ce.security.AuthenticatedUser;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 
-import org.keycloak.admin.client.Keycloak;
-import org.keycloak.representations.idm.RealmRepresentation;
-import org.keycloak.protocol.oidc.TokenManager;
-import org.keycloak.admin.client.Keycloak;
-//import org.keycloak.admin.client.token.TokenManager;
-import org.keycloak.events.Event;
-import org.keycloak.events.EventListenerProvider;
-import org.keycloak.events.admin.AdminEvent;
-
 @AnonymousAllowed
 @PageTitle("Login")
 @Route(value = "login")
@@ -61,28 +52,6 @@ public class LoginView extends LoginOverlay implements BeforeEnterObserver {
 
         setForgotPasswordButtonVisible(false);
         setOpened(true);
-
-        addLoginListener(event -> {
-            Keycloak instance = Keycloak.getInstance("http://localhost:9000/", "SAPL", "sapl", "Test123456", "sapl");
-
-            boolean loginSuccessful = false;
-            try {
-                org.keycloak.admin.client.token.TokenManager tokenmanager = instance.tokenManager();
-                String                                       accessToken  = tokenmanager.getAccessTokenString();
-                loginSuccessful = true;
-            } catch (Exception e) {
-            }
-
-            System.out.print(loginSuccessful);
-
-            if (!loginSuccessful) {
-                event.getSource().setError(true);
-                // event.getSource().setErrorText("Custom error message");
-                LoginI18n.ErrorMessage errorMessage = new LoginI18n.ErrorMessage();
-                errorMessage.setMessage("Token error");
-                i18n.setErrorMessage(errorMessage);
-            }
-        });
     }
 
     @Override
@@ -92,6 +61,7 @@ public class LoginView extends LoginOverlay implements BeforeEnterObserver {
             setOpened(false);
             event.forwardTo("");
         }
+
         setError(event.getLocation().getQueryParameters().getParameters().containsKey("error"));
     }
 }
