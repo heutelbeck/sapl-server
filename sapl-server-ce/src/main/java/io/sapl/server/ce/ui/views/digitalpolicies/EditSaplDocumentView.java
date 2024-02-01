@@ -92,7 +92,8 @@ public class EditSaplDocumentView extends VerticalLayout implements HasUrlParame
         var metadataRowOne   = new HorizontalLayout(policyIdField, currentVersionField, lastModifiedField);
         var metadataRowTwo   = new HorizontalLayout(publishedVersionField, publishedNameField);
         var metadataRowThree = new HorizontalLayout(versionSelection, publishButton, unpublishButton);
-        var editActionsRow   = new HorizontalLayout(saveVersionButton, cancelButton);
+        metadataRowThree.setAlignItems(Alignment.BASELINE);
+        var editActionsRow = new HorizontalLayout(saveVersionButton, cancelButton);
         editActionsRow.setWidthFull();
         editActionsRow.setJustifyContentMode(JustifyContentMode.END);
         add(metadataRowOne, metadataRowTwo, metadataRowThree, saplEditor, editActionsRow);
@@ -190,8 +191,11 @@ public class EditSaplDocumentView extends VerticalLayout implements HasUrlParame
      */
     private void setUI() {
         policyIdField.setValue(saplDocument.getId().toString());
+        policyIdField.setReadOnly(true);
         lastModifiedField.setValue(saplDocument.getLastModified());
+        lastModifiedField.setReadOnly(true);
         currentVersionField.setValue(Integer.toString(saplDocument.getCurrentVersionNumber()));
+        currentVersionField.setReadOnly(true);
 
         Collection<String> availableVersions = getAvailableVersions();
         versionSelection.setItems(availableVersions);
@@ -233,7 +237,9 @@ public class EditSaplDocumentView extends VerticalLayout implements HasUrlParame
         }
 
         publishedVersionField.setValue(publishedVersionAsString);
+        publishedVersionField.setReadOnly(true);
         publishedNameField.setValue(publishedNameAsString);
+        publishedNameField.setReadOnly(true);
 
         unpublishButton.setEnabled(isPublishedVersionExisting);
     }
