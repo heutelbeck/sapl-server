@@ -19,7 +19,6 @@ package io.sapl.server.ce.security.apikey;
 
 import java.nio.charset.StandardCharsets;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.rsocket.api.PayloadExchange;
 import org.springframework.security.rsocket.authentication.PayloadExchangeAuthenticationConverter;

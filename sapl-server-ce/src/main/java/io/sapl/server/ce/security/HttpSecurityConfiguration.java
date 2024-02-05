@@ -109,11 +109,10 @@ public class HttpSecurityConfiguration extends VaadinWebSecurity {
 		}
 
         // fix sporadic spring-security issue 9175: https://github.com/spring-projects/spring-security/issues/9175#issuecomment-661879599
-        //noinspection unchecked
         http.headers(headers -> headers
                 .withObjectPostProcessor(new ObjectPostProcessor<HeaderWriterFilter>() {
                     @Override
-                    public HeaderWriterFilter postProcess(HeaderWriterFilter headerWriterFilter) {
+                    public <O extends HeaderWriterFilter> O postProcess(O headerWriterFilter) {
                         headerWriterFilter.setShouldWriteHeadersEagerly(true);
                         return headerWriterFilter;
                     }
