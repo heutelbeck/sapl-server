@@ -240,3 +240,4 @@ tsconfig.json
 types.d.ts
 
 target/
+sapl-server-ce/src/main/bundles/

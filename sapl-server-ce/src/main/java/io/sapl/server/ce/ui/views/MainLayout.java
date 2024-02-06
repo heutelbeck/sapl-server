@@ -35,13 +35,13 @@ import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.Scroller;
+import com.vaadin.flow.component.sidenav.SideNav;
+import com.vaadin.flow.component.sidenav.SideNavItem;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.server.auth.AccessAnnotationChecker;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 
 import io.sapl.server.ce.security.AuthenticatedUser;
-import io.sapl.server.ce.ui.components.appnav.AppNav;
-import io.sapl.server.ce.ui.components.appnav.AppNavItem;
 import io.sapl.server.ce.ui.views.clientcredentials.ClientCredentialsView;
 import io.sapl.server.ce.ui.views.digitalpolicies.DigitalPoliciesView;
 import io.sapl.server.ce.ui.views.digitalpolicies.PublishedPoliciesView;
@@ -96,8 +96,8 @@ public class MainLayout extends AppLayout {
         addToDrawer(header, scroller, createFooter());
     }
 
-    private AppNav createNavigation() {
-        var nav = new AppNav();
+    private SideNav createNavigation() {
+        var nav = new SideNav();
         addItem(nav, "Digital Policies", DigitalPoliciesView.class, LineAwesomeIcon.FILE_SOLID);
         addItem(nav, "Published Policies", PublishedPoliciesView.class, LineAwesomeIcon.FILE_ALT);
         addItem(nav, "PDP Config", PDPConfigView.class, LineAwesomeIcon.COG_SOLID);
@@ -106,9 +106,9 @@ public class MainLayout extends AppLayout {
         return nav;
     }
 
-    private void addItem(AppNav nav, String label, Class<? extends Component> view, LineAwesomeIcon icon) {
+    private void addItem(SideNav nav, String label, Class<? extends Component> view, LineAwesomeIcon icon) {
         if (accessChecker.hasAccess(view)) {
-            nav.addItem(new AppNavItem(label, view, icon.create()));
+            nav.addItem(new SideNavItem(label, view, icon.create()));
         }
     }
 
