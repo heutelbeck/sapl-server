@@ -24,10 +24,9 @@ import java.util.Optional;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Maps;
 
+import io.sapl.api.interpreter.Val;
 import io.sapl.grammar.sapl.CombiningAlgorithm;
 import io.sapl.interpreter.combinators.CombiningAlgorithmFactory;
 import io.sapl.interpreter.combinators.PolicyDocumentCombiningAlgorithm;
@@ -47,8 +46,6 @@ import reactor.core.publisher.Sinks.Many;
 @RequiredArgsConstructor
 public class CEVariablesAndCombinatorSource implements VariablesAndCombinatorSource, PDPConfigurationPublisher {
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
-
     private Many<Collection<Variable>>             variablesProcessorSink;
     private Many<PolicyDocumentCombiningAlgorithm> combiningAlgorithmSink;
 
@@ -59,7 +56,7 @@ public class CEVariablesAndCombinatorSource implements VariablesAndCombinatorSou
     }
 
     @Override
-    public Flux<Optional<Map<String, JsonNode>>> getVariables() {
+    public Flux<Optional<Map<String, Val>>> getVariables() {
         return variablesProcessorSink.asFlux().map(CEVariablesAndCombinatorSource::variablesCollectionToMap)
                 .map(Optional::of);
     }
@@ -79,11 +76,11 @@ public class CEVariablesAndCombinatorSource implements VariablesAndCombinatorSou
         variablesProcessorSink.emitNext(variables, EmitFailureHandler.FAIL_FAST);
     }
 
-    private static Map<String, JsonNode> variablesCollectionToMap(@NonNull Collection<Variable> variables) {
-        Map<String, JsonNode> variablesAsMap = Maps.newHashMapWithExpectedSize(variables.size());
+    private static Map<String, Val> variablesCollectionToMap(@NonNull Collection<Variable> variables) {
+        Map<String, Val> variablesAsMap = Maps.newHashMapWithExpectedSize(variables.size());
         for (Variable variable : variables) {
             try {
-                variablesAsMap.put(variable.getName(), MAPPER.readTree(variable.getJsonValue()));
+                variablesAsMap.put(variable.getName(), Val.ofJson(variable.getJsonValue()));
             } catch (JsonProcessingException e) {
                 log.error("Ignoring variable {} not valid JSON.", variable.getName());
             }
