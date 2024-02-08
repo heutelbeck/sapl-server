@@ -39,6 +39,7 @@ import io.sapl.server.ce.config.ApplicationYamlHandler;
 import io.sapl.server.ce.ui.views.SetupLayout;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Conditional;
 
 import java.util.ArrayList;
@@ -60,9 +61,13 @@ public class HttpEndpointSetupView extends VerticalLayout {
     private static final String TLS_V1_3_PROTOCOL          = "TLSv1.3";
     private static final String TLS_V1_3_AND_V1_2_PROTOCOL = "TLSv1.3 + TLSv1.2";
 
+    @Autowired
+    public HttpEndpointSetupView(ApplicationYamlHandler appYH) {
+        this.applicationYamlHandler = appYH;
+    }
+
     @PostConstruct
     private void init() {
-        applicationYamlHandler = new ApplicationYamlHandler();
         add(getLayout());
 
     }
@@ -147,7 +152,7 @@ public class HttpEndpointSetupView extends VerticalLayout {
         if (listBox.getValue().equals(TLS_V1_3_AND_V1_2_PROTOCOL))
             applicationYamlHandler.setAt("server/ssl/protocols", "TLSv1.2");
 
-        applicationYamlHandler.writeYamlToRessources();
+        applicationYamlHandler.writeYamlFile();
         System.out.println("Write tls config to application yml file");
     }
 }

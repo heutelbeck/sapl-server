@@ -35,10 +35,9 @@ import io.sapl.server.ce.ui.utils.ErrorNotificationUtils;
 import io.sapl.server.ce.ui.views.SetupLayout;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Conditional;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 
 //TODO: Add MariaDB support. Check why connection to h2 never seems to be possible. Tests.
@@ -63,9 +62,13 @@ public class DbmsSetupView extends VerticalLayout {
     private final Button                   dbmsSaveConfig = new Button("Save DBMS-Configuration");
     private final Button                   restart        = new Button("Restart Server CE");
 
+    @Autowired
+    public DbmsSetupView(ApplicationYamlHandler appYH) {
+        this.applicationYamlHandler = appYH;
+    }
+
     @PostConstruct
     private void init() {
-        applicationYamlHandler = new ApplicationYamlHandler();
         add(getLayout());
 
     }
@@ -145,7 +148,7 @@ public class DbmsSetupView extends VerticalLayout {
         applicationYamlHandler.setAt("spring/datasource/url", dbmsURL.getValue());
         applicationYamlHandler.setAt("spring/datasource/username", dbmsUsername.getValue());
         applicationYamlHandler.setAt("spring/datasource/password", dbmsPwd.getValue());
-        applicationYamlHandler.writeYamlToRessources();
+        applicationYamlHandler.writeYamlFile();
     }
 
     private void dbmsConnectionTest() {
@@ -163,7 +166,7 @@ public class DbmsSetupView extends VerticalLayout {
 
 class H2ConnectionTest {
     public static void run(String jdbcURL, String username, String pwd) throws SQLException {
-        Connection connection = DriverManager.getConnection(jdbcURL, username, pwd);
-        connection.close();
+        // Connection connection = DriverManager.getConnection(jdbcURL, username, pwd);
+        // connection.close();
     }
 }

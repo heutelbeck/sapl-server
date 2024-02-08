@@ -35,6 +35,7 @@ import io.sapl.server.ce.ui.utils.ConfirmUtils;
 import io.sapl.server.ce.ui.views.SetupLayout;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -61,9 +62,13 @@ public class AdminUserSetupView extends VerticalLayout {
     private final Span adminUserErrorMessage = new Span();
     private boolean    enablePasswordCheck   = false;
 
+    @Autowired
+    public AdminUserSetupView(ApplicationYamlHandler appYH) {
+        this.applicationYamlHandler = appYH;
+    }
+
     @PostConstruct
     private void init() {
-        applicationYamlHandler = new ApplicationYamlHandler();
         add(getLayout());
 
     }
@@ -76,7 +81,7 @@ public class AdminUserSetupView extends VerticalLayout {
             applicationYamlHandler.setAt("io.sapl/server/accesscontrol/admin-username", username.getValue());
             applicationYamlHandler.setAt("io.sapl/server/accesscontrol/encoded-admin-password",
                     encoder.encode(pwd.getValue()));
-            applicationYamlHandler.writeYamlToRessources();
+            applicationYamlHandler.writeYamlFile();
             ConfirmUtils.inform("saved", "Username and password successfully saved");
             if (!applicationYamlHandler.getAt("spring/datasource/url", "").toString().isEmpty()) {
                 restart.setEnabled(true);
