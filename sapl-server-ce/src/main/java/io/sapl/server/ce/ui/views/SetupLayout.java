@@ -20,10 +20,7 @@ package io.sapl.server.ce.ui.views;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
-import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.html.Header;
-import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.Scroller;
@@ -33,6 +30,9 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.server.auth.AccessAnnotationChecker;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import io.sapl.server.ce.condition.SetupNotFinishedCondition;
+import io.sapl.server.ce.ui.views.setup.AdminUserSetupView;
+import io.sapl.server.ce.ui.views.setup.DbmsSetupView;
+import io.sapl.server.ce.ui.views.setup.HttpEndpointSetupView;
 import io.sapl.server.ce.ui.views.setup.SetupView;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -40,7 +40,8 @@ import org.springframework.context.annotation.Conditional;
 import org.vaadin.lineawesome.LineAwesomeIcon;
 
 /**
- * The main view is a top-level placeholder for other views.
+ * The main view is a top-level placeholder for other views for the setup
+ * wizard.
  */
 @RequiredArgsConstructor
 @Conditional(SetupNotFinishedCondition.class)
@@ -51,6 +52,7 @@ public class SetupLayout extends AppLayout {
 
     @PostConstruct
     public void init() {
+
         setPrimarySection(Section.DRAWER);
         addDrawerContent();
         addHeaderContent();
@@ -82,12 +84,15 @@ public class SetupLayout extends AppLayout {
         var header   = new Header(logoLayout);
         var scroller = new Scroller(createNavigation());
 
-        addToDrawer(header, scroller);
+        addToDrawer(header, scroller, createFooter());
     }
 
     private SideNav createNavigation() {
         var nav = new SideNav();
-        addItem(nav, "Setup View", SetupView.class, LineAwesomeIcon.FILE_SOLID);
+        addItem(nav, "Welcome", SetupView.class, LineAwesomeIcon.FILE_SOLID);
+        addItem(nav, "DBMS Setup", DbmsSetupView.class, LineAwesomeIcon.DATABASE_SOLID);
+        addItem(nav, "Admin User Setup", AdminUserSetupView.class, LineAwesomeIcon.USER_SOLID);
+        addItem(nav, "HTTP Endpoint Setup", HttpEndpointSetupView.class, LineAwesomeIcon.SERVER_SOLID);
         return nav;
     }
 
@@ -95,6 +100,16 @@ public class SetupLayout extends AppLayout {
         if (accessChecker.hasAccess(view)) {
             nav.addItem(new SideNavItem(label, view, icon.create()));
         }
+    }
+
+    private Footer createFooter() {
+        var layout = new Footer();
+
+        Anchor help = new Anchor("https://github.com/heutelbeck/sapl-server");
+        help.getElement().setProperty("innerHTML", "You need help? <br />Have a look at the documentation");
+        layout.add(help);
+
+        return layout;
     }
 
     @Override

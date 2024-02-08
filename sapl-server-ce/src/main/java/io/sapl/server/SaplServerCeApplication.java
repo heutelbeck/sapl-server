@@ -17,6 +17,7 @@
  */
 package io.sapl.server;
 
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.page.AppShellConfigurator;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.theme.Theme;
@@ -38,12 +39,14 @@ public class SaplServerCeApplication implements AppShellConfigurator {
     public static ConfigurableApplicationContext context;
 
     public static void restart() {
-        ApplicationArguments args = context.getBean(ApplicationArguments.class);
+        UI.getCurrent().getPage().setLocation("/");
         VaadinSession.getCurrent().getSession().invalidate();
-        Thread thread = new Thread(() -> {
-            context.close();
-            context = SpringApplication.run(SaplServerCeApplication.class, args.getSourceArgs());
-        });
+        ApplicationArguments args   = context.getBean(ApplicationArguments.class);
+        Thread               thread = new Thread(() -> {
+                                        context.close();
+                                        context = SpringApplication.run(SaplServerCeApplication.class,
+                                                args.getSourceArgs());
+                                    });
 
         thread.setDaemon(false);
         thread.start();

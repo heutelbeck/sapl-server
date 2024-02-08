@@ -1,0 +1,169 @@
+/*
+ * Copyright (C) 2017-2024 Dominic Heutelbeck (dominic@heutelbeck.com)
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package io.sapl.server.ce.ui.views.setup;
+
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
+import com.vaadin.flow.component.textfield.PasswordField;
+import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
+import io.sapl.server.SaplServerCeApplication;
+import io.sapl.server.ce.condition.SetupNotFinishedCondition;
+import io.sapl.server.ce.config.ApplicationYamlHandler;
+import io.sapl.server.ce.ui.utils.ConfirmUtils;
+import io.sapl.server.ce.ui.utils.ErrorNotificationUtils;
+import io.sapl.server.ce.ui.views.SetupLayout;
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Conditional;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
+//TODO: Add MariaDB support. Check why connection to h2 never seems to be possible. Tests.
+
+@AnonymousAllowed
+@RequiredArgsConstructor
+@PageTitle("DBMS Setup")
+@Route(value = DbmsSetupView.ROUTE, layout = SetupLayout.class)
+@Conditional(SetupNotFinishedCondition.class)
+public class DbmsSetupView extends VerticalLayout {
+
+    public static final String  ROUTE     = "/setup/dbms";
+    private static final String H2_DRIVER = "org.h2.Driver";
+
+    private ApplicationYamlHandler applicationYamlHandler;
+
+    private final RadioButtonGroup<String> dbms           = new RadioButtonGroup<>("DBMS");
+    private final TextField                dbmsURL        = new TextField("DBMS URL");
+    private final TextField                dbmsUsername   = new TextField("DBMS Username");
+    private final PasswordField            dbmsPwd        = new PasswordField("DBMS Password");
+    private final Button                   dbmsTest       = new Button("Test connection");
+    private final Button                   dbmsSaveConfig = new Button("Save DBMS-Configuration");
+    private final Button                   restart        = new Button("Restart Server CE");
+
+    @PostConstruct
+    private void init() {
+        applicationYamlHandler = new ApplicationYamlHandler();
+        add(getLayout());
+
+    }
+
+    public Component getLayout() {
+        dbms.setItems("H2", "MariaDB");
+        dbms.addValueChangeListener(e -> setDbmsConnStringDefault());
+        dbmsURL.setRequiredIndicatorVisible(true);
+        dbmsURL.setClearButtonVisible(true);
+        dbmsURL.setVisible(false);
+        dbmsURL.addValueChangeListener(e -> setSaveButtonDisable());
+        dbmsUsername.setRequiredIndicatorVisible(true);
+        dbmsUsername.setClearButtonVisible(true);
+        dbmsUsername.setVisible(false);
+        dbmsUsername.addValueChangeListener(e -> setSaveButtonDisable());
+        dbmsPwd.setRequiredIndicatorVisible(true);
+        dbmsPwd.setClearButtonVisible(true);
+        dbmsPwd.setVisible(false);
+        dbmsPwd.addValueChangeListener(e -> setSaveButtonDisable());
+        dbmsTest.setVisible(true);
+        dbmsTest.addClickListener(e -> dbmsConnectionTest());
+        dbmsSaveConfig.setVisible(true);
+        dbmsSaveConfig.setEnabled(false);
+        dbmsSaveConfig.addClickListener(e -> {
+            writeDbmsConfigToApplicationYml();
+            if (!applicationYamlHandler.getAt("spring/datasource/url", "").toString().isEmpty()) {
+                restart.setEnabled(true);
+            }
+        });
+        restart.addClickListener(e -> SaplServerCeApplication.restart());
+        if (applicationYamlHandler.getAt("spring/datasource/url", "").toString().isEmpty()) {
+            restart.setEnabled(false);
+        }
+
+        FormLayout dbmsLayout = new FormLayout(dbms, dbmsURL, dbmsUsername, dbmsPwd, dbmsTest, dbmsSaveConfig, restart);
+        dbmsLayout.setColspan(dbms, 2);
+        dbmsLayout.setColspan(dbmsURL, 2);
+        dbmsLayout.setColspan(dbmsSaveConfig, 2);
+        dbmsLayout.setColspan(dbmsTest, 2);
+        dbmsLayout.setColspan(restart, 2);
+
+        return dbmsLayout;
+    }
+
+    private void setSaveButtonDisable() {
+        dbmsSaveConfig.setEnabled(false);
+    }
+
+    private void setDbmsConnStringDefault() {
+        switch (dbms.getValue()) {
+        case "H2":
+            dbmsURL.setValue("jdbc:h2:file:~/sapl/db");
+            break;
+        case "MariaDB":
+            dbmsURL.setValue("localhost:3306/saplserver");
+            break;
+        default:
+        }
+        dbmsURL.setVisible(true);
+        dbmsUsername.setVisible(true);
+        dbmsPwd.setVisible(true);
+        dbmsSaveConfig.setEnabled(false);
+    }
+
+    private void writeDbmsConfigToApplicationYml() {
+        String driverClassName = "";
+        switch (dbms.getValue()) {
+        case "H2":
+            driverClassName = H2_DRIVER;
+            break;
+        case "MariaDB":
+            break;
+        default:
+        }
+
+        applicationYamlHandler.setAt("spring/datasource/driverClassName", driverClassName);
+        applicationYamlHandler.setAt("spring/datasource/url", dbmsURL.getValue());
+        applicationYamlHandler.setAt("spring/datasource/username", dbmsUsername.getValue());
+        applicationYamlHandler.setAt("spring/datasource/password", dbmsPwd.getValue());
+        applicationYamlHandler.writeYamlToRessources();
+    }
+
+    private void dbmsConnectionTest() {
+        try {
+            H2ConnectionTest.run(dbmsURL.getValue(), dbmsUsername.getValue(), dbmsPwd.getValue());
+            dbmsSaveConfig.setEnabled(true);
+            ConfirmUtils.inform("Success", "Connection test successful");
+        } catch (SQLException e) {
+            dbmsSaveConfig.setEnabled(false);
+            ErrorNotificationUtils.show("Connection to the database not possible. " + e.getMessage());
+        }
+    }
+
+}
+
+class H2ConnectionTest {
+    public static void run(String jdbcURL, String username, String pwd) throws SQLException {
+        Connection connection = DriverManager.getConnection(jdbcURL, username, pwd);
+        connection.close();
+    }
+}

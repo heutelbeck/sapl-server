@@ -17,7 +17,7 @@
  */
 package io.sapl.server.ce.ui.views.setup;
 
-import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
@@ -32,16 +32,17 @@ import org.springframework.context.annotation.Conditional;
 @Slf4j
 @AnonymousAllowed
 @RequiredArgsConstructor
-@PageTitle("Setup View")
+@PageTitle("Setup Wizard")
 @Route(value = SetupView.ROUTE, layout = SetupLayout.class)
 @Conditional(SetupNotFinishedCondition.class)
 public class SetupView extends VerticalLayout {
 
     public static final String ROUTE = "";
+
     @PostConstruct
     private void init() {
-        H3 h3 = new H3("Setup Page");
-        add(h3);
+        Span text = new Span("here we can put same information about the setup wizard");
+        add(text);
     }
 
 }

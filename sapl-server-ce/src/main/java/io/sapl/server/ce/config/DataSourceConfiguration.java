@@ -40,7 +40,7 @@ public class DataSourceConfiguration {
     @Value("${spring.datasource.password:}")
     private String dataSourcePassword;
 
-    @Value("${spring.datasource.driver-class-name:}")
+    @Value("${spring.datasource.driverClassName:}")
     private String dataSourceDriverClassName;
 
     @Bean
