@@ -17,23 +17,13 @@
  */
 package io.sapl.server.ce.ui.views;
 
-import io.sapl.server.ce.condition.SetupFinishedCondition;
-import org.springframework.context.annotation.Conditional;
-import org.vaadin.lineawesome.LineAwesomeIcon;
-
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
-import com.vaadin.flow.component.avatar.Avatar;
-import com.vaadin.flow.component.html.Anchor;
-import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Footer;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Header;
 import com.vaadin.flow.component.html.Image;
-import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.Scroller;
@@ -42,33 +32,29 @@ import com.vaadin.flow.component.sidenav.SideNavItem;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.server.auth.AccessAnnotationChecker;
 import com.vaadin.flow.theme.lumo.LumoUtility;
-
-import io.sapl.server.ce.security.AuthenticatedUser;
-import io.sapl.server.ce.ui.views.clientcredentials.ClientCredentialsView;
-import io.sapl.server.ce.ui.views.digitalpolicies.DigitalPoliciesView;
-import io.sapl.server.ce.ui.views.digitalpolicies.PublishedPoliciesView;
-import io.sapl.server.ce.ui.views.librariesdocumentation.LibrariesDocumentationView;
-import io.sapl.server.ce.ui.views.pdpconfig.PDPConfigView;
+import io.sapl.server.ce.condition.SetupNotFinishedCondition;
+import io.sapl.server.ce.ui.views.setup.SetupView;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Conditional;
+import org.vaadin.lineawesome.LineAwesomeIcon;
 
 /**
  * The main view is a top-level placeholder for other views.
  */
 @RequiredArgsConstructor
-@Conditional(SetupFinishedCondition.class)
-public class MainLayout extends AppLayout {
+@Conditional(SetupNotFinishedCondition.class)
+public class SetupLayout extends AppLayout {
 
-    private H2 viewTitle;
-
-    private final transient AuthenticatedUser authenticatedUser;
-    private final AccessAnnotationChecker     accessChecker;
+    private H2                            viewTitle;
+    private final AccessAnnotationChecker accessChecker;
 
     @PostConstruct
     public void init() {
         setPrimarySection(Section.DRAWER);
         addDrawerContent();
         addHeaderContent();
+
     }
 
     private void addHeaderContent() {
@@ -89,23 +75,19 @@ public class MainLayout extends AppLayout {
         logoLayout.setPadding(true);
         var logo = new Image("images/SAPL-Logo.png", "SAPL Logo");
         logo.setHeight("50px");
-        var appName = new H1("SAPL Server CE");
+        var appName = new H1("SAPL Server CE Setup");
         appName.addClassNames(LumoUtility.FontSize.XLARGE, LumoUtility.Margin.NONE);
         logoLayout.add(logo, appName);
 
         var header   = new Header(logoLayout);
         var scroller = new Scroller(createNavigation());
 
-        addToDrawer(header, scroller, createFooter());
+        addToDrawer(header, scroller);
     }
 
     private SideNav createNavigation() {
         var nav = new SideNav();
-        addItem(nav, "Digital Policies", DigitalPoliciesView.class, LineAwesomeIcon.FILE_SOLID);
-        addItem(nav, "Published Policies", PublishedPoliciesView.class, LineAwesomeIcon.FILE_ALT);
-        addItem(nav, "PDP Config", PDPConfigView.class, LineAwesomeIcon.COG_SOLID);
-        addItem(nav, "Libraries Documentation", LibrariesDocumentationView.class, LineAwesomeIcon.BOOK_SOLID);
-        addItem(nav, "Client Credentials", ClientCredentialsView.class, LineAwesomeIcon.KEY_SOLID);
+        addItem(nav, "Setup View", SetupView.class, LineAwesomeIcon.FILE_SOLID);
         return nav;
     }
 
@@ -113,39 +95,6 @@ public class MainLayout extends AppLayout {
         if (accessChecker.hasAccess(view)) {
             nav.addItem(new SideNavItem(label, view, icon.create()));
         }
-    }
-
-    private Footer createFooter() {
-        var layout    = new Footer();
-        var maybeUser = authenticatedUser.get();
-        if (maybeUser.isPresent()) {
-            var user = maybeUser.get();
-
-            var avatar = new Avatar(user.getUsername());
-            avatar.setThemeName("xsmall");
-            avatar.getElement().setAttribute("tabindex", "-1");
-
-            var userMenu = new MenuBar();
-            userMenu.setThemeName("tertiary-inline contrast");
-
-            var userName = userMenu.addItem("");
-            var div      = new Div();
-            div.add(avatar);
-            div.add(user.getUsername());
-            div.add(new Icon("lumo", "dropdown"));
-            div.getElement().getStyle().set("display", "flex");
-            div.getElement().getStyle().set("align-items", "center");
-            div.getElement().getStyle().set("gap", "var(--lumo-space-s)");
-            userName.add(div);
-            userName.getSubMenu().addItem("Sign out", e -> authenticatedUser.logout());
-
-            layout.add(userMenu);
-        } else {
-            var loginLink = new Anchor("login", "Sign in");
-            layout.add(loginLink);
-        }
-
-        return layout;
     }
 
     @Override
@@ -158,4 +107,5 @@ public class MainLayout extends AppLayout {
         var title = getContent().getClass().getAnnotation(PageTitle.class);
         return title == null ? "" : title.value();
     }
+
 }

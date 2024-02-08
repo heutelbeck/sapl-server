@@ -32,6 +32,7 @@ import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
+import io.sapl.server.ce.condition.SetupFinishedCondition;
 import io.sapl.server.ce.model.sapldocument.PublishedSaplDocument;
 import io.sapl.server.ce.model.sapldocument.SaplDocumentService;
 import io.sapl.server.ce.ui.utils.ConfirmUtils;
@@ -43,12 +44,14 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Conditional;
 
 @Slf4j
 @RolesAllowed("ADMIN")
 @RequiredArgsConstructor
 @PageTitle("Published Policies")
 @Route(value = PublishedPoliciesView.ROUTE, layout = MainLayout.class)
+@Conditional(SetupFinishedCondition.class)
 public class PublishedPoliciesView extends VerticalLayout {
 
     public static final String ROUTE = "published";

@@ -19,6 +19,8 @@ package io.sapl.server.ce.security;
 
 import java.util.Optional;
 
+import io.sapl.server.ce.condition.SetupFinishedCondition;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -28,6 +30,7 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
+@Conditional(SetupFinishedCondition.class)
 public class AuthenticatedUser {
 
     private final AuthenticationContext authenticationContext;

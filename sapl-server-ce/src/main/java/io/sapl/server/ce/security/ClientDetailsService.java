@@ -18,6 +18,7 @@
 package io.sapl.server.ce.security;
 
 import com.heutelbeck.uuid.Base64Id;
+import io.sapl.server.ce.condition.SetupFinishedCondition;
 import io.sapl.server.ce.model.clients.AuthType;
 import io.sapl.server.ce.model.clients.ClientCredentials;
 import io.sapl.server.ce.model.clients.ClientCredentialsRepository;
@@ -27,6 +28,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -41,6 +43,7 @@ import java.util.Collection;
 @Slf4j
 @Component
 @RequiredArgsConstructor
+@Conditional(SetupFinishedCondition.class)
 public class ClientDetailsService implements UserDetailsService {
 
     public static final String  CLIENT = "SAPL_CLIENT";

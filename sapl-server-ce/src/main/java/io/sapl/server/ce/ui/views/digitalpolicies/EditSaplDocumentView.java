@@ -31,6 +31,7 @@ import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
+import io.sapl.server.ce.condition.SetupFinishedCondition;
 import io.sapl.server.ce.model.sapldocument.PublishedDocumentNameCollisionException;
 import io.sapl.server.ce.model.sapldocument.SaplDocument;
 import io.sapl.server.ce.model.sapldocument.SaplDocumentService;
@@ -44,6 +45,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Conditional;
 
 /**
  * View to edit a {@link SaplDocument}.
@@ -53,6 +55,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @PageTitle("Edit SAPL document")
 @Route(value = EditSaplDocumentView.ROUTE, layout = MainLayout.class)
+@Conditional(SetupFinishedCondition.class)
 public class EditSaplDocumentView extends VerticalLayout implements HasUrlParameter<Long> {
 
     public static final String  ROUTE                       = "documents";

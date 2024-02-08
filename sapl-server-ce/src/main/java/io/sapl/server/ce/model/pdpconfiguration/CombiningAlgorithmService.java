@@ -19,6 +19,8 @@ package io.sapl.server.ce.model.pdpconfiguration;
 
 import java.util.Collection;
 
+import io.sapl.server.ce.condition.SetupFinishedCondition;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Iterables;
@@ -36,6 +38,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Conditional(SetupFinishedCondition.class)
 public class CombiningAlgorithmService {
     public static final PolicyDocumentCombiningAlgorithm DEFAULT = PolicyDocumentCombiningAlgorithm.DENY_UNLESS_PERMIT;
 

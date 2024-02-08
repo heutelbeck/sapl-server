@@ -30,6 +30,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
 import io.sapl.interpreter.combinators.PolicyDocumentCombiningAlgorithm;
+import io.sapl.server.ce.condition.SetupFinishedCondition;
 import io.sapl.server.ce.model.pdpconfiguration.CombiningAlgorithmService;
 import io.sapl.server.ce.model.pdpconfiguration.DuplicatedVariableNameException;
 import io.sapl.server.ce.model.pdpconfiguration.InvalidVariableNameException;
@@ -42,12 +43,14 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Conditional;
 
 @Slf4j
 @RolesAllowed("ADMIN")
 @RequiredArgsConstructor
 @PageTitle("PDP Configuration")
 @Route(value = PDPConfigView.ROUTE, layout = MainLayout.class)
+@Conditional(SetupFinishedCondition.class)
 public class PDPConfigView extends VerticalLayout {
 
     public static final String ROUTE = "pdp-config";

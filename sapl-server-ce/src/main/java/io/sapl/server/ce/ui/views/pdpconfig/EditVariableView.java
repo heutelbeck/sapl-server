@@ -28,6 +28,7 @@ import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
+import io.sapl.server.ce.condition.SetupFinishedCondition;
 import io.sapl.server.ce.model.pdpconfiguration.DuplicatedVariableNameException;
 import io.sapl.server.ce.model.pdpconfiguration.InvalidJsonException;
 import io.sapl.server.ce.model.pdpconfiguration.InvalidVariableNameException;
@@ -41,12 +42,14 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Conditional;
 
 @Slf4j
 @RolesAllowed("ADMIN")
 @RequiredArgsConstructor
 @PageTitle("Edit Variable")
 @Route(value = EditVariableView.ROUTE, layout = MainLayout.class)
+@Conditional(SetupFinishedCondition.class)
 public class EditVariableView extends VerticalLayout implements HasUrlParameter<Long> {
 
     public static final String ROUTE = "pdp-config/edit-variable";

@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
+import io.sapl.server.ce.condition.SetupFinishedCondition;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.util.Streamable;
 import org.springframework.stereotype.Service;
@@ -54,6 +56,7 @@ import reactor.core.publisher.Sinks.Many;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Conditional(SetupFinishedCondition.class)
 public class SaplDocumentService implements PrpUpdateEventSource {
     public static final String DEFAULT_DOCUMENT_VALUE = "policy \"all deny\"\ndeny";
 
