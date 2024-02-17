@@ -22,7 +22,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
-import io.sapl.server.ce.condition.SetupNotFinishedCondition;
+import io.sapl.server.ce.setup.condition.SetupNotFinishedCondition;
 import io.sapl.server.ce.ui.views.SetupLayout;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;

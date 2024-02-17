@@ -34,7 +34,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
-import io.sapl.server.ce.config.ApplicationYamlHandler;
+import io.sapl.server.ce.setup.ApplicationYamlHandler;
 import io.sapl.server.ce.ui.utils.ConfirmUtils;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -179,7 +179,7 @@ public abstract class EndpointSetupView extends VerticalLayout {
         applicationYamlHandler.setAt(getPathPrefix() + "ssl/protocols", TLS_V1_3_PROTOCOL);
 
         try {
-            applicationYamlHandler.writeYamlFile();
+            applicationYamlHandler.saveYamlFiles();
             ConfirmUtils.inform("saved", "Endpoint setup successfully saved");
         } catch (IOException ioe) {
             ConfirmUtils.inform("IO-Error",

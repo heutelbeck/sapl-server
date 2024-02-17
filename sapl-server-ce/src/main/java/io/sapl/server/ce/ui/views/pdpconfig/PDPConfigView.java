@@ -30,7 +30,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
 import io.sapl.interpreter.combinators.PolicyDocumentCombiningAlgorithm;
-import io.sapl.server.ce.condition.SetupFinishedCondition;
+import io.sapl.server.ce.setup.condition.SetupFinishedCondition;
 import io.sapl.server.ce.model.pdpconfiguration.CombiningAlgorithmService;
 import io.sapl.server.ce.model.pdpconfiguration.DuplicatedVariableNameException;
 import io.sapl.server.ce.model.pdpconfiguration.InvalidVariableNameException;

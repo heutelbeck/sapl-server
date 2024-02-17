@@ -39,7 +39,7 @@ import org.springframework.security.rsocket.core.PayloadSocketAcceptorIntercepto
 
 import io.sapl.server.ce.security.apikey.ApiKeyPayloadExchangeAuthenticationConverterService;
 import io.sapl.server.ce.security.apikey.ApiKeyReactiveAuthenticationManager;
-import io.sapl.server.ce.condition.SetupFinishedCondition;
+import io.sapl.server.ce.setup.condition.SetupFinishedCondition;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;

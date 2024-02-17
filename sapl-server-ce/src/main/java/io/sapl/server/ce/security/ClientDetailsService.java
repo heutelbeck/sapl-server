@@ -18,7 +18,7 @@
 package io.sapl.server.ce.security;
 
 import com.heutelbeck.uuid.Base64Id;
-import io.sapl.server.ce.condition.SetupFinishedCondition;
+import io.sapl.server.ce.setup.condition.SetupFinishedCondition;
 import io.sapl.server.ce.model.clients.AuthType;
 import io.sapl.server.ce.model.clients.ClientCredentials;
 import io.sapl.server.ce.model.clients.ClientCredentialsRepository;

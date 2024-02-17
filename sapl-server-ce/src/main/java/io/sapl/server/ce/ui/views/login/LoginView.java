@@ -27,7 +27,7 @@ import com.vaadin.flow.router.internal.RouteUtil;
 import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 
-import io.sapl.server.ce.condition.SetupFinishedCondition;
+import io.sapl.server.ce.setup.condition.SetupFinishedCondition;
 import io.sapl.server.ce.security.AuthenticatedUser;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;

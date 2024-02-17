@@ -20,7 +20,7 @@ package io.sapl.server.ce.model.pdpconfiguration;
 import java.util.Collection;
 import java.util.Optional;
 
-import io.sapl.server.ce.condition.SetupFinishedCondition;
+import io.sapl.server.ce.setup.condition.SetupFinishedCondition;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Service;
 

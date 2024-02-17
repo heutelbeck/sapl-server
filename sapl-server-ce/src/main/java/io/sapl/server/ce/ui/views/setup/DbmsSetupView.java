@@ -32,8 +32,8 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import io.sapl.server.SaplServerCeApplication;
-import io.sapl.server.ce.condition.SetupNotFinishedCondition;
-import io.sapl.server.ce.config.ApplicationYamlHandler;
+import io.sapl.server.ce.setup.condition.SetupNotFinishedCondition;
+import io.sapl.server.ce.setup.ApplicationYamlHandler;
 import io.sapl.server.ce.ui.utils.ConfirmUtils;
 import io.sapl.server.ce.ui.utils.ErrorNotificationUtils;
 import io.sapl.server.ce.ui.views.SetupLayout;
@@ -48,7 +48,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-//TODO: Add MariaDB support. Check why connection to h2 never seems to be possible. Tests.
+//TODO: Add MariaDB support.
 
 @AnonymousAllowed
 @RequiredArgsConstructor
@@ -161,7 +161,7 @@ public class DbmsSetupView extends VerticalLayout {
         applicationYamlHandler.setAt("spring/datasource/username", dbmsUsername.getValue());
         applicationYamlHandler.setAt("spring/datasource/password", dbmsPwd.getValue());
         try {
-            applicationYamlHandler.writeYamlFile();
+            applicationYamlHandler.saveYamlFiles();
             ConfirmUtils.inform("saved", "DBMS setup successfully saved");
         } catch (IOException ioe) {
             ConfirmUtils.inform("IO-Error",

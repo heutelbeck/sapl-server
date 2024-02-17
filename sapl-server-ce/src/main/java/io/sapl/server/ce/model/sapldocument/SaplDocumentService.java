@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
-import io.sapl.server.ce.condition.SetupFinishedCondition;
+import io.sapl.server.ce.setup.condition.SetupFinishedCondition;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.util.Streamable;

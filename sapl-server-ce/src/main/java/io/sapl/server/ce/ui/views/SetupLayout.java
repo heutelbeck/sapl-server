@@ -30,7 +30,7 @@ import com.vaadin.flow.component.sidenav.SideNavItem;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.server.auth.AccessAnnotationChecker;
 import com.vaadin.flow.theme.lumo.LumoUtility;
-import io.sapl.server.ce.condition.SetupNotFinishedCondition;
+import io.sapl.server.ce.setup.condition.SetupNotFinishedCondition;
 import io.sapl.server.ce.ui.views.setup.*;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;

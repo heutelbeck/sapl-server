@@ -19,7 +19,7 @@ package io.sapl.server.ce.security.apikey;
 
 import java.nio.charset.StandardCharsets;
 
-import io.sapl.server.ce.condition.SetupFinishedCondition;
+import io.sapl.server.ce.setup.condition.SetupFinishedCondition;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.rsocket.api.PayloadExchange;

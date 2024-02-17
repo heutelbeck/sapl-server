@@ -27,7 +27,7 @@ import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
-import io.sapl.server.ce.condition.SetupFinishedCondition;
+import io.sapl.server.ce.setup.condition.SetupFinishedCondition;
 import io.sapl.server.ce.model.sapldocument.SaplDocument;
 import io.sapl.server.ce.model.sapldocument.SaplDocumentService;
 import io.sapl.server.ce.ui.views.MainLayout;

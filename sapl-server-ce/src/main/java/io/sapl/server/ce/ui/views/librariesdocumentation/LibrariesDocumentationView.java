@@ -37,7 +37,7 @@ import com.vaadin.flow.router.Route;
 
 import io.sapl.interpreter.functions.LibraryDocumentation;
 import io.sapl.interpreter.pip.PolicyInformationPointDocumentation;
-import io.sapl.server.ce.condition.SetupFinishedCondition;
+import io.sapl.server.ce.setup.condition.SetupFinishedCondition;
 import io.sapl.server.ce.ui.views.MainLayout;
 import io.sapl.spring.pdp.embedded.FunctionLibrariesDocumentation;
 import io.sapl.spring.pdp.embedded.PolicyInformationPointsDocumentation;

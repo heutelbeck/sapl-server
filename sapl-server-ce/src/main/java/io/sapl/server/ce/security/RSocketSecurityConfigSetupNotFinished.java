@@ -17,7 +17,7 @@
  */
 package io.sapl.server.ce.security;
 
-import io.sapl.server.ce.condition.SetupNotFinishedCondition;
+import io.sapl.server.ce.setup.condition.SetupNotFinishedCondition;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -28,7 +28,6 @@ import org.springframework.security.config.annotation.rsocket.EnableRSocketSecur
 import org.springframework.security.config.annotation.rsocket.RSocketSecurity;
 import org.springframework.security.rsocket.core.PayloadSocketAcceptorInterceptor;
 
-//TODO: Test to make sure RSocket-Endpoint cannot be accessed
 @Slf4j
 @Configuration
 @EnableRSocketSecurity

@@ -19,7 +19,7 @@ package io.sapl.server.ce.security;
 
 import java.util.Optional;
 
-import io.sapl.server.ce.condition.SetupFinishedCondition;
+import io.sapl.server.ce.setup.condition.SetupFinishedCondition;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;

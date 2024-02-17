@@ -34,8 +34,8 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import io.sapl.server.SaplServerCeApplication;
-import io.sapl.server.ce.condition.SetupNotFinishedCondition;
-import io.sapl.server.ce.config.ApplicationYamlHandler;
+import io.sapl.server.ce.setup.condition.SetupNotFinishedCondition;
+import io.sapl.server.ce.setup.ApplicationYamlHandler;
 import io.sapl.server.ce.ui.utils.ConfirmUtils;
 import io.sapl.server.ce.ui.views.SetupLayout;
 import jakarta.annotation.PostConstruct;
@@ -94,7 +94,7 @@ public class AdminUserSetupView extends VerticalLayout {
             applicationYamlHandler.setAt("io.sapl/server/accesscontrol/encoded-admin-password",
                     encoder.encode(pwd.getValue()));
             try {
-                applicationYamlHandler.writeYamlFile();
+                applicationYamlHandler.saveYamlFiles();
                 ConfirmUtils.inform("saved", "Username and password successfully saved");
                 if (!applicationYamlHandler.getAt("spring/datasource/url", "").toString().isEmpty()) {
                     restart.setEnabled(true);

@@ -31,7 +31,7 @@ import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
-import io.sapl.server.ce.condition.SetupFinishedCondition;
+import io.sapl.server.ce.setup.condition.SetupFinishedCondition;
 import io.sapl.server.ce.model.sapldocument.PublishedDocumentNameCollisionException;
 import io.sapl.server.ce.model.sapldocument.SaplDocument;
 import io.sapl.server.ce.model.sapldocument.SaplDocumentService;

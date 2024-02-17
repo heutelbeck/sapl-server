@@ -17,7 +17,7 @@
  */
 package io.sapl.server.ce.ui.views;
 
-import io.sapl.server.ce.condition.SetupFinishedCondition;
+import io.sapl.server.ce.setup.condition.SetupFinishedCondition;
 import org.springframework.context.annotation.Conditional;
 import org.vaadin.lineawesome.LineAwesomeIcon;
 
