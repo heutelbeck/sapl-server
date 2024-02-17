@@ -4,10 +4,7 @@ spring:
   profiles.active: @spring.profile.from.maven@
   h2:
     console.enabled: false
-  datasource:
-    driverClassName: org.h2.Driver
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
     hibernate.ddl-auto: update
     open-in-view: false
 

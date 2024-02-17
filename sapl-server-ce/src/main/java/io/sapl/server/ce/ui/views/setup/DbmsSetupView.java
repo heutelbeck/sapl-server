@@ -57,8 +57,9 @@ import java.sql.SQLException;
 @Conditional(SetupNotFinishedCondition.class)
 public class DbmsSetupView extends VerticalLayout {
 
-    public static final String  ROUTE     = "/setup/dbms";
-    private static final String H2_DRIVER = "org.h2.Driver";
+    public static final String  ROUTE          = "/setup/dbms";
+    private static final String H2_DRIVER      = "org.h2.Driver";
+    private static final String MARIADB_DRIVER = "org.mariadb.jdbc.Driver";
 
     private ApplicationYamlHandler         applicationYamlHandler;
     @Getter
@@ -135,7 +136,7 @@ public class DbmsSetupView extends VerticalLayout {
             dbmsURL.setValue("jdbc:h2:file:~/sapl/db");
             break;
         case "MariaDB":
-            dbmsURL.setValue("localhost:3306/saplserver");
+            dbmsURL.setValue("jdbc:mariadb://127.17.0.2:3306/saplserver");
             break;
         default:
         }
@@ -152,6 +153,7 @@ public class DbmsSetupView extends VerticalLayout {
             driverClassName = H2_DRIVER;
             break;
         case "MariaDB":
+            driverClassName = MARIADB_DRIVER;
             break;
         default:
         }
