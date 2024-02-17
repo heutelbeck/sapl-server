@@ -1,5 +1,3 @@
-server:
-  port: ${PORT:8080}
 spring:
   mustache.check-template-location: false
   output.ansi.enabled: DETECT
