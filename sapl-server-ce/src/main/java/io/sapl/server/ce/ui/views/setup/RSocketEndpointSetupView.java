@@ -28,20 +28,26 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Conditional;
 
 @AnonymousAllowed
-@PageTitle("HTTP Endpoint Setup")
-@Route(value = HttpEndpointSetupView.ROUTE, layout = SetupLayout.class)
+@PageTitle("RSocket Endpoint Setup")
+@Route(value = RSocketEndpointSetupView.ROUTE, layout = SetupLayout.class)
 @Conditional(SetupNotFinishedCondition.class)
-public class HttpEndpointSetupView extends EndpointSetupView {
-    public static final String  ROUTE       = "/setup/http";
-    private static final String PATH_PREFIX = "server/";
+public class RSocketEndpointSetupView extends EndpointSetupView {
+    public static final String  ROUTE       = "/setup/rsocket";
+    private static final String PATH_PREFIX = "spring/rsocket/server/";
 
     @Autowired
-    public HttpEndpointSetupView(ApplicationYamlHandler appYH) {
+    public RSocketEndpointSetupView(ApplicationYamlHandler appYH) {
         super(appYH);
     }
 
     @Override
     String getPathPrefix() {
         return PATH_PREFIX;
+    }
+
+    @Override
+    void writeTlsConfigToApplicationYml() {
+        super.writeTlsConfigToApplicationYml();
+        applicationYamlHandler.setAt(getPathPrefix() + "transport", "tcp");
     }
 }

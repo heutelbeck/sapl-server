@@ -15,6 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.sapl.server.ce.ui.views;
 
 import com.vaadin.flow.component.Component;
@@ -30,10 +31,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.server.auth.AccessAnnotationChecker;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import io.sapl.server.ce.condition.SetupNotFinishedCondition;
-import io.sapl.server.ce.ui.views.setup.AdminUserSetupView;
-import io.sapl.server.ce.ui.views.setup.DbmsSetupView;
-import io.sapl.server.ce.ui.views.setup.HttpEndpointSetupView;
-import io.sapl.server.ce.ui.views.setup.SetupView;
+import io.sapl.server.ce.ui.views.setup.*;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Conditional;
@@ -93,6 +91,7 @@ public class SetupLayout extends AppLayout {
         addItem(nav, "DBMS Setup", DbmsSetupView.class, LineAwesomeIcon.DATABASE_SOLID);
         addItem(nav, "Admin User Setup", AdminUserSetupView.class, LineAwesomeIcon.USER_SOLID);
         addItem(nav, "HTTP Endpoint Setup", HttpEndpointSetupView.class, LineAwesomeIcon.SERVER_SOLID);
+        addItem(nav, "RSocket Endpoint Setup", RSocketEndpointSetupView.class, LineAwesomeIcon.SERVER_SOLID);
         return nav;
     }
 

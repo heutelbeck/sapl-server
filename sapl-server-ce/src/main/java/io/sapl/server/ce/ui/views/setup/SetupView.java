@@ -44,5 +44,4 @@ public class SetupView extends VerticalLayout {
         Span text = new Span("here we can put same information about the setup wizard");
         add(text);
     }
-
 }

@@ -18,13 +18,18 @@
 
 package io.sapl.server.ce.ui.views.setup;
 
+import com.vaadin.flow.component.Text;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
@@ -34,14 +39,14 @@ import io.sapl.server.ce.config.ApplicationYamlHandler;
 import io.sapl.server.ce.ui.utils.ConfirmUtils;
 import io.sapl.server.ce.ui.views.SetupLayout;
 import jakarta.annotation.PostConstruct;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.IOException;
 
 @AnonymousAllowed
 @RequiredArgsConstructor
@@ -53,14 +58,16 @@ public class AdminUserSetupView extends VerticalLayout {
     public static final String ROUTE = "/setup/admin";
 
     private ApplicationYamlHandler applicationYamlHandler;
-    private final TextField        username      = new TextField("Username");
-    private final PasswordField    pwd           = new PasswordField("Password");
-    private final PasswordField    pwdRepeat     = new PasswordField("Repeat Password");
-    private final Button           pwdSaveConfig = new Button("Save Admin-User Settings");
-    private final Button           restart       = new Button("Restart Server CE");
-
-    private final Span adminUserErrorMessage = new Span();
-    private boolean    enablePasswordCheck   = false;
+    private static boolean         setupDone;
+    private final TextField        username          = new TextField("Username");
+    private final PasswordField    pwd               = new PasswordField("Password");
+    private final PasswordField    pwdRepeat         = new PasswordField("Repeat Password");
+    private final Button           pwdSaveConfig     = new Button("Save Admin-User Settings");
+    private final Icon             pwdEqualCheckIcon = VaadinIcon.CHECK.create();
+    @Getter
+    private final Icon             finishedIcon      = VaadinIcon.CHECK_CIRCLE.create();
+    private Span                   passwordStrengthText;
+    private Span                   passwordEqualText;
 
     @Autowired
     public AdminUserSetupView(ApplicationYamlHandler appYH) {
@@ -74,6 +81,11 @@ public class AdminUserSetupView extends VerticalLayout {
     }
 
     public Component getLayout() {
+        Button restart = new Button("Restart Server CE");
+
+        finishedIcon.setVisible(setupDone);
+        finishedIcon.getElement().getThemeList().add("badge success pill");
+        finishedIcon.getStyle().set("padding", "var(--lumo-space-xs");
 
         pwdSaveConfig.setEnabled(false);
         pwdSaveConfig.addClickListener(e -> {
@@ -81,10 +93,17 @@ public class AdminUserSetupView extends VerticalLayout {
             applicationYamlHandler.setAt("io.sapl/server/accesscontrol/admin-username", username.getValue());
             applicationYamlHandler.setAt("io.sapl/server/accesscontrol/encoded-admin-password",
                     encoder.encode(pwd.getValue()));
-            applicationYamlHandler.writeYamlFile();
-            ConfirmUtils.inform("saved", "Username and password successfully saved");
-            if (!applicationYamlHandler.getAt("spring/datasource/url", "").toString().isEmpty()) {
-                restart.setEnabled(true);
+            try {
+                applicationYamlHandler.writeYamlFile();
+                ConfirmUtils.inform("saved", "Username and password successfully saved");
+                if (!applicationYamlHandler.getAt("spring/datasource/url", "").toString().isEmpty()) {
+                    restart.setEnabled(true);
+                    setSetupDoneState(true);
+                }
+            } catch (IOException ioe) {
+                ConfirmUtils.inform("IO-Error",
+                        "Error while writing application.yml-File. Please make sure that the file is not in use and can be written. Otherwise configure the application.yml-file manually. Error: "
+                                + ioe.getMessage());
             }
         });
 
@@ -93,47 +112,99 @@ public class AdminUserSetupView extends VerticalLayout {
             restart.setEnabled(false);
         }
 
-        adminUserErrorMessage.setVisible(false);
-        adminUserErrorMessage.getStyle().set("color", "var(--lumo-error-text-color)");
+        username.addValueChangeListener(
+                e -> validateAdminUser(username.getValue(), pwd.getValue(), pwdRepeat.getValue()));
+        username.setValueChangeMode(ValueChangeMode.EAGER);
+        username.setRequiredIndicatorVisible(true);
+        username.setRequired(true);
 
-        username.addValueChangeListener(e -> validateAdminUser());
-        pwd.addValueChangeListener(e -> validateAdminUser());
-        pwdRepeat.addValueChangeListener(e -> {
-            enablePasswordCheck = true;
-            validateAdminUser();
-        });
-        enablePasswordCheck = false;
-
-        FormLayout adminUserLayout = new FormLayout(username, pwd, pwdRepeat, adminUserErrorMessage, pwdSaveConfig,
-                restart);
+        FormLayout adminUserLayout = new FormLayout(username, pwdLayout(), pwdRepeatLayout(), pwdSaveConfig, restart);
         adminUserLayout.setResponsiveSteps(
                 new FormLayout.ResponsiveStep("0", 1, FormLayout.ResponsiveStep.LabelsPosition.TOP),
                 new FormLayout.ResponsiveStep("490px", 2, FormLayout.ResponsiveStep.LabelsPosition.TOP));
         adminUserLayout.setColspan(username, 2);
-        adminUserLayout.setColspan(adminUserErrorMessage, 2);
         adminUserLayout.setColspan(pwdSaveConfig, 2);
         adminUserLayout.setColspan(restart, 2);
 
         return adminUserLayout;
     }
 
-    private void validateAdminUser() {
-        List<String> errors = new ArrayList<>();
-        if (username.getValue().isBlank()) {
-            errors.add("Username has to be set");
-        }
-        if (enablePasswordCheck && !pwd.getValue().isEmpty() && !pwdRepeat.getValue().isEmpty()
-                && !pwd.getValue().equals(pwdRepeat.getValue())) {
-            errors.add("Passwords do not match");
-        }
-        if (!errors.isEmpty() && !pwd.getValue().isEmpty()) {
-            adminUserErrorMessage.getElement().setProperty("innerHTML", String.join("<br />", errors));
-            adminUserErrorMessage.setVisible(true);
-            pwdSaveConfig.setEnabled(false);
+    private PasswordField pwdLayout() {
+        Div passwordStrength = new Div();
+        passwordStrengthText = new Span();
+        passwordStrength.add(new Text("Password strength: "), passwordStrengthText);
+        pwd.setHelperComponent(passwordStrength);
+
+        add(pwd);
+
+        pwd.setValueChangeMode(ValueChangeMode.EAGER);
+        pwd.addValueChangeListener(e -> {
+            validateAdminUser(username.getValue(), pwd.getValue(), pwdRepeat.getValue());
+            pwdStrengthText(e.getValue());
+            pwdEqualText(e.getValue(), pwdRepeat.getValue());
+        });
+
+        pwdStrengthText("");
+
+        return pwd;
+    }
+
+    private PasswordField pwdRepeatLayout() {
+        pwdEqualCheckIcon.setVisible(false);
+        pwdEqualCheckIcon.getStyle().set("color", "var(--lumo-success-color)");
+        pwdRepeat.setSuffixComponent(pwdEqualCheckIcon);
+        pwdRepeat.setValueChangeMode(ValueChangeMode.EAGER);
+        pwdRepeat.addValueChangeListener(e -> {
+            validateAdminUser(username.getValue(), pwd.getValue(), pwdRepeat.getValue());
+            pwdEqualText(pwd.getValue(), e.getValue());
+        });
+
+        Div passwordEqual = new Div();
+        passwordEqualText = new Span();
+        passwordEqual.add(new Text("Password is "), passwordEqualText);
+        pwdRepeat.setHelperComponent(passwordEqual);
+
+        add(pwdRepeat);
+
+        pwdStrengthText("");
+
+        return pwdRepeat;
+    }
+
+    private void pwdStrengthText(String password) {
+        if (password.length() > 9) {
+            passwordStrengthText.setText("strong");
+            passwordStrengthText.getStyle().set("color", "var(--lumo-success-color)");
+        } else if (password.length() > 5) {
+            passwordStrengthText.setText("moderate");
+            passwordStrengthText.getStyle().set("color", "#e7c200");
         } else {
-            adminUserErrorMessage.setVisible(false);
-            pwdSaveConfig.setEnabled(true);
+            passwordStrengthText.setText("weak");
+            passwordStrengthText.getStyle().set("color", "var(--lumo-error-color)");
         }
     }
 
+    private void pwdEqualText(String pwd, String pwdRepeat) {
+        if (pwd.equals(pwdRepeat)) {
+            passwordEqualText.setText("equal");
+            passwordEqualText.getStyle().set("color", "var(--lumo-success-color)");
+        } else if (pwd.isBlank() || pwdRepeat.isBlank()) {
+            passwordEqualText.setText("not set");
+            passwordEqualText.getStyle().set("color", "#e7c200");
+        } else {
+            passwordEqualText.setText("not equal");
+            passwordEqualText.getStyle().set("color", "var(--lumo-error-color)");
+        }
+    }
+
+    private void validateAdminUser(String user, String pwd, String pwdRepeat) {
+        setSetupDoneState(false);
+        pwdEqualCheckIcon.setVisible(pwd.equals(pwdRepeat));
+        pwdSaveConfig.setEnabled(pwdEqualCheckIcon.isVisible() && !user.isEmpty());
+    }
+
+    private void setSetupDoneState(boolean done) {
+        setupDone = done;
+        finishedIcon.setVisible(done);
+    }
 }
