@@ -34,7 +34,7 @@ public class DataSourceConfiguration {
     @Value("${spring.datasource.url:}")
     private String dataSourceUrl;
 
-    @Value("${spring.datasource.user:}")
+    @Value("${spring.datasource.username:}")
     private String dataSourceUsername;
 
     @Value("${spring.datasource.password:}")
