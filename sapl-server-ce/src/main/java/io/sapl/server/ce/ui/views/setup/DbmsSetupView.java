@@ -172,9 +172,6 @@ public class DbmsSetupView extends VerticalLayout {
 
     private void dbmsConnectionTest() {
         try {
-            System.out.println("URL: " + dbmsURL.getValue());
-            System.out.println("User: " + dbmsUsername.getValue());
-            System.out.println("Password: " + dbmsPwd.getValue());
             SqlConnection.test(dbmsURL.getValue(), dbmsUsername.getValue(), dbmsPwd.getValue());
             dbmsSaveConfig.setEnabled(true);
             ConfirmUtils.inform("Success", "Connection test sucessfull");
