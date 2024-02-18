@@ -58,10 +58,14 @@ public class AdminUserSetupView extends VerticalLayout {
     public static final String ROUTE = "/setup/admin";
 
     private ApplicationYamlHandler applicationYamlHandler;
+    private static String          user              = "";
+    private static String          pwd               = "";
+    private static String          pwdRepeat         = "";
+    private static boolean         enableSaveConfigBtn;
     private static boolean         setupDone;
     private final TextField        username          = new TextField("Username");
-    private final PasswordField    pwd               = new PasswordField("Password");
-    private final PasswordField    pwdRepeat         = new PasswordField("Repeat Password");
+    private final PasswordField    password          = new PasswordField("Password");
+    private final PasswordField    passwordRepeat    = new PasswordField("Repeat Password");
     private final Button           pwdSaveConfig     = new Button("Save Admin-User Settings");
     private final Icon             pwdEqualCheckIcon = VaadinIcon.CHECK.create();
     @Getter
@@ -87,12 +91,12 @@ public class AdminUserSetupView extends VerticalLayout {
         finishedIcon.getElement().getThemeList().add("badge success pill");
         finishedIcon.getStyle().set("padding", "var(--lumo-space-xs");
 
-        pwdSaveConfig.setEnabled(false);
+        pwdSaveConfig.setEnabled(enableSaveConfigBtn);
         pwdSaveConfig.addClickListener(e -> {
             PasswordEncoder encoder = Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8();
             applicationYamlHandler.setAt("io.sapl/server/accesscontrol/admin-username", username.getValue());
             applicationYamlHandler.setAt("io.sapl/server/accesscontrol/encoded-admin-password",
-                    encoder.encode(pwd.getValue()));
+                    encoder.encode(password.getValue()));
             try {
                 applicationYamlHandler.saveYamlFiles();
                 ConfirmUtils.inform("saved", "Username and password successfully saved");
@@ -112,8 +116,9 @@ public class AdminUserSetupView extends VerticalLayout {
             restart.setEnabled(false);
         }
 
+        username.setValue(user);
         username.addValueChangeListener(
-                e -> validateAdminUser(username.getValue(), pwd.getValue(), pwdRepeat.getValue()));
+                e -> validateAdminUser(username.getValue(), password.getValue(), passwordRepeat.getValue()));
         username.setValueChangeMode(ValueChangeMode.EAGER);
         username.setRequiredIndicatorVisible(true);
         username.setRequired(true);
@@ -133,42 +138,43 @@ public class AdminUserSetupView extends VerticalLayout {
         Div passwordStrength = new Div();
         passwordStrengthText = new Span();
         passwordStrength.add(new Text("Password strength: "), passwordStrengthText);
-        pwd.setHelperComponent(passwordStrength);
+        password.setHelperComponent(passwordStrength);
 
-        add(pwd);
-
-        pwd.setValueChangeMode(ValueChangeMode.EAGER);
-        pwd.addValueChangeListener(e -> {
-            validateAdminUser(username.getValue(), pwd.getValue(), pwdRepeat.getValue());
+        add(password);
+        password.setValue(pwd);
+        password.setValueChangeMode(ValueChangeMode.EAGER);
+        password.addValueChangeListener(e -> {
+            validateAdminUser(username.getValue(), password.getValue(), passwordRepeat.getValue());
             pwdStrengthText(e.getValue());
-            pwdEqualText(e.getValue(), pwdRepeat.getValue());
+            pwdEqualText(e.getValue(), passwordRepeat.getValue());
         });
 
         pwdStrengthText("");
 
-        return pwd;
+        return password;
     }
 
     private PasswordField pwdRepeatLayout() {
         pwdEqualCheckIcon.setVisible(false);
         pwdEqualCheckIcon.getStyle().set("color", "var(--lumo-success-color)");
-        pwdRepeat.setSuffixComponent(pwdEqualCheckIcon);
-        pwdRepeat.setValueChangeMode(ValueChangeMode.EAGER);
-        pwdRepeat.addValueChangeListener(e -> {
-            validateAdminUser(username.getValue(), pwd.getValue(), pwdRepeat.getValue());
-            pwdEqualText(pwd.getValue(), e.getValue());
+        passwordRepeat.setValue(pwdRepeat);
+        passwordRepeat.setSuffixComponent(pwdEqualCheckIcon);
+        passwordRepeat.setValueChangeMode(ValueChangeMode.EAGER);
+        passwordRepeat.addValueChangeListener(e -> {
+            validateAdminUser(username.getValue(), password.getValue(), passwordRepeat.getValue());
+            pwdEqualText(password.getValue(), e.getValue());
         });
 
         Div passwordEqual = new Div();
         passwordEqualText = new Span();
         passwordEqual.add(new Text("Password is "), passwordEqualText);
-        pwdRepeat.setHelperComponent(passwordEqual);
+        passwordRepeat.setHelperComponent(passwordEqual);
 
-        add(pwdRepeat);
+        add(passwordRepeat);
 
         pwdStrengthText("");
 
-        return pwdRepeat;
+        return passwordRepeat;
     }
 
     private void pwdStrengthText(String password) {
@@ -198,9 +204,13 @@ public class AdminUserSetupView extends VerticalLayout {
     }
 
     private void validateAdminUser(String user, String pwd, String pwdRepeat) {
+        AdminUserSetupView.user      = user;
+        AdminUserSetupView.pwd       = pwd;
+        AdminUserSetupView.pwdRepeat = pwdRepeat;
         setSetupDoneState(false);
         pwdEqualCheckIcon.setVisible(pwd.equals(pwdRepeat));
-        pwdSaveConfig.setEnabled(pwdEqualCheckIcon.isVisible() && !user.isEmpty());
+        enableSaveConfigBtn = pwdEqualCheckIcon.isVisible() && !user.isEmpty();
+        pwdSaveConfig.setEnabled(enableSaveConfigBtn);
     }
 
     private void setSetupDoneState(boolean done) {
