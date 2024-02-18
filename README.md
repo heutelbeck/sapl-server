@@ -1,14 +1,128 @@
-# SAPL Server CE
+# SAPL Server CE - Lightweight Authorization Server
 
-This is a lightweight PDP server storing policies in a MariaDB and offering a simple WebUI for policy and PDP administration.
+This server is a lightweight Policy Decision Point (PDP) that uses the Streaming Attribute Policy Language (SAPL) and provides authorization services through an HTTP and RSocket API. SAPL is further explained on the [SAPL home page](https://sapl.io/).
 
-The server can be run locally via maven. 
-Alternatively, a container image and configurations for deployment 
-on Docker and/or Kubernetes is available.
+The SAPL Server CE uses a database for PDP settings and SAPL documents. Via WebUI the administrator is allowed for runtime updating of policies that are reflected in decisions made for ongoing authorization subscriptions.
 
-## Local Execution
+## Introduction
 
-The Descriptions in this Passage are for Demo Purposes and require changes in the application.yaml. Details about SSL Certificats are provided in a latter Abschnitt.
+### Aim of the README
+
+This README aims to describe the commissioning and correct operation of SAPL Server CE, providing an easy introduction to its use. Additionally, it presents important information security aspects of SAPL Server CE in a transparent manner.
+
+### Target group
+
+This documentation focuses on the operator and the knowledge required for operating. However, technical aspects of interest for further development of the software are also covered.
+
+### Secure by Design
+
+SAPL Server CE is a software product that follows secure information technology practices and multiple layers of defense based on Secure By Design Principles (also see [CISA Secure By Design](https://www.cisa.gov/sites/default/files/2023-10/SecureByDesign_1025_508c.pdf)).
+
+It is a tool for users to implement Secure by Design systems by incorporating attribute-based access control (ABAC) into their own products and environments.
+
+SAPL adheres to the secure by default principle. SAPL Server CE comes with a pre-configured basic setup that includes the essential security controls to ensure compliance with Germany's Federal Office for Information Security (BSI) [BSI Baseline Protection Compendium Edition 2022](https://www.bsi.bund.de/SharedDocs/Downloads/EN/BSI/Grundschutz/International/bsi_it_gs_comp_2022.pdf).
+
+For SAPL Server CE, the binary software packages (OCI Container Images and Java applications delivered as a JAR) come with a strict configuration. Additional configuration is required for authentication and TLS to run the server. This documentation explains these configuration steps in detail.
+
+Application security is a top priority in the development of SAPL. The SAPL project also embraces radical transparency and accountability. Security issues are reported and shared using the GitHub advisory feature. For more details, see the [SAPL Security Policy](https://github.com/heutelbeck/sapl-policy-engine/blob/master/SECURITY.md).
+
+## System requirements
+
+Requirements for local installation.
+
+- Java Development Kit 17 or a newer version
+- Operating system that is compatible with java
+- Maven 3.9 or a newer version
+
+## Prerequisites and download
+
+SAPL Server CE comes in two forms: an executable Java JAR file for OpenJDK 17 (or later) and an OCI container. The server's full source code is also available for building, running from source, and auditing.
+
+### Java OpenJDK
+
+#### Prerequisites
+
+Before running SAPL Server CE on your system, make sure that you have installed [OpenJDK 17](https://openjdk.org/projects/jdk/17/) or a newer version. [Eclipse Temurin](https://adoptium.net/de/temurin/releases/) is one of the available distributions that provides binaries for different platforms.
+
+Ensure that the Java executables are added to the system path.
+
+#### Download
+
+To be done: setup download of release and snapshot via GitHub packages.
+
+### Running from Source
+
+#### Prerequisites
+
+To build SAPL Server CE from source, first ensure that [OpenJDK 17](https://openjdk.org/projects/jdk/17/) or newer is installed. There are several distributions available, such as [Eclipse Temurin](https://adoptium.net/de/temurin/releases/) supplying binaries for different platforms.
+
+SAPL uses Apache Maven as its build system, which must be installed and can be downloaded from the [Apache Maven Download Page](https://maven.apache.org/download.cgi).
+
+Ensure the Java and Maven executables are on the system path.
+
+#### Download
+
+The source of the policy engine is found on the public [GitHub](https://github.com/) repository: <https://github.com/heutelbeck/sapl-server>.
+
+You can either download the source as a ZIP file and unzip the archive, or clone the repository using git:
+
+```
+git clone https://github.com/heutelbeck/sapl-server.git
+```
+
+#### Build the Engine and Server locally
+
+To build the server application go to the `sapl-server-ce` folder and execute the following command:
+
+```
+mvn install
+```
+
+After a few minutes the complete engine and server should be built. There are two options to run the server after the build concluded.
+
+## Configuration
+
+A basic configuration is required to operate the SAPL Server CE securely. This includes configuring [client application authentication](#managing-client-authentications) and [TLS](#tls-configuration). SAPL Server CE is implemented using [Spring Boot](https://spring.io/projects/spring-boot/), which offers flexible tools for application configuration. The Spring Boot documentation for [Externalized Configuration](https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.external-config) provides helpful guidelines to follow. It is important to note the order in which configurations are loaded and can overwrite each other.
+
+In summary, the application's configuration is controlled by key-value pairs known as properties. These properties are provided to the application through `.properties` files, `.yml` files, or environment variables. The method of providing these values depends on the specific target environment.
+
+To start the SAPL Server LT for development, there is a minimal basic configuration `application.yml` file in the folder `sapl-server-ce/config` within the folder from where the server is started.
+
+**Note:** This example configuration is not intended for production. It contains secrets and certificates which are publicly known. Whenever you run a SAPL Server CE with this configuration **you** **accept the resulting risks** making the API publicly accessible via the provided credentials and that the server and its decisions cannot be properly authenticated by client applications because of the use of a publicly known self-signed TLS certificate.
+
+To create a configuration for productive use, it is strongly recommended to create an individual configuration using the setup wizard.
+
+### Using Setup-Wizard
+
+#### Prerequisites
+
+##### Certificate
+
+Generate a Certificate using Certbot (Let's Encrypt client). Prerequisites: Server with Internetaccess, DNS Entry with Domain pointing to the IP addess of the Server, installed openssl (Example using Ubuntu 20)
+
+Pull Certbot https://github.com/certbot/certbot
+
+Generate a certificate for your domain (e.g. example.com)
+
+```shell
+./certbot-auto certonly -a standalone -d example.com -d www.example.com
+cd /etc/letsencrypt/live/example.com
+openssl pkcs12 -export -in fullchain.pem -inkey privkey.pem -out keystore.p12 -name tomcat -CAfile chain.pem -caname root
+```
+The keystore.p12 file must then be saved in a directory to which the SAPL Server CE application has access. The storage location must be entered later in the setup wizard.
+
+##### Database
+
+The SAPL Server CE requires a database. It is possible to use an H2 or MariaDB.
+When using an H2 database, this can be configured and created by the setup wizard.
+
+When using a MariaDB, the url, user name and password must be known for successful configuration in the setup wizard.
+
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#################### alt
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 ### Deploy via Docker Image 
 
