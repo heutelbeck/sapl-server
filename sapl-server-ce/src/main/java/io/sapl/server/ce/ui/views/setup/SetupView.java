@@ -17,7 +17,10 @@
  */
 package io.sapl.server.ce.ui.views.setup;
 
-import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
@@ -41,7 +44,64 @@ public class SetupView extends VerticalLayout {
 
     @PostConstruct
     private void init() {
-        Span text = new Span("here we can put same information about the setup wizard");
-        add(text);
+        var hWelcome = new H1("Welcome to SAPL Server CE Setup Wizard");
+
+        var hDesc = new H2("Description");
+        var pDesc = new Paragraph(
+                "The Setup Wizard is a component designed to streamline the setup and initial configuration process of the SAPL Server CE. It serves as a user-friendly interface that guides administrators through the necessary steps to properly set up and configure the SAPL Server CE for their specific environment.");
+
+        var hKeyFeatures = new H2("Key Features");
+        var pKeyFeatures = new Paragraph();
+        pKeyFeatures.getStyle().set("white-space", "pre-line");
+        pKeyFeatures.setText(pKeyFeatures.getText()
+                + "1. Configure the DBMS connection, either with an existing H2 or MariaDB database or a newly created H2 database.\n");
+        pKeyFeatures.setText(pKeyFeatures.getText()
+                + "2. Set up the username and password for the administrator user for the SAPL Server CE.\n");
+
+        pKeyFeatures
+                .setText(pKeyFeatures.getText() + "3. Configure the HTTP and RSocket endpoints of the SAPL Server CE.");
+
+        var hUsage = new H2("Usage");
+        var pUsage = new Paragraph();
+        pUsage.getStyle().set("white-space", "pre-line");
+        pUsage.setText(pUsage.getText()
+                + "- Run the SAPL Server CE with the production profile as described in the readme.\n");
+        pUsage.setText(pUsage.getText()
+                + "- If the application cannot find a URL for the connection to the database in the configuration, the Setup Wizard will be started and shown in the browser. The default ports are 8080 and 8443.\n");
+        pUsage.setText(pUsage.getText() + "- Now you can set up all the parameters according to your environment.\n");
+        pUsage.setText(pUsage.getText()
+                + "- After you have saved all settings, use the \"Restart SAPL Server CE\" button to restart the application.\n");
+        pUsage.setText(pUsage.getText() + "- Once restarted, the new configuration parameters will take effect.\n");
+
+        var hLimitations = new H2("Limitations");
+        var pLimitations = new Paragraph();
+        pLimitations.getStyle().set("white-space", "pre-line");
+        pLimitations.setText(pLimitations.getText()
+                + "- The restart functionality works correctly only in the production profile or with disabled spring-dev-tools, which has to be removed from pom.xml. If you use a non-production profile, you have to restart the application yourself.\n");
+
+        var hGoodToKnow = new H2("Good to know");
+        var pGoodToKnow = new Paragraph();
+        pGoodToKnow.getStyle().set("white-space", "pre-line");
+        pGoodToKnow.setText(pGoodToKnow.getText()
+                + "- The configuration properties are stored in the Spring application.yml files.\n");
+        pGoodToKnow.setText(pGoodToKnow.getText()
+                + "- It can work with multiple application-*.yml files, for example, when using different profiles or importing a second application-*.yml file into the main one.\n");
+        pGoodToKnow.setText(pGoodToKnow.getText()
+                + "- The Setup Wizard attempts to overwrite existing properties in the file with the highest priority.\n");
+        pGoodToKnow.setText(pGoodToKnow.getText()
+                + "- If a property is not available, the Setup Wizard will add it to the file with the highest priority.\n");
+        pGoodToKnow.setText(pGoodToKnow.getText()
+                + "- If no application.yml file outside the classpath is found, the Setup Wizard will create one and all necessary folders located in <working-dir>/config/\n");
+
+        var hNotUseIt = new H2("If you don't want to use it");
+        var pNotUseIt = new Paragraph();
+        var aDocu     = new Anchor("https://github.com/heutelbeck/sapl-server");
+        pNotUseIt.getStyle().set("white-space", "pre-line");
+        pNotUseIt.setText(pNotUseIt.getText()
+                + "If you don't want to use it, just have a look at the documentation, set up the application.yml files as you prefer and start the SAPL Server CE\n");
+        aDocu.setText("Have a look at the documentation");
+
+        add(hWelcome, hDesc, pDesc, hKeyFeatures, pKeyFeatures, hUsage, pUsage, hLimitations, pLimitations, hGoodToKnow,
+                pGoodToKnow, hNotUseIt, pNotUseIt, aDocu);
     }
 }
