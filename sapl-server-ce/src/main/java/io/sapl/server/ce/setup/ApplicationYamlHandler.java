@@ -33,7 +33,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
 @Slf4j
 @Component
 public class ApplicationYamlHandler {
@@ -83,7 +82,7 @@ public class ApplicationYamlHandler {
 
     public Object getAt(String path) {
         for (ApplicationYml f : appYamls) {
-            if(f.existsAt(path)){
+            if (f.existsAt(path)) {
                 return f.getAt(path);
             }
         }

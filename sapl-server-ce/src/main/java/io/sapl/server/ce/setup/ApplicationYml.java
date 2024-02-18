@@ -45,10 +45,10 @@ class ApplicationYml {
     void initMap() throws IOException {
 
         if (file.exists()) {
-            InputStream  inputStream  = new FileInputStream(file);
-            ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory());
-            TypeReference<HashMap<String,Object>> typeReference = new TypeReference<>() {
-            };
+            InputStream                            inputStream   = new FileInputStream(file);
+            ObjectMapper                           objectMapper  = new ObjectMapper(new YAMLFactory());
+            TypeReference<HashMap<String, Object>> typeReference = new TypeReference<>() {
+                                                                 };
             try {
                 map = objectMapper.readValue(inputStream, typeReference);
                 return;
@@ -107,8 +107,7 @@ class ApplicationYml {
             if (i == p.length - 1) {
                 // Reached the end of the path, set the value
                 currentMap.put(key, value);
-            }
-            else {
+            } else {
                 // Traverse to the next level in the map
                 currentMap.computeIfAbsent(key, k -> new HashMap<>());
                 currentMap = (Map<String, Object>) currentMap.get(key);
