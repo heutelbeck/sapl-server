@@ -21,8 +21,6 @@ package io.sapl.server.ce.ui.views.setup;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.textfield.PasswordField;
@@ -38,7 +36,6 @@ import io.sapl.server.ce.ui.utils.ConfirmUtils;
 import io.sapl.server.ce.ui.utils.ErrorNotificationUtils;
 import io.sapl.server.ce.ui.views.SetupLayout;
 import jakarta.annotation.PostConstruct;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Conditional;
@@ -57,20 +54,22 @@ import java.sql.SQLException;
 @Conditional(SetupNotFinishedCondition.class)
 public class DbmsSetupView extends VerticalLayout {
 
-    public static final String  ROUTE          = "/setup/dbms";
-    private static final String H2_DRIVER      = "org.h2.Driver";
-    private static final String MARIADB_DRIVER = "org.mariadb.jdbc.Driver";
-
+    public static final String             ROUTE                     = "/setup/dbms";
+    private static final String            H2_DRIVER_CLASS_NAME      = "org.h2.Driver";
+    private static final String            MARIADB_DRIVER_CLASS_NAME = "org.mariadb.jdbc.Driver";
+    private static String                  url                       = "jdbc:h2:file:~/sapl/db";
+    private static String                  user                      = "";
+    private static String                  pwd                       = "";
+    private static String                  dbmsType                  = "H2";
+    private static boolean                 enableSaveConfigBtn;
     private ApplicationYamlHandler         applicationYamlHandler;
-    @Getter
-    private final static Icon              finishedIcon   = VaadinIcon.CHECK_CIRCLE.create();
-    private final RadioButtonGroup<String> dbms           = new RadioButtonGroup<>("DBMS");
-    private final TextField                dbmsURL        = new TextField("DBMS URL");
-    private final TextField                dbmsUsername   = new TextField("DBMS Username");
-    private final PasswordField            dbmsPwd        = new PasswordField("DBMS Password");
-    private final Button                   dbmsTest       = new Button("Test connection");
-    private final Button                   dbmsSaveConfig = new Button("Save DBMS-Configuration");
-    private final Button                   restart        = new Button("Restart Server CE");
+    private final RadioButtonGroup<String> dbms                      = new RadioButtonGroup<>("DBMS");
+    private final TextField                dbmsURL                   = new TextField("DBMS URL");
+    private final TextField                dbmsUsername              = new TextField("DBMS Username");
+    private final PasswordField            dbmsPwd                   = new PasswordField("DBMS Password");
+    private final Button                   dbmsTest                  = new Button("Test connection");
+    private final Button                   dbmsSaveConfig            = new Button("Save DBMS-Configuration");
+    private final Button                   restart                   = new Button("Restart Server CE");
 
     @Autowired
     public DbmsSetupView(ApplicationYamlHandler appYH) {
@@ -80,31 +79,43 @@ public class DbmsSetupView extends VerticalLayout {
     @PostConstruct
     private void init() {
         add(getLayout());
-
     }
 
     public Component getLayout() {
         dbms.setItems("H2", "MariaDB");
-        dbms.addValueChangeListener(e -> setDbmsConnStringDefault());
+        dbms.setValue(dbmsType);
+        dbms.addValueChangeListener(e -> {
+            setDbmsConnStringDefault();
+            dbmsType = e.getValue();
+        });
+        dbmsURL.setValue(url);
         dbmsURL.setRequiredIndicatorVisible(true);
         dbmsURL.setClearButtonVisible(true);
-        dbmsURL.setVisible(false);
         dbmsURL.setValueChangeMode(ValueChangeMode.EAGER);
-        dbmsURL.addValueChangeListener(e -> setSaveButtonDisable());
+        dbmsURL.addValueChangeListener(e -> {
+            setSaveButtonDisable();
+            url = e.getValue();
+        });
         dbmsUsername.setRequiredIndicatorVisible(true);
         dbmsUsername.setClearButtonVisible(true);
-        dbmsUsername.setVisible(false);
+        dbmsUsername.setValue(user);
         dbmsUsername.setValueChangeMode(ValueChangeMode.EAGER);
-        dbmsUsername.addValueChangeListener(e -> setSaveButtonDisable());
+        dbmsUsername.addValueChangeListener(e -> {
+            setSaveButtonDisable();
+            user = e.getValue();
+        });
         dbmsPwd.setRequiredIndicatorVisible(true);
         dbmsPwd.setClearButtonVisible(true);
-        dbmsPwd.setVisible(false);
+        dbmsPwd.setValue(pwd);
         dbmsPwd.setValueChangeMode(ValueChangeMode.EAGER);
-        dbmsPwd.addValueChangeListener(e -> setSaveButtonDisable());
+        dbmsPwd.addValueChangeListener(e -> {
+            setSaveButtonDisable();
+            pwd = e.getValue();
+        });
         dbmsTest.setVisible(true);
         dbmsTest.addClickListener(e -> dbmsConnectionTest());
         dbmsSaveConfig.setVisible(true);
-        dbmsSaveConfig.setEnabled(false);
+        dbmsSaveConfig.setEnabled(enableSaveConfigBtn);
         dbmsSaveConfig.addClickListener(e -> {
             writeDbmsConfigToApplicationYml();
             if (!applicationYamlHandler.getAt("spring/datasource/url", "").toString().isEmpty()) {
@@ -127,6 +138,7 @@ public class DbmsSetupView extends VerticalLayout {
     }
 
     private void setSaveButtonDisable() {
+        enableSaveConfigBtn = false;
         dbmsSaveConfig.setEnabled(false);
     }
 
@@ -140,20 +152,16 @@ public class DbmsSetupView extends VerticalLayout {
             break;
         default:
         }
-        dbmsURL.setVisible(true);
-        dbmsUsername.setVisible(true);
-        dbmsPwd.setVisible(true);
-        dbmsSaveConfig.setEnabled(false);
     }
 
     private void writeDbmsConfigToApplicationYml() {
         String driverClassName = "";
         switch (dbms.getValue()) {
         case "H2":
-            driverClassName = H2_DRIVER;
+            driverClassName = H2_DRIVER_CLASS_NAME;
             break;
         case "MariaDB":
-            driverClassName = MARIADB_DRIVER;
+            driverClassName = MARIADB_DRIVER_CLASS_NAME;
             break;
         default:
         }
@@ -175,6 +183,7 @@ public class DbmsSetupView extends VerticalLayout {
     private void dbmsConnectionTest() {
         try {
             SqlConnection.test(dbmsURL.getValue(), dbmsUsername.getValue(), dbmsPwd.getValue());
+            enableSaveConfigBtn = true;
             dbmsSaveConfig.setEnabled(true);
             ConfirmUtils.inform("Success", "Connection test sucessfull");
         } catch (SQLException e) {
