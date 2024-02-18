@@ -69,7 +69,6 @@ public class DbmsSetupView extends VerticalLayout {
     private final PasswordField            dbmsPwd                   = new PasswordField("DBMS Password");
     private final Button                   dbmsTest                  = new Button("Test connection");
     private final Button                   dbmsSaveConfig            = new Button("Save DBMS-Configuration");
-    private final Button                   restart                   = new Button("Restart Server CE");
 
     @Autowired
     public DbmsSetupView(ApplicationYamlHandler appYH) {
@@ -118,21 +117,13 @@ public class DbmsSetupView extends VerticalLayout {
         dbmsSaveConfig.setEnabled(enableSaveConfigBtn);
         dbmsSaveConfig.addClickListener(e -> {
             writeDbmsConfigToApplicationYml();
-            if (!applicationYamlHandler.getAt("spring/datasource/url", "").toString().isEmpty()) {
-                restart.setEnabled(true);
-            }
         });
-        restart.addClickListener(e -> SaplServerCeApplication.restart());
-        if (applicationYamlHandler.getAt("spring/datasource/url", "").toString().isEmpty()) {
-            restart.setEnabled(false);
-        }
 
-        FormLayout dbmsLayout = new FormLayout(dbms, dbmsURL, dbmsUsername, dbmsPwd, dbmsTest, dbmsSaveConfig, restart);
+        FormLayout dbmsLayout = new FormLayout(dbms, dbmsURL, dbmsUsername, dbmsPwd, dbmsTest, dbmsSaveConfig);
         dbmsLayout.setColspan(dbms, 2);
         dbmsLayout.setColspan(dbmsURL, 2);
         dbmsLayout.setColspan(dbmsSaveConfig, 2);
         dbmsLayout.setColspan(dbmsTest, 2);
-        dbmsLayout.setColspan(restart, 2);
 
         return dbmsLayout;
     }

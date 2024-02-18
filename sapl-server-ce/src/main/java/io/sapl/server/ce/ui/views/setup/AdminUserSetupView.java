@@ -39,7 +39,6 @@ import io.sapl.server.ce.setup.ApplicationYamlHandler;
 import io.sapl.server.ce.ui.utils.ConfirmUtils;
 import io.sapl.server.ce.ui.views.SetupLayout;
 import jakarta.annotation.PostConstruct;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Conditional;
@@ -68,8 +67,6 @@ public class AdminUserSetupView extends VerticalLayout {
     private final PasswordField    passwordRepeat    = new PasswordField("Repeat Password");
     private final Button           pwdSaveConfig     = new Button("Save Admin-User Settings");
     private final Icon             pwdEqualCheckIcon = VaadinIcon.CHECK.create();
-    @Getter
-    private final Icon             finishedIcon      = VaadinIcon.CHECK_CIRCLE.create();
     private Span                   passwordStrengthText;
     private Span                   passwordEqualText;
 
@@ -85,12 +82,6 @@ public class AdminUserSetupView extends VerticalLayout {
     }
 
     public Component getLayout() {
-        Button restart = new Button("Restart Server CE");
-
-        finishedIcon.setVisible(setupDone);
-        finishedIcon.getElement().getThemeList().add("badge success pill");
-        finishedIcon.getStyle().set("padding", "var(--lumo-space-xs");
-
         pwdSaveConfig.setEnabled(enableSaveConfigBtn);
         pwdSaveConfig.addClickListener(e -> {
             PasswordEncoder encoder = Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8();
@@ -101,7 +92,6 @@ public class AdminUserSetupView extends VerticalLayout {
                 applicationYamlHandler.saveYamlFiles();
                 ConfirmUtils.inform("saved", "Username and password successfully saved");
                 if (!applicationYamlHandler.getAt("spring/datasource/url", "").toString().isEmpty()) {
-                    restart.setEnabled(true);
                     setSetupDoneState(true);
                 }
             } catch (IOException ioe) {
@@ -111,11 +101,6 @@ public class AdminUserSetupView extends VerticalLayout {
             }
         });
 
-        restart.addClickListener(e -> SaplServerCeApplication.restart());
-        if (applicationYamlHandler.getAt("spring/datasource/url", "").toString().isEmpty()) {
-            restart.setEnabled(false);
-        }
-
         username.setValue(user);
         username.addValueChangeListener(
                 e -> validateAdminUser(username.getValue(), password.getValue(), passwordRepeat.getValue()));
@@ -123,13 +108,12 @@ public class AdminUserSetupView extends VerticalLayout {
         username.setRequiredIndicatorVisible(true);
         username.setRequired(true);
 
-        FormLayout adminUserLayout = new FormLayout(username, pwdLayout(), pwdRepeatLayout(), pwdSaveConfig, restart);
+        FormLayout adminUserLayout = new FormLayout(username, pwdLayout(), pwdRepeatLayout(), pwdSaveConfig);
         adminUserLayout.setResponsiveSteps(
                 new FormLayout.ResponsiveStep("0", 1, FormLayout.ResponsiveStep.LabelsPosition.TOP),
                 new FormLayout.ResponsiveStep("490px", 2, FormLayout.ResponsiveStep.LabelsPosition.TOP));
         adminUserLayout.setColspan(username, 2);
         adminUserLayout.setColspan(pwdSaveConfig, 2);
-        adminUserLayout.setColspan(restart, 2);
 
         return adminUserLayout;
     }
@@ -215,6 +199,5 @@ public class AdminUserSetupView extends VerticalLayout {
 
     private void setSetupDoneState(boolean done) {
         setupDone = done;
-        finishedIcon.setVisible(done);
     }
 }

@@ -92,6 +92,7 @@ public class SetupLayout extends AppLayout {
         addItem(nav, "Admin User Setup", AdminUserSetupView.class, LineAwesomeIcon.USER_SOLID);
         addItem(nav, "HTTP Endpoint Setup", HttpEndpointSetupView.class, LineAwesomeIcon.SERVER_SOLID);
         addItem(nav, "RSocket Endpoint Setup", RSocketEndpointSetupView.class, LineAwesomeIcon.SERVER_SOLID);
+        addItem(nav, "Finish Setup", FinishSetupView.class, LineAwesomeIcon.CHECK_SQUARE_SOLID);
         return nav;
     }
 
