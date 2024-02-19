@@ -48,14 +48,11 @@ public class FinishSetupView extends VerticalLayout {
 
     public static final String ROUTE = "/setup/finish";
 
-    private ApplicationYamlHandler applicationYamlHandler;
-    private Set<String>            adminFinished = new HashSet<String>();
-    private Set<String>            dbmsFinished  = new HashSet<String>();;
-
     @Autowired
-    public FinishSetupView(ApplicationYamlHandler appYH) {
-        this.applicationYamlHandler = appYH;
-    }
+    private ApplicationYamlHandler applicationYamlHandler;
+
+    private Set<String> adminFinished = new HashSet<>();
+    private Set<String> dbmsFinished  = new HashSet<>();
 
     @PostConstruct
     private void init() {

@@ -33,7 +33,6 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
-import io.sapl.server.SaplServerCeApplication;
 import io.sapl.server.ce.setup.condition.SetupNotFinishedCondition;
 import io.sapl.server.ce.setup.ApplicationYamlHandler;
 import io.sapl.server.ce.ui.utils.ConfirmUtils;
@@ -56,12 +55,12 @@ public class AdminUserSetupView extends VerticalLayout {
 
     public static final String ROUTE = "/setup/admin";
 
+    @Autowired
     private ApplicationYamlHandler applicationYamlHandler;
     private static String          user              = "";
     private static String          pwd               = "";
     private static String          pwdRepeat         = "";
     private static boolean         enableSaveConfigBtn;
-    private static boolean         setupDone;
     private final TextField        username          = new TextField("Username");
     private final PasswordField    password          = new PasswordField("Password");
     private final PasswordField    passwordRepeat    = new PasswordField("Repeat Password");
@@ -69,11 +68,6 @@ public class AdminUserSetupView extends VerticalLayout {
     private final Icon             pwdEqualCheckIcon = VaadinIcon.CHECK.create();
     private Span                   passwordStrengthText;
     private Span                   passwordEqualText;
-
-    @Autowired
-    public AdminUserSetupView(ApplicationYamlHandler appYH) {
-        this.applicationYamlHandler = appYH;
-    }
 
     @PostConstruct
     private void init() {
@@ -91,9 +85,6 @@ public class AdminUserSetupView extends VerticalLayout {
             try {
                 applicationYamlHandler.saveYamlFiles();
                 ConfirmUtils.inform("saved", "Username and password successfully saved");
-                if (!applicationYamlHandler.getAt("spring/datasource/url", "").toString().isEmpty()) {
-                    setSetupDoneState(true);
-                }
             } catch (IOException ioe) {
                 ConfirmUtils.inform("IO-Error",
                         "Error while writing application.yml-File. Please make sure that the file is not in use and can be written. Otherwise configure the application.yml-file manually. Error: "
@@ -191,13 +182,9 @@ public class AdminUserSetupView extends VerticalLayout {
         AdminUserSetupView.user      = user;
         AdminUserSetupView.pwd       = pwd;
         AdminUserSetupView.pwdRepeat = pwdRepeat;
-        setSetupDoneState(false);
         pwdEqualCheckIcon.setVisible(pwd.equals(pwdRepeat));
         enableSaveConfigBtn = pwdEqualCheckIcon.isVisible() && !user.isEmpty();
         pwdSaveConfig.setEnabled(enableSaveConfigBtn);
     }
 
-    private void setSetupDoneState(boolean done) {
-        setupDone = done;
-    }
 }

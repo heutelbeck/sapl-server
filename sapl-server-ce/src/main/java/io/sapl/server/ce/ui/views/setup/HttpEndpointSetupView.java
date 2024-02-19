@@ -22,9 +22,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import io.sapl.server.ce.setup.condition.SetupNotFinishedCondition;
-import io.sapl.server.ce.setup.ApplicationYamlHandler;
 import io.sapl.server.ce.ui.views.SetupLayout;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Conditional;
 
 @AnonymousAllowed
@@ -34,11 +32,6 @@ import org.springframework.context.annotation.Conditional;
 public class HttpEndpointSetupView extends EndpointSetupView {
     public static final String  ROUTE       = "/setup/http";
     private static final String PATH_PREFIX = "server/";
-
-    @Autowired
-    public HttpEndpointSetupView(ApplicationYamlHandler appYH) {
-        super(appYH);
-    }
 
     @Override
     String getPathPrefix() {

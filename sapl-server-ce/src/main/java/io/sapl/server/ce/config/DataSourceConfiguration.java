@@ -44,7 +44,7 @@ public class DataSourceConfiguration {
     private String dataSourceDriverClassName;
 
     @Bean
-    public DataSource dataSource() {
+    DataSource dataSource() {
         DataSourceBuilder<?> dataSourceBuilder = DataSourceBuilder.create();
         dataSourceBuilder.driverClassName(dataSourceDriverClassName);
         dataSourceBuilder.url(dataSourceUrl);

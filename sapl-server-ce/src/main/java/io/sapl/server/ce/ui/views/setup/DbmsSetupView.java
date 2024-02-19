@@ -29,9 +29,8 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
-import io.sapl.server.SaplServerCeApplication;
-import io.sapl.server.ce.setup.condition.SetupNotFinishedCondition;
 import io.sapl.server.ce.setup.ApplicationYamlHandler;
+import io.sapl.server.ce.setup.condition.SetupNotFinishedCondition;
 import io.sapl.server.ce.ui.utils.ConfirmUtils;
 import io.sapl.server.ce.ui.utils.ErrorNotificationUtils;
 import io.sapl.server.ce.ui.views.SetupLayout;
@@ -45,8 +44,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-//TODO: Add MariaDB support.
-
 @AnonymousAllowed
 @RequiredArgsConstructor
 @PageTitle("DBMS Setup")
@@ -54,7 +51,10 @@ import java.sql.SQLException;
 @Conditional(SetupNotFinishedCondition.class)
 public class DbmsSetupView extends VerticalLayout {
 
-    public static final String             ROUTE                     = "/setup/dbms";
+    public static final String ROUTE = "/setup/dbms";
+
+    @Autowired
+    private ApplicationYamlHandler         applicationYamlHandler;
     private static final String            H2_DRIVER_CLASS_NAME      = "org.h2.Driver";
     private static final String            MARIADB_DRIVER_CLASS_NAME = "org.mariadb.jdbc.Driver";
     private static String                  url                       = "jdbc:h2:file:~/sapl/db";
@@ -62,18 +62,12 @@ public class DbmsSetupView extends VerticalLayout {
     private static String                  pwd                       = "";
     private static String                  dbmsType                  = "H2";
     private static boolean                 enableSaveConfigBtn;
-    private ApplicationYamlHandler         applicationYamlHandler;
     private final RadioButtonGroup<String> dbms                      = new RadioButtonGroup<>("DBMS");
     private final TextField                dbmsURL                   = new TextField("DBMS URL");
     private final TextField                dbmsUsername              = new TextField("DBMS Username");
     private final PasswordField            dbmsPwd                   = new PasswordField("DBMS Password");
     private final Button                   dbmsTest                  = new Button("Test connection");
     private final Button                   dbmsSaveConfig            = new Button("Save DBMS-Configuration");
-
-    @Autowired
-    public DbmsSetupView(ApplicationYamlHandler appYH) {
-        this.applicationYamlHandler = appYH;
-    }
 
     @PostConstruct
     private void init() {
@@ -115,9 +109,7 @@ public class DbmsSetupView extends VerticalLayout {
         dbmsTest.addClickListener(e -> dbmsConnectionTest());
         dbmsSaveConfig.setVisible(true);
         dbmsSaveConfig.setEnabled(enableSaveConfigBtn);
-        dbmsSaveConfig.addClickListener(e -> {
-            writeDbmsConfigToApplicationYml();
-        });
+        dbmsSaveConfig.addClickListener(e -> writeDbmsConfigToApplicationYml());
 
         FormLayout dbmsLayout = new FormLayout(dbms, dbmsURL, dbmsUsername, dbmsPwd, dbmsTest, dbmsSaveConfig);
         dbmsLayout.setColspan(dbms, 2);

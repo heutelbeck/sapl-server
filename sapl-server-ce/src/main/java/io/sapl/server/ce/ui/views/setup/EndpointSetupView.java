@@ -44,31 +44,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class EndpointSetupView extends VerticalLayout {
-    public static final String  ROUTE                      = "/setup/rsocket";
-    private static final String TLS_V1_3_PROTOCOL          = "TLSv1.3";
-    private static final String TLS_V1_3_AND_V1_2_PROTOCOL = "TLSv1.3 + TLSv1.2";
-    private static final String TLS_AES_128_GCM_SHA256     = "TLS_AES_128_GCM_SHA256";
-    private static final String TLS_AES_256_GCM_SHA384     = "TLS_AES_256_GCM_SHA384";
-    private static final String PKCS12                     = "PKCS12";
 
-    ApplicationYamlHandler                 applicationYamlHandler;
-    private final TextField                adr                 = new TextField("Address");
-    private final TextField                port                = new TextField("Port");
-    private final TextField                keyStore            = new TextField("Key store");
-    private final TextField                keyAlias            = new TextField("Key alias");
-    private final PasswordField            keyStorePassword    = new PasswordField("Key store password");
-    private final PasswordField            keyPassword         = new PasswordField("Key password");
-    private final RadioButtonGroup<String> enabledSslProtocols = new RadioButtonGroup<>("Enabled ssl protocols");
-    private final RadioButtonGroup<String> keyStoreType        = new RadioButtonGroup<>("Key Store Type");
-    private final CheckboxGroup<String>    checkboxGroup       = new CheckboxGroup<>("TLS ciphers");
-    private final Button                   tlsSaveConfig       = new Button("Save Configuration");
-
-    abstract String getPathPrefix();
+    public static final String ROUTE = "/setup/rsocket";
 
     @Autowired
-    public EndpointSetupView(ApplicationYamlHandler appYH) {
-        this.applicationYamlHandler = appYH;
-    }
+    ApplicationYamlHandler                 applicationYamlHandler;
+    private static final String            TLS_V1_3_PROTOCOL          = "TLSv1.3";
+    private static final String            TLS_V1_3_AND_V1_2_PROTOCOL = "TLSv1.3 + TLSv1.2";
+    private static final String            TLS_AES_128_GCM_SHA256     = "TLS_AES_128_GCM_SHA256";
+    private static final String            TLS_AES_256_GCM_SHA384     = "TLS_AES_256_GCM_SHA384";
+    private static final String            PKCS12                     = "PKCS12";
+    private final TextField                adr                        = new TextField("Address");
+    private final TextField                port                       = new TextField("Port");
+    private final TextField                keyStore                   = new TextField("Key store");
+    private final TextField                keyAlias                   = new TextField("Key alias");
+    private final PasswordField            keyStorePassword           = new PasswordField("Key store password");
+    private final PasswordField            keyPassword                = new PasswordField("Key password");
+    private final RadioButtonGroup<String> enabledSslProtocols        = new RadioButtonGroup<>("Enabled ssl protocols");
+    private final RadioButtonGroup<String> keyStoreType               = new RadioButtonGroup<>("Key Store Type");
+    private final CheckboxGroup<String>    checkboxGroup              = new CheckboxGroup<>("TLS ciphers");
+    private final Button                   tlsSaveConfig              = new Button("Save Configuration");
+
+    abstract String getPathPrefix();
 
     @PostConstruct
     private void init() {
