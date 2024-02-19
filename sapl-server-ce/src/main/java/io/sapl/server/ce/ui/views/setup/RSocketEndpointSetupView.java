@@ -54,7 +54,7 @@ public class RSocketEndpointSetupView extends EndpointSetupView {
     @Override
     void writeTlsConfigToApplicationYml() {
         super.writeTlsConfigToApplicationYml();
-        applicationYamlHandler.setAt(getPathPrefix() + "transport", "tcp");
+        applicationYmlHandler.setAt(getPathPrefix() + "transport", "tcp");
     }
 
     @Override

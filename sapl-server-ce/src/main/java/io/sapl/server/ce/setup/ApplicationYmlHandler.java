@@ -33,22 +33,22 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Component
-public class ApplicationYamlHandler {
+public class ApplicationYmlHandler {
 
-    private final List<ApplicationYml>    appYamls = new ArrayList<>();
+    private final List<ApplicationYml>    appYmls = new ArrayList<>();
     private final ConfigurableEnvironment env;
 
-    public ApplicationYamlHandler(ConfigurableEnvironment env) throws IOException {
+    public ApplicationYmlHandler(ConfigurableEnvironment env) throws IOException {
         this.env = env;
-        for (File f : this.getAppYamlsFromProperties()) {
+        for (File f : this.getAppYmlsFromProperties()) {
             var ay = new ApplicationYml(f);
             ay.initMap();
-            appYamls.add(ay);
+            appYmls.add(ay);
 
         }
     }
 
-    private List<File> getAppYamlsFromProperties() {
+    private List<File> getAppYmlsFromProperties() {
         List<File> files = new ArrayList<>();
 
         String                 projectPath     = System.getProperty("user.dir");
@@ -79,7 +79,7 @@ public class ApplicationYamlHandler {
     }
 
     public Object getAt(String path) {
-        for (ApplicationYml f : appYamls) {
+        for (ApplicationYml f : appYmls) {
             if (f.existsAt(path)) {
                 return f.getAt(path);
             }
@@ -92,19 +92,19 @@ public class ApplicationYamlHandler {
     }
 
     public void setAt(String path, Object value) {
-        for (ApplicationYml f : appYamls) {
+        for (ApplicationYml f : appYmls) {
             if (f.existsAt(path)) {
                 f.setAt(path, value);
                 return;
             }
         }
         // If value was not found in any file, set it in primary file
-        appYamls.get(0).setAt(path, value);
+        appYmls.get(0).setAt(path, value);
     }
 
-    public void saveYamlFiles() throws IOException {
-        for (ApplicationYml f : appYamls) {
-            f.saveYamlFile();
+    public void saveYmlFiles() throws IOException {
+        for (ApplicationYml f : appYmls) {
+            f.saveYmlFile();
         }
     }
 

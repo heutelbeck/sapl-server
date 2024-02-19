@@ -29,7 +29,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import io.sapl.server.SaplServerCeApplication;
 import io.sapl.server.ce.setup.condition.SetupNotFinishedCondition;
-import io.sapl.server.ce.setup.ApplicationYamlHandler;
+import io.sapl.server.ce.setup.ApplicationYmlHandler;
 import io.sapl.server.ce.ui.views.SetupLayout;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -49,7 +49,7 @@ public class FinishSetupView extends VerticalLayout {
     public static final String ROUTE = "/setup/finish";
 
     @Autowired
-    private ApplicationYamlHandler applicationYamlHandler;
+    private ApplicationYmlHandler applicationYmlHandler;
 
     private Set<String> adminFinished = new HashSet<>();
     private Set<String> dbmsFinished  = new HashSet<>();
@@ -63,7 +63,7 @@ public class FinishSetupView extends VerticalLayout {
         Button restart = new Button("Restart Server CE");
 
         restart.addClickListener(e -> SaplServerCeApplication.restart());
-        if (applicationYamlHandler.getAt("spring/datasource/url", "").toString().isEmpty() || applicationYamlHandler
+        if (applicationYmlHandler.getAt("spring/datasource/url", "").toString().isEmpty() || applicationYmlHandler
                 .getAt("io.sapl/server/accesscontrol/admin-username", "").toString().isEmpty()) {
             restart.setEnabled(false);
         }
@@ -73,7 +73,7 @@ public class FinishSetupView extends VerticalLayout {
         adminUserFinished.setItems(adminFinished);
         adminUserFinished.getStyle().set("--vaadin-input-field-border-width", "1px");
         adminUserFinished.setEnabled(false);
-        if (!applicationYamlHandler.getAt("io.sapl/server/accesscontrol/admin-username", "").toString().isEmpty())
+        if (!applicationYmlHandler.getAt("io.sapl/server/accesscontrol/admin-username", "").toString().isEmpty())
             adminUserFinished.setValue(adminFinished);
         add(adminUserFinished);
 
@@ -82,7 +82,7 @@ public class FinishSetupView extends VerticalLayout {
         dbms.setItems(dbmsFinished);
         dbms.getStyle().set("--vaadin-input-field-border-width", "1px");
         dbms.setEnabled(false);
-        if (!applicationYamlHandler.getAt("spring/datasource/url", "").toString().isEmpty())
+        if (!applicationYmlHandler.getAt("spring/datasource/url", "").toString().isEmpty())
             dbms.setValue(dbmsFinished);
         add(dbms);
 

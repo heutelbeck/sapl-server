@@ -62,7 +62,7 @@ class ApplicationYml {
         map = new HashMap<>();
     }
 
-    public void saveYamlFile() throws IOException {
+    public void saveYmlFile() throws IOException {
         if (!hasBeenChanged) {
             return;
         }

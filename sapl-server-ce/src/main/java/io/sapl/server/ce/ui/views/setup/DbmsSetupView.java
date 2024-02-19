@@ -29,7 +29,7 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
-import io.sapl.server.ce.setup.ApplicationYamlHandler;
+import io.sapl.server.ce.setup.ApplicationYmlHandler;
 import io.sapl.server.ce.setup.condition.SetupNotFinishedCondition;
 import io.sapl.server.ce.ui.utils.ConfirmUtils;
 import io.sapl.server.ce.ui.utils.ErrorNotificationUtils;
@@ -54,7 +54,7 @@ public class DbmsSetupView extends VerticalLayout {
     public static final String ROUTE = "/setup/dbms";
 
     @Autowired
-    private ApplicationYamlHandler         applicationYamlHandler;
+    private ApplicationYmlHandler          applicationYmlHandler;
     private static final String            H2_DRIVER_CLASS_NAME      = "org.h2.Driver";
     private static final String            MARIADB_DRIVER_CLASS_NAME = "org.mariadb.jdbc.Driver";
     private static String                  url                       = "jdbc:h2:file:~/sapl/db";
@@ -149,12 +149,12 @@ public class DbmsSetupView extends VerticalLayout {
         default:
         }
 
-        applicationYamlHandler.setAt("spring/datasource/driverClassName", driverClassName);
-        applicationYamlHandler.setAt("spring/datasource/url", dbmsURL.getValue());
-        applicationYamlHandler.setAt("spring/datasource/username", dbmsUsername.getValue());
-        applicationYamlHandler.setAt("spring/datasource/password", dbmsPwd.getValue());
+        applicationYmlHandler.setAt("spring/datasource/driverClassName", driverClassName);
+        applicationYmlHandler.setAt("spring/datasource/url", dbmsURL.getValue());
+        applicationYmlHandler.setAt("spring/datasource/username", dbmsUsername.getValue());
+        applicationYmlHandler.setAt("spring/datasource/password", dbmsPwd.getValue());
         try {
-            applicationYamlHandler.saveYamlFiles();
+            applicationYmlHandler.saveYmlFiles();
             ConfirmUtils.inform("saved", "DBMS setup successfully saved");
         } catch (IOException ioe) {
             ConfirmUtils.inform("IO-Error",

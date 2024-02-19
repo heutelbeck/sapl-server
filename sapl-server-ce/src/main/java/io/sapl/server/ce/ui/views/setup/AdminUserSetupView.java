@@ -34,7 +34,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import io.sapl.server.ce.setup.condition.SetupNotFinishedCondition;
-import io.sapl.server.ce.setup.ApplicationYamlHandler;
+import io.sapl.server.ce.setup.ApplicationYmlHandler;
 import io.sapl.server.ce.ui.utils.ConfirmUtils;
 import io.sapl.server.ce.ui.views.SetupLayout;
 import jakarta.annotation.PostConstruct;
@@ -56,18 +56,18 @@ public class AdminUserSetupView extends VerticalLayout {
     public static final String ROUTE = "/setup/admin";
 
     @Autowired
-    private ApplicationYamlHandler applicationYamlHandler;
-    private static String          user              = "";
-    private static String          pwd               = "";
-    private static String          pwdRepeat         = "";
-    private static boolean         enableSaveConfigBtn;
-    private final TextField        username          = new TextField("Username");
-    private final PasswordField    password          = new PasswordField("Password");
-    private final PasswordField    passwordRepeat    = new PasswordField("Repeat Password");
-    private final Button           pwdSaveConfig     = new Button("Save Admin-User Settings");
-    private final Icon             pwdEqualCheckIcon = VaadinIcon.CHECK.create();
-    private Span                   passwordStrengthText;
-    private Span                   passwordEqualText;
+    private ApplicationYmlHandler applicationYmlHandler;
+    private static String         user              = "";
+    private static String         pwd               = "";
+    private static String         pwdRepeat         = "";
+    private static boolean        enableSaveConfigBtn;
+    private final TextField       username          = new TextField("Username");
+    private final PasswordField   password          = new PasswordField("Password");
+    private final PasswordField   passwordRepeat    = new PasswordField("Repeat Password");
+    private final Button          pwdSaveConfig     = new Button("Save Admin-User Settings");
+    private final Icon            pwdEqualCheckIcon = VaadinIcon.CHECK.create();
+    private Span                  passwordStrengthText;
+    private Span                  passwordEqualText;
 
     @PostConstruct
     private void init() {
@@ -79,11 +79,11 @@ public class AdminUserSetupView extends VerticalLayout {
         pwdSaveConfig.setEnabled(enableSaveConfigBtn);
         pwdSaveConfig.addClickListener(e -> {
             PasswordEncoder encoder = Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8();
-            applicationYamlHandler.setAt("io.sapl/server/accesscontrol/admin-username", username.getValue());
-            applicationYamlHandler.setAt("io.sapl/server/accesscontrol/encoded-admin-password",
+            applicationYmlHandler.setAt("io.sapl/server/accesscontrol/admin-username", username.getValue());
+            applicationYmlHandler.setAt("io.sapl/server/accesscontrol/encoded-admin-password",
                     encoder.encode(password.getValue()));
             try {
-                applicationYamlHandler.saveYamlFiles();
+                applicationYmlHandler.saveYmlFiles();
                 ConfirmUtils.inform("saved", "Username and password successfully saved");
             } catch (IOException ioe) {
                 ConfirmUtils.inform("IO-Error",
