@@ -18,11 +18,15 @@
 
 package io.sapl.server.ce.ui.views.setup;
 
-import com.vaadin.flow.component.checkbox.CheckboxGroup;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
@@ -36,9 +40,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Conditional;
 
-import java.util.HashSet;
-import java.util.Set;
-
 @AnonymousAllowed
 @RequiredArgsConstructor
 @PageTitle("Finish Setup")
@@ -50,9 +51,6 @@ public class FinishSetupView extends VerticalLayout {
 
     @Autowired
     private ApplicationYmlHandler applicationYmlHandler;
-
-    private Set<String> adminFinished = new HashSet<>();
-    private Set<String> dbmsFinished  = new HashSet<>();
 
     @PostConstruct
     private void init() {
@@ -68,34 +66,49 @@ public class FinishSetupView extends VerticalLayout {
             restart.setEnabled(false);
         }
 
-        adminFinished.add("Admin user setup finished");
-        CheckboxGroup<String> adminUserFinished = new CheckboxGroup<>();
-        adminUserFinished.setItems(adminFinished);
-        adminUserFinished.getStyle().set("--vaadin-input-field-border-width", "1px");
-        adminUserFinished.setEnabled(false);
-        if (!applicationYmlHandler.getAt("io.sapl/server/accesscontrol/admin-username", "").toString().isEmpty())
-            adminUserFinished.setValue(adminFinished);
-        add(adminUserFinished);
+        Div  adminStateView = new Div();
+        Icon adminStateIcon;
+        if (applicationYmlHandler.getAt("io.sapl/server/accesscontrol/admin-username", "").toString().isEmpty()) {
+            adminStateIcon = VaadinIcon.CLOSE.create();
+            adminStateIcon.getElement().getThemeList().add("badge error pill");
+            adminStateIcon.getStyle().set("padding", "var(--lumo-space-xs");
+        } else {
+            adminStateIcon = VaadinIcon.CHECK_CIRCLE.create();
+            adminStateIcon.getElement().getThemeList().add("badge success pill");
+            adminStateIcon.getStyle().set("padding", "var(--lumo-space-xs");
+        }
+        adminStateView.add(new Text("Admin user setup finished "), adminStateIcon);
 
-        dbmsFinished.add("Database setup finished");
-        CheckboxGroup<String> dbms = new CheckboxGroup<>();
-        dbms.setItems(dbmsFinished);
-        dbms.getStyle().set("--vaadin-input-field-border-width", "1px");
-        dbms.setEnabled(false);
-        if (!applicationYmlHandler.getAt("spring/datasource/url", "").toString().isEmpty())
-            dbms.setValue(dbmsFinished);
-        add(dbms);
+        Div  dbmsStateView = new Div();
+        Icon dbmsStateIcon;
+        if (applicationYmlHandler.getAt("spring/datasource/url", "").toString().isEmpty()) {
+            dbmsStateIcon = VaadinIcon.CLOSE.create();
+            dbmsStateIcon.getElement().getThemeList().add("badge error pill");
+            dbmsStateIcon.getStyle().set("padding", "var(--lumo-space-xs");
+        } else {
+            dbmsStateIcon = VaadinIcon.CHECK_CIRCLE.create();
+            dbmsStateIcon.getElement().getThemeList().add("badge success pill");
+            dbmsStateIcon.getStyle().set("padding", "var(--lumo-space-xs");
+        }
+        dbmsStateView.add(new Text("Database setup finished   "), dbmsStateIcon);
+
+        VerticalLayout stateLayout = new VerticalLayout();
+        stateLayout.setSpacing(false);
+        stateLayout.getThemeList().add("spacing-l");
+        stateLayout.setAlignItems(FlexComponent.Alignment.CENTER);
+        stateLayout.add(adminStateView);
+        stateLayout.add(dbmsStateView);
 
         var hInfo = new H2(
                 "The following settings must be adjusted and saved before the application can be restarted and used.");
 
-        FormLayout adminUserLayout = new FormLayout(hInfo, adminUserFinished, dbms, restart);
+        FormLayout adminUserLayout = new FormLayout(hInfo, stateLayout, restart);
         adminUserLayout.setResponsiveSteps(
                 new FormLayout.ResponsiveStep("0", 1, FormLayout.ResponsiveStep.LabelsPosition.TOP),
                 new FormLayout.ResponsiveStep("490px", 2, FormLayout.ResponsiveStep.LabelsPosition.TOP));
-
         adminUserLayout.setColspan(restart, 2);
         adminUserLayout.setColspan(hInfo, 2);
+        adminUserLayout.setColspan(stateLayout, 2);
 
         return adminUserLayout;
     }
