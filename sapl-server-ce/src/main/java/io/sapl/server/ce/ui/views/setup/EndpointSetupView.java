@@ -26,9 +26,11 @@ import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.checkbox.CheckboxGroupVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
@@ -41,7 +43,13 @@ import io.sapl.server.ce.ui.utils.ConfirmUtils;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -51,6 +59,7 @@ public abstract class EndpointSetupView extends VerticalLayout {
     public static final String    ROUTE                      = "/setup/rsocket";
     protected static final String TLS_V1_3_PROTOCOL          = "TLSv1.3";
     private static final String   TLS_V1_3_AND_V1_2_PROTOCOL = "TLSv1.3 + TLSv1.2";
+    private static final String   TLS_DISABELD               = "Disable TLS";
     static final String           TLS_AES_128_GCM_SHA256     = "TLS_AES_128_GCM_SHA256";
     protected static final String TLS_AES_256_GCM_SHA384     = "TLS_AES_256_GCM_SHA384";
     protected static final String PKCS12                     = "PKCS12";
@@ -58,16 +67,22 @@ public abstract class EndpointSetupView extends VerticalLayout {
     @Autowired
     ApplicationYmlHandler applicationYmlHandler;
 
-    private final TextField                adr                 = new TextField("Address");
-    private final IntegerField             port                = new IntegerField("Port");
-    private final TextField                keyStore            = new TextField("Key store");
-    private final TextField                keyAlias            = new TextField("Key alias");
-    private final PasswordField            keyStorePassword    = new PasswordField("Key store password");
-    private final PasswordField            keyPassword         = new PasswordField("Key password");
-    private final RadioButtonGroup<String> enabledSslProtocols = new RadioButtonGroup<>("Enabled ssl protocols");
-    private final RadioButtonGroup<String> keyStoreType        = new RadioButtonGroup<>("Key Store Type");
-    private final CheckboxGroup<String>    ciphers             = new CheckboxGroup<>("TLS ciphers");
-    private final Button                   tlsSaveConfig       = new Button("Save Configuration");
+    private final TextField                adr                   = new TextField("Address");
+    private final IntegerField             port                  = new IntegerField("Port");
+    private final TextField                keyStore              = new TextField("Key store path");
+    private final TextField                keyAlias              = new TextField("Key alias");
+    private final PasswordField            keyStorePassword      = new PasswordField("Key store password");
+    private final PasswordField            keyPassword           = new PasswordField("Key password");
+    private final RadioButtonGroup<String> enabledSslProtocols   = new RadioButtonGroup<>("Enabled tls protocols");
+    private final RadioButtonGroup<String> keyStoreType          = new RadioButtonGroup<>("Key Store Type");
+    private final CheckboxGroup<String>    ciphers               = new CheckboxGroup<>("TLS ciphers");
+    private final Button                   validatKeyStoreSecret = new Button("Validate keystore settings");
+    private final Button                   tlsSaveConfig         = new Button("Save Configuration");
+    private final Span                     tlsDisabledWarning    = new Span();
+
+    abstract boolean getSaveConfigBtnState();
+
+    abstract void setSaveConfigBtnState(boolean enable);
 
     abstract String getPathPrefix();
 
@@ -113,11 +128,17 @@ public abstract class EndpointSetupView extends VerticalLayout {
     }
 
     public Component getLayout() {
-        enabledSslProtocols.setItems(TLS_V1_3_PROTOCOL, TLS_V1_3_AND_V1_2_PROTOCOL);
+        enabledSslProtocols.setItems(TLS_V1_3_PROTOCOL, TLS_V1_3_AND_V1_2_PROTOCOL, TLS_DISABELD);
         enabledSslProtocols.setValue(getEnabledSslProtocols());
-        enabledSslProtocols.addValueChangeListener(e -> setEnabledSslProtocols(e.getValue()));
+        enabledSslProtocols.addValueChangeListener(e -> {
+            setTlsFieldsVisible(!e.getValue().equals(TLS_DISABELD));
+            setEnabledSslProtocols(e.getValue());
+            setEnableTlsConfigBtn();
+        });
 
+        setEnableTlsConfigBtn();
         tlsSaveConfig.addClickListener(e -> writeTlsConfigToApplicationYml());
+        validatKeyStoreSecret.addClickListener(e -> openKeyStore());
 
         adr.setPlaceholder("localhost");
         adr.setRequiredIndicatorVisible(true);
@@ -146,6 +167,7 @@ public abstract class EndpointSetupView extends VerticalLayout {
         keyStore.setValueChangeMode(ValueChangeMode.EAGER);
         keyStore.setValue(getKeyStore());
         keyStore.addValueChangeListener(e -> {
+            setSaveConfigBtnState(false);
             setKeyStore(e.getValue());
             setEnableTlsConfigBtn();
         });
@@ -162,6 +184,7 @@ public abstract class EndpointSetupView extends VerticalLayout {
         keyStoreType.setRequiredIndicatorVisible(true);
         keyStoreType.setValue(getKeyStoreType());
         keyStoreType.addValueChangeListener(e -> {
+            setSaveConfigBtnState(false);
             setKeyStoreType(e.getValue());
             setEnableTlsConfigBtn();
         });
@@ -170,6 +193,7 @@ public abstract class EndpointSetupView extends VerticalLayout {
         keyStorePassword.setRequiredIndicatorVisible(true);
         keyStorePassword.setValue(getKeyStorePassword());
         keyStorePassword.addValueChangeListener(e -> {
+            setSaveConfigBtnState(false);
             setKeyStorePassword(e.getValue());
             setEnableTlsConfigBtn();
         });
@@ -178,6 +202,7 @@ public abstract class EndpointSetupView extends VerticalLayout {
         keyPassword.setRequiredIndicatorVisible(true);
         keyPassword.setValue(getKeyPassword());
         keyPassword.addValueChangeListener(e -> {
+            setSaveConfigBtnState(false);
             setKeyPassword(e.getValue());
             setEnableTlsConfigBtn();
         });
@@ -191,10 +216,25 @@ public abstract class EndpointSetupView extends VerticalLayout {
         ciphers.addThemeVariants(CheckboxGroupVariant.LUMO_VERTICAL);
         add(ciphers);
 
-        FormLayout tlsLayout = new FormLayout(adr, port, keyStoreType, keyStore, keyStorePassword, keyPassword,
-                keyAlias, enabledSslProtocols, ciphers, tlsSaveConfig);
-        tlsLayout.setColspan(enabledSslProtocols, 2);
-        tlsLayout.setColspan(ciphers, 2);
+        VerticalLayout keyLayout = new VerticalLayout();
+        keyLayout.setAlignItems(FlexComponent.Alignment.STRETCH);
+        keyLayout.setPadding(false);
+        keyLayout.add(keyStore);
+        keyLayout.add(keyStorePassword);
+        keyLayout.add(keyPassword);
+        keyLayout.add(keyAlias);
+        keyLayout.add(validatKeyStoreSecret);
+
+        tlsDisabledWarning.setText("Note: Do not use the option \"Disable TLS\" in production.\n"
+                + "This option may open the server to malicious probing and exfiltration attempts through"
+                + "the authorization endpoints, potentially resulting in unauthorized access to your"
+                + "organization's data, depending on your policies.");
+        tlsDisabledWarning.getStyle().set("color", "var(--lumo-error-text-color)");
+        tlsDisabledWarning.setVisible(enabledSslProtocols.getValue().equals(TLS_DISABELD));
+
+        FormLayout tlsLayout = new FormLayout(adr, port, enabledSslProtocols, keyStoreType, ciphers, keyLayout,
+                tlsDisabledWarning, tlsSaveConfig);
+        tlsLayout.setColspan(tlsDisabledWarning, 2);
         tlsLayout.setColspan(tlsSaveConfig, 2);
 
         return tlsLayout;
@@ -258,26 +298,37 @@ public abstract class EndpointSetupView extends VerticalLayout {
 
     private void setEnableTlsConfigBtn() {
         int portNumber = port.getValue() != null ? port.getValue() : -1;
-        tlsSaveConfig.setEnabled(!ciphers.getSelectedItems().isEmpty() && !adr.getValue().isEmpty() && portNumber > 0
-                && !keyStore.getValue().isEmpty() && !keyStorePassword.getValue().isEmpty()
-                && !keyPassword.getValue().isEmpty());
+
+        boolean tls_enabled           = !enabledSslProtocols.getValue().equals(TLS_DISABELD);
+        boolean adrAndPortInputExists = !adr.getValue().isEmpty() && portNumber > 0;
+        boolean btnEnabled            = tls_enabled
+                ? adrAndPortInputExists && !ciphers.getSelectedItems().isEmpty() && !keyStore.getValue().isEmpty()
+                        && !keyStorePassword.getValue().isEmpty() && !keyPassword.getValue().isEmpty()
+                        && getSaveConfigBtnState()
+                : adrAndPortInputExists;
+
+        tlsSaveConfig.setEnabled(btnEnabled);
     }
 
     void writeTlsConfigToApplicationYml() {
         applicationYmlHandler.setAt(getPathPrefix() + "port", port.getValue());
         applicationYmlHandler.setAt(getPathPrefix() + "address", adr.getValue());
 
-        applicationYmlHandler.setAt(getPathPrefix() + "ssl/enabled", "true");
+        boolean tls_enabled = !enabledSslProtocols.getValue().equals(TLS_DISABELD);
+        applicationYmlHandler.setAt(getPathPrefix() + "ssl/enabled", tls_enabled);
 
-        applicationYmlHandler.setAt(getPathPrefix() + "ssl/key-store-type", keyStoreType.getValue());
-        applicationYmlHandler.setAt(getPathPrefix() + "ssl/key-store", keyStore.getValue());
-        applicationYmlHandler.setAt(getPathPrefix() + "ssl/key-store-password", keyStorePassword.getValue());
-        applicationYmlHandler.setAt(getPathPrefix() + "ssl/key-password", keyPassword.getValue());
-        applicationYmlHandler.setAt(getPathPrefix() + "ssl/key-alias", keyAlias.getValue());
+        if (tls_enabled) {
+            applicationYmlHandler.setAt(getPathPrefix() + "ssl/key-store-type", keyStoreType.getValue());
+            applicationYmlHandler.setAt(getPathPrefix() + "ssl/key-store", keyStore.getValue());
+            applicationYmlHandler.setAt(getPathPrefix() + "ssl/key-store-password", keyStorePassword.getValue());
+            applicationYmlHandler.setAt(getPathPrefix() + "ssl/key-password", keyPassword.getValue());
+            applicationYmlHandler.setAt(getPathPrefix() + "ssl/key-alias", keyAlias.getValue());
 
-        applicationYmlHandler.setAt(getPathPrefix() + "ssl/ciphers", ciphers.getSelectedItems());
-        applicationYmlHandler.setAt(getPathPrefix() + "ssl/enabled-protocols", enabledSslProtocols.getValue());
-        applicationYmlHandler.setAt(getPathPrefix() + "ssl/protocols", TLS_V1_3_PROTOCOL);
+            applicationYmlHandler.setAt(getPathPrefix() + "ssl/ciphers", ciphers.getSelectedItems());
+            applicationYmlHandler.setAt(getPathPrefix() + "ssl/enabled-protocols",
+                    enabledSslProtocols.getValue().split(" \\+ "));
+            applicationYmlHandler.setAt(getPathPrefix() + "ssl/protocols", TLS_V1_3_PROTOCOL);
+        }
 
         try {
             applicationYmlHandler.saveYmlFiles();
@@ -287,5 +338,47 @@ public abstract class EndpointSetupView extends VerticalLayout {
                     "Error while writing application.yml-File. Please make sure that the file is not in use and can be written. Otherwise configure the application.yml-file manually. Error: "
                             + ioe.getMessage());
         }
+    }
+
+    private void openKeyStore() {
+        if (keyStorePathInvalid()) {
+            ConfirmUtils.inform("Key store path invalid", "Key store path must begin with \"file:\"");
+            return;
+        }
+
+        char[] pwdArray = keyStorePassword.getValue().toCharArray();
+
+        try {
+            KeyStore ks = KeyStore.getInstance(keyStoreType.getValue());
+            ks.load(new FileInputStream(keyStore.getValue().substring(5)), pwdArray);
+            setSaveConfigBtnState(true);
+            setEnableTlsConfigBtn();
+            ConfirmUtils.inform("success", "Keystore password valid");
+        } catch (CertificateException e) {
+            ConfirmUtils.inform("Certificate fault", e.getMessage());
+        } catch (KeyStoreException e) {
+            ConfirmUtils.inform("Key store fault", e.getMessage());
+        } catch (NoSuchAlgorithmException e) {
+            ConfirmUtils.inform("No such algorithm exception", e.getMessage());
+        } catch (FileNotFoundException e) {
+            ConfirmUtils.inform("File not found", e.getMessage());
+        } catch (IOException e) {
+            ConfirmUtils.inform("Error", e.getMessage());
+        }
+    }
+
+    private boolean keyStorePathInvalid() {
+        return keyStore.getValue() == null || !keyStore.getValue().startsWith("file:");
+    }
+
+    private void setTlsFieldsVisible(boolean visible) {
+        keyStore.setVisible(visible);
+        keyAlias.setVisible(visible);
+        keyStoreType.setVisible(visible);
+        keyStorePassword.setVisible(visible);
+        keyPassword.setVisible(visible);
+        ciphers.setVisible(visible);
+        validatKeyStoreSecret.setVisible(visible);
+        tlsDisabledWarning.setVisible(!visible);
     }
 }

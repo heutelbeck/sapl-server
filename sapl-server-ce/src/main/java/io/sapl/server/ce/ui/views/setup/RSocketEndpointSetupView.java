@@ -33,18 +33,30 @@ import java.util.Set;
 @Route(value = RSocketEndpointSetupView.ROUTE, layout = SetupLayout.class)
 @Conditional(SetupNotFinishedCondition.class)
 public class RSocketEndpointSetupView extends EndpointSetupView {
-    public static final String  ROUTE               = "/setup/rsocket";
-    private static final String PATH_PREFIX         = "spring/rsocket/server/";
-    private static String       enabledSslProtocols = TLS_V1_3_PROTOCOL;
-    private static String       keyStoreType        = PKCS12;
-    private static String       adr                 = "";
-    private static int          port                = 7000;
-    private static String       keyStore            = "";
-    private static String       keyAlias            = "";
-    private static String       keyStorePassword    = "";
-    private static String       keyPassword         = "";
-    private static Set<String>  selectedCiphers     = new HashSet<String>(
+    public static final String  ROUTE       = "/setup/rsocket";
+    private static final String PATH_PREFIX = "spring/rsocket/server/";
+
+    private static boolean     enableSaveConfigBtn;
+    private static String      enabledSslProtocols = TLS_V1_3_PROTOCOL;
+    private static String      keyStoreType        = PKCS12;
+    private static String      adr                 = "";
+    private static int         port                = 7000;
+    private static String      keyStore            = "";
+    private static String      keyAlias            = "";
+    private static String      keyStorePassword    = "";
+    private static String      keyPassword         = "";
+    private static Set<String> selectedCiphers     = new HashSet<String>(
             Set.of(TLS_AES_128_GCM_SHA256, TLS_AES_256_GCM_SHA384));
+
+    @Override
+    boolean getSaveConfigBtnState() {
+        return enableSaveConfigBtn;
+    }
+
+    @Override
+    void setSaveConfigBtnState(boolean enable) {
+        enableSaveConfigBtn = enable;
+    }
 
     @Override
     String getPathPrefix() {

@@ -36,6 +36,7 @@ public class HttpEndpointSetupView extends EndpointSetupView {
     public static final String  ROUTE       = "/setup/http";
     private static final String PATH_PREFIX = "server/";
 
+    private static boolean     enableSaveConfigBtn;
     private static String      enabledSslProtocols = TLS_V1_3_PROTOCOL;
     private static String      keyStoreType        = PKCS12;
     private static String      adr                 = "";
@@ -46,6 +47,16 @@ public class HttpEndpointSetupView extends EndpointSetupView {
     private static String      keyPassword         = "";
     private static Set<String> selectedCiphers     = new HashSet<String>(
             Set.of(TLS_AES_128_GCM_SHA256, TLS_AES_256_GCM_SHA384));
+
+    @Override
+    boolean getSaveConfigBtnState() {
+        return enableSaveConfigBtn;
+    }
+
+    @Override
+    void setSaveConfigBtnState(boolean enable) {
+        enableSaveConfigBtn = enable;
+    }
 
     @Override
     String getPathPrefix() {
