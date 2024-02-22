@@ -17,10 +17,6 @@
  */
 package io.sapl.server.ce.security;
 
-import io.sapl.server.ce.security.apikey.ApiKeyPayloadExchangeAuthenticationConverterService;
-import io.sapl.server.ce.security.apikey.ApiKeyReactiveAuthenticationManager;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,8 +27,6 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.rsocket.EnableRSocketSecurity;
 import org.springframework.security.config.annotation.rsocket.PayloadInterceptorOrder;
 import org.springframework.security.config.annotation.rsocket.RSocketSecurity;
-import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoders;
@@ -41,6 +35,11 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtRea
 import org.springframework.security.rsocket.authentication.AuthenticationPayloadExchangeConverter;
 import org.springframework.security.rsocket.authentication.AuthenticationPayloadInterceptor;
 import org.springframework.security.rsocket.core.PayloadSocketAcceptorInterceptor;
+
+import io.sapl.server.ce.security.apikey.ApiKeyPayloadExchangeAuthenticationConverterService;
+import io.sapl.server.ce.security.apikey.ApiKeyReactiveAuthenticationManager;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
 @Slf4j
@@ -62,16 +61,7 @@ public class RSocketSecurityConfig {
     private String jwtIssuerURI;
 
     private final PasswordEncoder                                     passwordEncoder;
-    private final UserDetailsService                                  userDetailsService;
     private final ApiKeyPayloadExchangeAuthenticationConverterService apiKeyPayloadExchangeAuthenticationConverterService;
-
-    ReactiveUserDetailsService rsocketUserDetailsService = new ReactiveUserDetailsService() {
-        @Override
-        public Mono<UserDetails> findByUsername(String username) {
-            // Not a lambda because of userDetailsService reference
-            return Mono.just(userDetailsService.loadUserByUsername(username));
-        }
-    };
 
     private static void customize(RSocketSecurity.AuthorizePayloadsSpec spec) {
         spec.anyRequest().authenticated().anyExchange().permitAll();
@@ -83,14 +73,16 @@ public class RSocketSecurityConfig {
      * Authentication Methods are: NoAuth, BasicAuth, Oauth2 (jwt) and ApiKey.
      */
     @Bean
-    PayloadSocketAcceptorInterceptor rsocketPayloadAuthorization(RSocketSecurity security) {
+    PayloadSocketAcceptorInterceptor rsocketPayloadAuthorization(RSocketSecurity security,
+            UserDetailsService userDetailsService) {
         security = security.authorizePayload(RSocketSecurityConfig::customize);
 
         // Configure Basic Authentication
         UserDetailsRepositoryReactiveAuthenticationManager simpleManager = null;
         if (allowBasicAuth) {
             log.info("configuring BasicAuth for RSocket authentication");
-            simpleManager = new UserDetailsRepositoryReactiveAuthenticationManager(rsocketUserDetailsService);
+            simpleManager = new UserDetailsRepositoryReactiveAuthenticationManager(
+                    username -> Mono.just(userDetailsService.loadUserByUsername(username)));
             simpleManager.setPasswordEncoder(passwordEncoder);
         }
 
