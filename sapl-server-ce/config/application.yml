@@ -82,10 +82,14 @@ server:
     key-store-password: changeme
     key-password: changeme
     key-alias: netty
-
+  # Improve protection against CSRF attacks (CWE-1275)
+  servlet:
+    session:
+      cookie:
+        same-site: strict
 
 # Set the time between keep-alive frames in seconds. These messages are required to avoid that an inactive tcp connection
-# is dropped by a firewall or other network components. The default vlaue 0 disables keep-alive messages.
+# is dropped by a firewall or other network components. The default value 0 disables keep-alive messages.
 # io.sapl.server.keep-alive: 15
 
 # Rsocket configuration
