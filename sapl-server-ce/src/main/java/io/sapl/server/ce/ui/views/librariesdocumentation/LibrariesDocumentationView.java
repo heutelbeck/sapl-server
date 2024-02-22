@@ -68,6 +68,7 @@ public class LibrariesDocumentationView extends VerticalLayout {
     private void init() {
         add(new H1("Function Libraries"));
         functionLibsGrid.setWidthFull();
+        functionLibsGrid.addThemeVariants(GridVariant.LUMO_WRAP_CELL_CONTENT);
         showCurrentFunctionLibLayout.add(descriptionOfCurrentFunctionLibDiv, functionsOfCurrentFunctionLibGrid);
         var functionsLayout = new SplitLayout(functionLibsGrid, showCurrentFunctionLibLayout);
         functionsLayout.setWidthFull();
@@ -75,6 +76,7 @@ public class LibrariesDocumentationView extends VerticalLayout {
 
         add(new H1("Policy Information Points"));
         pipsGrid.setWidthFull();
+        pipsGrid.addThemeVariants(GridVariant.LUMO_WRAP_CELL_CONTENT);
         showCurrentPipLayout.add(descriptionOfCurrentPipDiv, functionsOfCurrentPipGrid);
         var pipsLayout = new SplitLayout(pipsGrid, showCurrentPipLayout);
         pipsLayout.setWidthFull();
@@ -104,10 +106,10 @@ public class LibrariesDocumentationView extends VerticalLayout {
                         query -> availableFunctionLibs.size());
 
         functionLibsGrid.setSelectionMode(SelectionMode.SINGLE);
-        functionLibsGrid.addColumn(LibraryDocumentation::getName).setHeader("Name");
+        functionLibsGrid.addColumn(LibraryDocumentation::getName).setHeader("Name").setAutoWidth(true).setFlexGrow(0);
         functionLibsGrid.addColumn(LibraryDocumentation::getDescription).setHeader("Description");
-        functionsOfCurrentFunctionLibGrid.addColumn(Entry::getKey).setHeader("Function");
-        functionsOfCurrentFunctionLibGrid.addColumn(Entry::getValue).setHeader("Documentation").setFlexGrow(5);
+        functionsOfCurrentFunctionLibGrid.addColumn(Entry::getKey).setHeader("Function").setResizable(true);
+        functionsOfCurrentFunctionLibGrid.addColumn(Entry::getValue).setHeader("Documentation");
         functionsOfCurrentFunctionLibGrid.addThemeVariants(GridVariant.LUMO_WRAP_CELL_CONTENT);
         functionsOfCurrentFunctionLibGrid.setSelectionMode(SelectionMode.NONE);
         functionLibsGrid.addSelectionListener(selection -> {
@@ -166,10 +168,11 @@ public class LibrariesDocumentationView extends VerticalLayout {
                         query -> availablePips.size());
 
         pipsGrid.setSelectionMode(SelectionMode.SINGLE);
-        pipsGrid.addColumn(PolicyInformationPointDocumentation::getName).setHeader("Name");
+        pipsGrid.addColumn(PolicyInformationPointDocumentation::getName).setHeader("Name").setAutoWidth(true)
+                .setFlexGrow(0);
         pipsGrid.addColumn(PolicyInformationPointDocumentation::getDescription).setHeader("Description");
-        functionsOfCurrentPipGrid.addColumn(Entry::getKey).setHeader("Function");
-        functionsOfCurrentPipGrid.addColumn(Entry::getValue).setHeader("Documentation").setFlexGrow(5);
+        functionsOfCurrentPipGrid.addColumn(Entry::getKey).setHeader("Function").setResizable(true);
+        functionsOfCurrentPipGrid.addColumn(Entry::getValue).setHeader("Documentation");
         functionsOfCurrentPipGrid.addThemeVariants(GridVariant.LUMO_WRAP_CELL_CONTENT);
         functionsOfCurrentPipGrid.setSelectionMode(SelectionMode.NONE);
         pipsGrid.addSelectionListener(selection -> {
