@@ -34,7 +34,7 @@ import java.util.Set;
 @Conditional(SetupNotFinishedCondition.class)
 public class RSocketEndpointSetupView extends EndpointSetupView {
     public static final String  ROUTE       = "/setup/rsocket";
-    private static final String PATH_PREFIX = "spring/rsocket/server/";
+    private static final String PATH_PREFIX = "spring.rsocket.server/";
 
     private static boolean     enableSaveConfigBtn;
     private static String      enabledSslProtocols = TLS_V1_3_PROTOCOL;

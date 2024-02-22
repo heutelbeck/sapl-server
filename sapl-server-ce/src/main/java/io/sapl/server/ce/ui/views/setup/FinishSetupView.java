@@ -61,8 +61,11 @@ public class FinishSetupView extends VerticalLayout {
         Button restart = new Button("Restart Server CE");
 
         restart.addClickListener(e -> SaplServerCeApplication.restart());
-        if (applicationYmlHandler.getAt("spring/datasource/url", "").toString().isEmpty() || applicationYmlHandler
-                .getAt("io.sapl/server/accesscontrol/admin-username", "").toString().isEmpty()) {
+        if (applicationYmlHandler.getAt("spring/datasource/url", "").toString().isEmpty()
+                || applicationYmlHandler.getAt("io.sapl/server/accesscontrol/admin-username", "").toString().isEmpty()
+                || applicationYmlHandler.getAt("server/address", "").toString().isEmpty()
+                || applicationYmlHandler.getAt("server/port", "").toString().isEmpty()
+                || applicationYmlHandler.getAt("spring.rsocket.server/port", "").toString().isEmpty()) {
             restart.setEnabled(false);
         }
 
@@ -90,14 +93,43 @@ public class FinishSetupView extends VerticalLayout {
             dbmsStateIcon.getElement().getThemeList().add("badge success pill");
             dbmsStateIcon.getStyle().set("padding", "var(--lumo-space-xs");
         }
-        dbmsStateView.add(new Text("Database setup finished   "), dbmsStateIcon);
+        dbmsStateView.add(new Text("Database setup finished "), dbmsStateIcon);
+
+        Div  httpStateView = new Div();
+        Icon httpStateIcon;
+        if (applicationYmlHandler.getAt("server/address", "").toString().isEmpty()
+                || applicationYmlHandler.getAt("server/port", "").toString().isEmpty()) {
+            httpStateIcon = VaadinIcon.CLOSE.create();
+            httpStateIcon.getElement().getThemeList().add("badge error pill");
+            httpStateIcon.getStyle().set("padding", "var(--lumo-space-xs");
+        } else {
+            httpStateIcon = VaadinIcon.CHECK_CIRCLE.create();
+            httpStateIcon.getElement().getThemeList().add("badge success pill");
+            httpStateIcon.getStyle().set("padding", "var(--lumo-space-xs");
+        }
+        httpStateView.add(new Text("HTTP endpoint setup finished "), httpStateIcon);
+
+        Div  rsocketStateView = new Div();
+        Icon rsocketStateIcon;
+        if (applicationYmlHandler.getAt("spring.rsocket.server/port", "").toString().isEmpty()) {
+            rsocketStateIcon = VaadinIcon.CLOSE.create();
+            rsocketStateIcon.getElement().getThemeList().add("badge error pill");
+            rsocketStateIcon.getStyle().set("padding", "var(--lumo-space-xs");
+        } else {
+            rsocketStateIcon = VaadinIcon.CHECK_CIRCLE.create();
+            rsocketStateIcon.getElement().getThemeList().add("badge success pill");
+            rsocketStateIcon.getStyle().set("padding", "var(--lumo-space-xs");
+        }
+        rsocketStateView.add(new Text("RSocket endpoint setup finished "), rsocketStateIcon);
 
         VerticalLayout stateLayout = new VerticalLayout();
         stateLayout.setSpacing(false);
         stateLayout.getThemeList().add("spacing-l");
         stateLayout.setAlignItems(FlexComponent.Alignment.CENTER);
-        stateLayout.add(adminStateView);
         stateLayout.add(dbmsStateView);
+        stateLayout.add(adminStateView);
+        stateLayout.add(httpStateView);
+        stateLayout.add(rsocketStateView);
 
         var hInfo = new H2(
                 "The following settings must be adjusted and saved before the application can be restarted and used.");

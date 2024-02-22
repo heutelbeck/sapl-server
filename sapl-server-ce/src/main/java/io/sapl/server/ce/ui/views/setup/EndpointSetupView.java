@@ -137,6 +137,7 @@ public abstract class EndpointSetupView extends VerticalLayout {
         });
 
         setEnableTlsConfigBtn();
+        setTlsFieldsVisible(!enabledSslProtocols.getValue().equals(TLS_DISABELD));
         tlsSaveConfig.addClickListener(e -> writeTlsConfigToApplicationYml());
         validatKeyStoreSecret.addClickListener(e -> openKeyStore());
 
@@ -226,8 +227,8 @@ public abstract class EndpointSetupView extends VerticalLayout {
         keyLayout.add(validatKeyStoreSecret);
 
         tlsDisabledWarning.setText("Note: Do not use the option \"Disable TLS\" in production.\n"
-                + "This option may open the server to malicious probing and exfiltration attempts through"
-                + "the authorization endpoints, potentially resulting in unauthorized access to your"
+                + "This option may open the server to malicious probing and exfiltration attempts through "
+                + "the authorization endpoints, potentially resulting in unauthorized access to your "
                 + "organization's data, depending on your policies.");
         tlsDisabledWarning.getStyle().set("color", "var(--lumo-error-text-color)");
         tlsDisabledWarning.setVisible(enabledSslProtocols.getValue().equals(TLS_DISABELD));
@@ -311,7 +312,7 @@ public abstract class EndpointSetupView extends VerticalLayout {
     }
 
     void writeTlsConfigToApplicationYml() {
-        applicationYmlHandler.setAt(getPathPrefix() + "port", port.getValue());
+        applicationYmlHandler.setAt(getPathPrefix() + "port", "${PORT:" + port.getValue() + "}");
         applicationYmlHandler.setAt(getPathPrefix() + "address", adr.getValue());
 
         boolean tls_enabled = !enabledSslProtocols.getValue().equals(TLS_DISABELD);
