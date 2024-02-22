@@ -52,8 +52,8 @@ public class LibrariesDocumentationView extends VerticalLayout {
 
     public static final String ROUTE = "libraries";
 
-    private final FunctionLibrariesDocumentation       functionLibrariesDocumentation;
-    private final PolicyInformationPointsDocumentation policyInformationPointsDocumentation;
+    private final transient FunctionLibrariesDocumentation       functionLibrariesDocumentation;
+    private final transient PolicyInformationPointsDocumentation policyInformationPointsDocumentation;
 
     private final Grid<LibraryDocumentation>                functionLibsGrid                   = new Grid<>();
     private final VerticalLayout                            showCurrentFunctionLibLayout       = new VerticalLayout();

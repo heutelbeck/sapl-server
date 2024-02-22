@@ -57,10 +57,10 @@ public class ClientCredentialsView extends VerticalLayout {
 
     public static final String ROUTE = "clients";
 
-    private final ClientDetailsService clientCredentialsService;
+    private final transient ClientDetailsService clientCredentialsService;
 
     private final Grid<ClientCredentials> clientCredentialsGrid = new Grid<>();
-    private final Button                  newBasicClientButton  = new Button("New Baisc Client");
+    private final Button                  newBasicClientButton  = new Button("New Basic Client");
     private final Button                  newApiKeyClientButton = new Button("New ApiKey Client");
 
     @PostConstruct

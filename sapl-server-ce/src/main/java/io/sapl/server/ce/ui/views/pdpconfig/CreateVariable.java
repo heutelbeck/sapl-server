@@ -31,7 +31,7 @@ public class CreateVariable extends VerticalLayout {
     private final Button    cancelButton  = new Button("Cancel");
 
     @Setter
-    private UserConfirmedListener userConfirmedListener;
+    private transient UserConfirmedListener userConfirmedListener;
 
     public CreateVariable() {
         initUi();

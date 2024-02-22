@@ -105,7 +105,7 @@ public class ClientDetailsService implements UserDetailsService {
         var key               = Base64Id.randomID();
         var secret            = generateSecret();
         var clientCredentials = clientCredentialsRepository
-                .save(new ClientCredentials(key, AuthType.Basic, encodeSecret(secret)));
+                .save(new ClientCredentials(key, AuthType.BASIC, encodeSecret(secret)));
         return Tuples.of(clientCredentials, secret);
     }
 
@@ -114,13 +114,13 @@ public class ClientDetailsService implements UserDetailsService {
         // apiKey needs to be a combination of <key>.<secret> to identify the client in
         // the authentication process
         var apiKey = key + "." + generateSecret();
-        clientCredentialsRepository.save(new ClientCredentials(key, AuthType.ApiKey, encodeSecret(apiKey)));
+        clientCredentialsRepository.save(new ClientCredentials(key, AuthType.APIKEY, encodeSecret(apiKey)));
         return apiKey;
     }
 
     public void delete(@NonNull ClientCredentials clientCredential) {
         clientCredentialsRepository.deleteById(clientCredential.getId());
-        if (clientCredential.getAuthType().equals(AuthType.ApiKey)) {
+        if (clientCredential.getAuthType().equals(AuthType.APIKEY)) {
             apiKeyService.removeFromCache(clientCredential.getKey());
         }
     }

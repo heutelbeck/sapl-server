@@ -26,7 +26,7 @@ import lombok.NonNull;
 import lombok.experimental.UtilityClass;
 
 /**
- * Utils for encoding a {@link PolicyDocumentCombiningAlgorithm} to a
+ * Utilities for encoding a {@link PolicyDocumentCombiningAlgorithm} to a
  * {@link String} for the UI.
  */
 @UtilityClass

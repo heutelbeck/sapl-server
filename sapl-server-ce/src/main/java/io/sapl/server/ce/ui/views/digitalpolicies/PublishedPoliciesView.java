@@ -65,7 +65,7 @@ public class PublishedPoliciesView extends VerticalLayout {
     @PostConstruct
     private void initUI() {
         var editorConfig = new SaplEditorConfiguration();
-        // editorConfig.setDarkTheme(true);
+        editorConfig.setDarkTheme(true);
         saplEditor = new SaplEditor(editorConfig);
         var metadataLayout = new HorizontalLayout(policyIdTextField, publishedVersionTextField);
         layoutForSelectedPublishedDocument.add(metadataLayout, openEditPageForPolicyButton, saplEditor);
@@ -97,7 +97,7 @@ public class PublishedPoliciesView extends VerticalLayout {
                     "Should the document \"%s\" really be unpublished?", publishedDocument.getDocumentName()), () -> {
                         try {
                             saplDocumentService.unpublishPolicy(publishedDocument.getSaplDocumentId());
-                        } catch (Throwable throwable) {
+                        } catch (Exception throwable) {
                             ErrorNotificationUtils.show("The document could not be unpublished.");
                             log.error(String.format("The document with id %s could not be unpublished.",
                                     publishedDocument.getSaplDocumentId()), throwable);

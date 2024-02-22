@@ -58,8 +58,8 @@ public class MainLayout extends AppLayout {
 
     private H2 viewTitle;
 
-    private final AuthenticatedUser       authenticatedUser;
-    private final AccessAnnotationChecker accessChecker;
+    private final transient AuthenticatedUser authenticatedUser;
+    private final AccessAnnotationChecker     accessChecker;
 
     @PostConstruct
     public void init() {

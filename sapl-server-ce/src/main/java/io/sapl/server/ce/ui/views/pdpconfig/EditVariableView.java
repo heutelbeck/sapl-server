@@ -35,6 +35,8 @@ import io.sapl.server.ce.model.pdpconfiguration.Variable;
 import io.sapl.server.ce.model.pdpconfiguration.VariablesService;
 import io.sapl.server.ce.ui.utils.ErrorNotificationUtils;
 import io.sapl.server.ce.ui.views.MainLayout;
+import io.sapl.vaadin.JsonEditor;
+import io.sapl.vaadin.JsonEditorConfiguration;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
 import lombok.RequiredArgsConstructor;
@@ -49,15 +51,15 @@ public class EditVariableView extends VerticalLayout implements HasUrlParameter<
 
     public static final String ROUTE = "pdp-config/edit-variable";
 
-    private final VariablesService variableService;
+    private final transient VariablesService variableService;
 
     private long variableId;
 
     private final TextField nameTextField = new TextField("Variable Name");
-// TODO: 	private JsonEditor jsonEditor;
-    private final TextField jsonEditor   = new TextField("Variable Value");
-    private final Button    saveButton   = new Button("Save");
-    private final Button    cancelButton = new Button("Cancel");
+    private final Button    saveButton    = new Button("Save");
+    private final Button    cancelButton  = new Button("Cancel");
+
+    private JsonEditor jsonEditor;
 
     /**
      * The {@link Variable} to edit.
@@ -66,6 +68,11 @@ public class EditVariableView extends VerticalLayout implements HasUrlParameter<
 
     @PostConstruct
     private void init() {
+        var jsonEditorConfig = new JsonEditorConfiguration();
+        jsonEditorConfig.setHasLineNumbers(true);
+        jsonEditorConfig.setTextUpdateDelay(500);
+        jsonEditorConfig.setDarkTheme(true);
+        this.jsonEditor = new JsonEditor(jsonEditorConfig);
         add(nameTextField, jsonEditor, new HorizontalLayout(cancelButton, saveButton));
     }
 
@@ -76,7 +83,7 @@ public class EditVariableView extends VerticalLayout implements HasUrlParameter<
         reloadVariable();
         addListener();
 
-        addAttachListener(__ -> {
+        addAttachListener(attachEvent -> {
             if (variable == null) {
                 log.warn("variable with id {} is not existing, redirect to list view", parameter);
                 getUI().ifPresent(ui -> ui.navigate(PDPConfigView.ROUTE));
@@ -102,13 +109,13 @@ public class EditVariableView extends VerticalLayout implements HasUrlParameter<
      */
     private void setUI() {
         nameTextField.setValue(variable.getName());
-        jsonEditor.setValue(variable.getJsonValue());
+        jsonEditor.setDocument(variable.getJsonValue());
     }
 
     private void addListener() {
         saveButton.addClickListener(clickEvent -> {
             String name      = nameTextField.getValue();
-            String jsonValue = jsonEditor.getValue();
+            String jsonValue = jsonEditor.getDocument();
 
             try {
                 variableService.edit(variableId, name, jsonValue);

@@ -68,6 +68,7 @@ public class RSocketSecurityConfig {
     ReactiveUserDetailsService rsocketUserDetailsService = new ReactiveUserDetailsService() {
         @Override
         public Mono<UserDetails> findByUsername(String username) {
+            // Not a lambda because of userDetailsService reference
             return Mono.just(userDetailsService.loadUserByUsername(username));
         }
     };

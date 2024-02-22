@@ -52,8 +52,8 @@ public class PDPConfigView extends VerticalLayout {
 
     public static final String ROUTE = "pdp-config";
 
-    private final CombiningAlgorithmService combiningAlgorithmService;
-    private final VariablesService          variablesService;
+    private final transient CombiningAlgorithmService combiningAlgorithmService;
+    private final transient VariablesService          variablesService;
 
     private final ComboBox<String> comboBoxCombAlgo     = new ComboBox<>("Combining Algorithm");
     private final Grid<Variable>   variablesGrid        = new Grid<>();

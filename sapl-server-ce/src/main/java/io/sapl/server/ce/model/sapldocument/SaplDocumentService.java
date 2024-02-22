@@ -82,7 +82,7 @@ public class SaplDocumentService implements PrpUpdateEventSource {
 
     @Override
     public void dispose() {
-        // TODO. What is todo?
+        // NOOP
     }
 
     public Collection<SaplDocument> getAll() {

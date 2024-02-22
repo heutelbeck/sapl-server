@@ -54,7 +54,7 @@ public class ApiKeyService {
             var key = apiKeyComponents[0];
             var c   = clientCredentialsRepository.findByKey(key)
                     .orElseThrow(() -> new UsernameNotFoundException("Provided apiKey client credentials not found"));
-            return c.getAuthType().equals(AuthType.ApiKey) && passwordEncoder.matches(apiKey, c.getEncodedSecret());
+            return c.getAuthType().equals(AuthType.APIKEY) && passwordEncoder.matches(apiKey, c.getEncodedSecret());
         } else {
             throw new AuthenticationServiceException("Invalid apiKey");
         }

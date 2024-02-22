@@ -56,7 +56,7 @@ public class ClientCredentials {
      */
     @NotNull
     @Enumerated(EnumType.STRING)
-    private AuthType authType = AuthType.Basic;
+    private AuthType authType = AuthType.BASIC;
 
     /**
      * The encoded secret (hashed / salted password or ApiKey).
