@@ -168,8 +168,6 @@
 		<dependency>
 			<groupId>io.sapl</groupId>
 			<artifactId>sapl-rsocket-endpoint</artifactId>
-			<version>3.0.0-SNAPSHOT</version>
-			<!-- TODO: add sapl-rsocket-endpoint in  sapl-bom -->
 		</dependency>
 
 		<!-- Oauth2 / JWT support -->
