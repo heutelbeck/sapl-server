@@ -115,7 +115,7 @@ jobs:
         retention-days: 1
 
     - name: Build and Publish SAPL Server CE Docker Image
-      if: ${{ github.ref == 'refs/heads/master' }}
+      if: ${{ github.ref == 'refs/heads/main' }}
       run: mvn -B clean spring-boot:build-image -pl sapl-server-ce -P docker,production -DskipTests -Dspring-boot.build-image.publish=true -Ddocker.credentials.username=${{ secrets.GHUB_USERNAME }} -Ddocker.credentials.password=${{ secrets.GHUB_ACCESS_TOKEN }}
 
 # This step an be activated as soon as unit tests exist.
