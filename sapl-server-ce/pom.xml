@@ -36,6 +36,10 @@
 
 	<properties>
 		<spring.profile.from.maven>default</spring.profile.from.maven>
+		<sonar.version>3.9.1.2184</sonar.version>
+		<jacoco.version>0.8.11</jacoco.version>
+		<spotbugs.version>4.7.3.6</spotbugs.version>
+		<sbcontrib.version>7.6.0</sbcontrib.version>
 	</properties>
 	
 	<dependencyManagement>
@@ -293,6 +297,51 @@
 					</filesets>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.sonarsource.scanner.maven</groupId>
+				<artifactId>sonar-maven-plugin</artifactId>
+				<version>${sonar.version}</version>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>3.6.3</version>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<verbose>false</verbose>
+					<failOnWarnings>true</failOnWarnings>
+					<doclint>none</doclint>
+					<tags>
+						<tag>
+							<name>generated</name>
+							<placement>a</placement>
+							<head>Generated Code</head>
+						</tag>
+						<tag>
+							<name>ordered</name>
+							<placement>a</placement>
+							<head>EMF Ordered</head>
+						</tag>
+						<tag>
+							<name>model</name>
+							<placement>a</placement>
+							<head>EMF Model</head>
+						</tag>
+						<tag>
+							<name>returns</name>
+							<placement>a</placement>
+							<head>EMF Returns:</head>
+						</tag>
+					</tags>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 
@@ -379,6 +428,61 @@
 						<configuration>
 							<trimStackTrace>false</trimStackTrace>
 							<enableAssertions>true</enableAssertions>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>coverage</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.jacoco</groupId>
+						<artifactId>jacoco-maven-plugin</artifactId>
+						<version>${jacoco.version}</version>
+						<executions>
+							<execution>
+								<id>prepare-agent</id>
+								<goals>
+									<goal>prepare-agent</goal>
+								</goals>
+							</execution>
+							<execution>
+								<id>report</id>
+								<goals>
+									<goal>report</goal>
+								</goals>
+								<configuration>
+									<formats>
+										<format>XML</format>
+									</formats>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>spotbugs</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>com.github.spotbugs</groupId>
+						<artifactId>spotbugs-maven-plugin</artifactId>
+						<version>${spotbugs.version}</version>
+						<configuration>
+							<excludeFilterFile>spotbugsExcludeFilter.xml</excludeFilterFile>
+							<!-- There are no test classes at the moment
+							<includeTests>true</includeTests> -->
+							<plugins>
+								<plugin>
+									<groupId>com.mebigfatguy.sb-contrib</groupId>
+									<artifactId>sb-contrib</artifactId>
+									<version>${sbcontrib.version}</version>
+								</plugin>
+							</plugins>
 						</configuration>
 					</plugin>
 				</plugins>
