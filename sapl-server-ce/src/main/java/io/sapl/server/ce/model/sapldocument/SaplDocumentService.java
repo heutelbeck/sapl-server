@@ -65,11 +65,10 @@ public class SaplDocumentService implements PrpUpdateEventSource {
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
             .withLocale(Locale.GERMANY).withZone(ZoneId.systemDefault());
 
-    private Many<PrpUpdateEvent> prpUpdateEventSink;
+    private Many<PrpUpdateEvent> prpUpdateEventSink = Sinks.many().replay().all();
 
     @PostConstruct
     public void init() {
-        prpUpdateEventSink = Sinks.many().replay().all();
         // emit initial event
         PrpUpdateEvent initialEvent = generateInitialPrpUpdateEvent();
         prpUpdateEventSink.emitNext(initialEvent, EmitFailureHandler.FAIL_FAST);

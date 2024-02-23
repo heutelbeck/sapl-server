@@ -32,7 +32,6 @@ import io.sapl.interpreter.combinators.CombiningAlgorithmFactory;
 import io.sapl.interpreter.combinators.PolicyDocumentCombiningAlgorithm;
 import io.sapl.pdp.config.VariablesAndCombinatorSource;
 import io.sapl.server.ce.model.pdpconfiguration.Variable;
-import jakarta.annotation.PostConstruct;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,14 +45,8 @@ import reactor.core.publisher.Sinks.Many;
 @RequiredArgsConstructor
 public class CEVariablesAndCombinatorSource implements VariablesAndCombinatorSource, PDPConfigurationPublisher {
 
-    private Many<Collection<Variable>>             variablesProcessorSink;
-    private Many<PolicyDocumentCombiningAlgorithm> combiningAlgorithmSink;
-
-    @PostConstruct
-    public void init() {
-        variablesProcessorSink = Sinks.many().replay().all();
-        combiningAlgorithmSink = Sinks.many().replay().all();
-    }
+    private Many<Collection<Variable>>             variablesProcessorSink = Sinks.many().replay().all();
+    private Many<PolicyDocumentCombiningAlgorithm> combiningAlgorithmSink = Sinks.many().replay().all();
 
     @Override
     public Flux<Optional<Map<String, Val>>> getVariables() {
