@@ -1,4 +1,4 @@
-package io.sapl.server.ce.setup;
+package io.sapl.server.ce.model.setup;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

@@ -29,9 +29,9 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
-import io.sapl.server.ce.setup.ApplicationYmlHandler;
-import io.sapl.server.ce.setup.SupportedDatasourceTypes;
-import io.sapl.server.ce.setup.condition.SetupNotFinishedCondition;
+import io.sapl.server.ce.model.setup.ApplicationConfigService;
+import io.sapl.server.ce.model.setup.SupportedDatasourceTypes;
+import io.sapl.server.ce.model.setup.condition.SetupNotFinishedCondition;
 import io.sapl.server.ce.ui.utils.ConfirmUtils;
 import io.sapl.server.ce.ui.utils.ErrorNotificationUtils;
 import io.sapl.server.ce.ui.views.SetupLayout;
@@ -55,7 +55,7 @@ public class DbmsSetupView extends VerticalLayout {
     public static final String ROUTE = "/setup/dbms";
 
     @Autowired
-    private transient ApplicationYmlHandler applicationYmlHandler;
+    private transient ApplicationConfigService applicationConfigService;
 
     private final RadioButtonGroup<String> dbms           = new RadioButtonGroup<>("DBMS");
     private final TextField                dbmsURL        = new TextField("DBMS URL");
@@ -75,14 +75,14 @@ public class DbmsSetupView extends VerticalLayout {
 
     public Component getLayout() {
         dbms.setItems(dbmsDisplayNames);
-        dbms.setValue(dbmsDisplayNames.get(applicationYmlHandler.getDbmsConfig().getDbms().ordinal()));
+        dbms.setValue(dbmsDisplayNames.get(applicationConfigService.getDbmsConfig().getDbms().ordinal()));
         dbms.addValueChangeListener(e -> {
             updateDbmsConfig();
-            applicationYmlHandler.getDbmsConfig()
+            applicationConfigService.getDbmsConfig()
                     .setToDbmsDefaults(SupportedDatasourceTypes.values()[dbmsDisplayNames.indexOf(e.getValue())]);
-            dbmsURL.setValue(applicationYmlHandler.getDbmsConfig().getUrl());
+            dbmsURL.setValue(applicationConfigService.getDbmsConfig().getUrl());
         });
-        dbmsURL.setValue(applicationYmlHandler.getDbmsConfig().getUrl());
+        dbmsURL.setValue(applicationConfigService.getDbmsConfig().getUrl());
         dbmsURL.setRequiredIndicatorVisible(true);
         dbmsURL.setClearButtonVisible(true);
         dbmsURL.setValueChangeMode(ValueChangeMode.EAGER);
@@ -90,19 +90,19 @@ public class DbmsSetupView extends VerticalLayout {
 
         dbmsUsername.setRequiredIndicatorVisible(true);
         dbmsUsername.setClearButtonVisible(true);
-        dbmsUsername.setValue(applicationYmlHandler.getDbmsConfig().getUsername());
+        dbmsUsername.setValue(applicationConfigService.getDbmsConfig().getUsername());
         dbmsUsername.setValueChangeMode(ValueChangeMode.EAGER);
         dbmsUsername.addValueChangeListener(e -> updateDbmsConfig());
 
         dbmsPwd.setRequiredIndicatorVisible(true);
         dbmsPwd.setClearButtonVisible(true);
-        dbmsPwd.setValue(applicationYmlHandler.getDbmsConfig().getPassword());
+        dbmsPwd.setValue(applicationConfigService.getDbmsConfig().getPassword());
         dbmsPwd.setValueChangeMode(ValueChangeMode.EAGER);
         dbmsPwd.addValueChangeListener(e -> updateDbmsConfig());
         dbmsTest.setVisible(true);
         dbmsTest.addClickListener(e -> dbmsConnectionTest());
         dbmsSaveConfig.setVisible(true);
-        dbmsSaveConfig.setEnabled(applicationYmlHandler.getDbmsConfig().isValidConfig());
+        dbmsSaveConfig.setEnabled(applicationConfigService.getDbmsConfig().isValidConfig());
         dbmsSaveConfig.addClickListener(e -> writeDbmsConfigToApplicationYml());
 
         FormLayout dbmsLayout = new FormLayout(dbms, dbmsURL, dbmsUsername, dbmsPwd, dbmsTest, dbmsSaveConfig);
@@ -116,8 +116,8 @@ public class DbmsSetupView extends VerticalLayout {
 
     private void writeDbmsConfigToApplicationYml() {
         try {
-            applicationYmlHandler.persistDbmsConfig();
-            applicationYmlHandler.getDbmsConfig().setSaved(true);
+            applicationConfigService.persistDbmsConfig();
+            applicationConfigService.getDbmsConfig().setSaved(true);
             ConfirmUtils.inform("saved", "DBMS setup successfully saved");
         } catch (IOException ioe) {
             ConfirmUtils.inform("IO-Error",
@@ -128,8 +128,8 @@ public class DbmsSetupView extends VerticalLayout {
 
     private void dbmsConnectionTest() {
         try {
-            applicationYmlHandler.getDbmsConfig().testConnection();
-            dbmsSaveConfig.setEnabled(applicationYmlHandler.getDbmsConfig().isValidConfig());
+            applicationConfigService.getDbmsConfig().testConnection();
+            dbmsSaveConfig.setEnabled(applicationConfigService.getDbmsConfig().isValidConfig());
             ConfirmUtils.inform("Success", "Connection test successful");
         } catch (SQLException e) {
             dbmsSaveConfig.setEnabled(false);
@@ -138,12 +138,12 @@ public class DbmsSetupView extends VerticalLayout {
     }
 
     private void updateDbmsConfig() {
-        applicationYmlHandler.getDbmsConfig()
+        applicationConfigService.getDbmsConfig()
                 .setDbms(SupportedDatasourceTypes.values()[dbmsDisplayNames.indexOf(dbms.getValue())]);
-        applicationYmlHandler.getDbmsConfig().setUrl(dbmsURL.getValue());
-        applicationYmlHandler.getDbmsConfig().setUsername(dbmsUsername.getValue());
-        applicationYmlHandler.getDbmsConfig().setPassword(dbmsPwd.getValue());
-        dbmsSaveConfig.setEnabled(applicationYmlHandler.getDbmsConfig().isValidConfig());
+        applicationConfigService.getDbmsConfig().setUrl(dbmsURL.getValue());
+        applicationConfigService.getDbmsConfig().setUsername(dbmsUsername.getValue());
+        applicationConfigService.getDbmsConfig().setPassword(dbmsPwd.getValue());
+        dbmsSaveConfig.setEnabled(applicationConfigService.getDbmsConfig().isValidConfig());
     }
 
 }

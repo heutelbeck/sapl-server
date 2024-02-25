@@ -33,8 +33,8 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import io.sapl.server.SaplServerCeApplication;
-import io.sapl.server.ce.setup.condition.SetupNotFinishedCondition;
-import io.sapl.server.ce.setup.ApplicationYmlHandler;
+import io.sapl.server.ce.model.setup.condition.SetupNotFinishedCondition;
+import io.sapl.server.ce.model.setup.ApplicationConfigService;
 import io.sapl.server.ce.ui.views.SetupLayout;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -54,7 +54,7 @@ public class FinishSetupView extends VerticalLayout {
     private static final String PADDING_XS             = "var(--lumo-space-xs";
 
     @Autowired
-    private transient ApplicationYmlHandler applicationYmlHandler;
+    private transient ApplicationConfigService applicationConfigService;
 
     @PostConstruct
     private void init() {
@@ -65,16 +65,17 @@ public class FinishSetupView extends VerticalLayout {
         Button restart = new Button("Restart Server CE");
 
         restart.addClickListener(e -> SaplServerCeApplication.restart());
-        if (!applicationYmlHandler.getDbmsConfig().isSaved() || !applicationYmlHandler.getAdminUserConfig().isSaved()
-                || applicationYmlHandler.getAt("server/address", "").toString().isEmpty()
-                || applicationYmlHandler.getAt("server/port", "").toString().isEmpty()
-                || applicationYmlHandler.getAt("spring.rsocket.server/port", "").toString().isEmpty()) {
+        if (!applicationConfigService.getDbmsConfig().isSaved()
+                || !applicationConfigService.getAdminUserConfig().isSaved()
+                || applicationConfigService.getAt("server/address", "").toString().isEmpty()
+                || applicationConfigService.getAt("server/port", "").toString().isEmpty()
+                || applicationConfigService.getAt("spring.rsocket.server/port", "").toString().isEmpty()) {
             restart.setEnabled(false);
         }
 
         Div  adminStateView = new Div();
         Icon adminStateIcon;
-        if (!applicationYmlHandler.getAdminUserConfig().isSaved()) {
+        if (!applicationConfigService.getAdminUserConfig().isSaved()) {
             adminStateIcon = VaadinIcon.CLOSE.create();
             adminStateIcon.getElement().getThemeList().add(THEME_BADGEERRORPILL);
             adminStateIcon.getStyle().setPadding(PADDING_XS);
@@ -87,7 +88,7 @@ public class FinishSetupView extends VerticalLayout {
 
         Div  dbmsStateView = new Div();
         Icon dbmsStateIcon;
-        if (!applicationYmlHandler.getDbmsConfig().isSaved()) {
+        if (!applicationConfigService.getDbmsConfig().isSaved()) {
             dbmsStateIcon = VaadinIcon.CLOSE.create();
             dbmsStateIcon.getElement().getThemeList().add(THEME_BADGEERRORPILL);
             dbmsStateIcon.getStyle().setPadding(PADDING_XS);
@@ -100,8 +101,8 @@ public class FinishSetupView extends VerticalLayout {
 
         Div  httpStateView = new Div();
         Icon httpStateIcon;
-        if (applicationYmlHandler.getAt("server/address", "").toString().isEmpty()
-                || applicationYmlHandler.getAt("server/port", "").toString().isEmpty()) {
+        if (applicationConfigService.getAt("server/address", "").toString().isEmpty()
+                || applicationConfigService.getAt("server/port", "").toString().isEmpty()) {
             httpStateIcon = VaadinIcon.CLOSE.create();
             httpStateIcon.getElement().getThemeList().add(THEME_BADGEERRORPILL);
             httpStateIcon.getStyle().setPadding(PADDING_XS);
@@ -114,7 +115,7 @@ public class FinishSetupView extends VerticalLayout {
 
         Div  rsocketStateView = new Div();
         Icon rsocketStateIcon;
-        if (applicationYmlHandler.getAt("spring.rsocket.server/port", "").toString().isEmpty()) {
+        if (applicationConfigService.getAt("spring.rsocket.server/port", "").toString().isEmpty()) {
             rsocketStateIcon = VaadinIcon.CLOSE.create();
             rsocketStateIcon.getElement().getThemeList().add(THEME_BADGEERRORPILL);
             rsocketStateIcon.getStyle().setPadding(PADDING_XS);
@@ -163,7 +164,7 @@ public class FinishSetupView extends VerticalLayout {
     }
 
     private boolean getTlsEnableState(String path) {
-        var result = applicationYmlHandler.getAt(path, false);
+        var result = applicationConfigService.getAt(path, false);
         if (result == null)
             return false;
 

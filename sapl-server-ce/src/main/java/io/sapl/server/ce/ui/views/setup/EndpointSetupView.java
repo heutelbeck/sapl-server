@@ -38,7 +38,7 @@ import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.data.value.ValueChangeMode;
-import io.sapl.server.ce.setup.ApplicationYmlHandler;
+import io.sapl.server.ce.model.setup.ApplicationConfigService;
 import io.sapl.server.ce.ui.utils.ConfirmUtils;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,7 +65,7 @@ public abstract class EndpointSetupView extends VerticalLayout {
     protected static final String PKCS12                     = "PKCS12";
 
     @Autowired
-    ApplicationYmlHandler applicationYmlHandler;
+    ApplicationConfigService applicationConfigService;
 
     private final TextField                adr                   = new TextField("Address");
     private final IntegerField             port                  = new IntegerField("Port");
@@ -312,27 +312,27 @@ public abstract class EndpointSetupView extends VerticalLayout {
     }
 
     void writeTlsConfigToApplicationYml() {
-        applicationYmlHandler.setAt(getPathPrefix() + "port", "${PORT:" + port.getValue() + "}");
-        applicationYmlHandler.setAt(getPathPrefix() + "address", adr.getValue());
+        applicationConfigService.setAt(getPathPrefix() + "port", "${PORT:" + port.getValue() + "}");
+        applicationConfigService.setAt(getPathPrefix() + "address", adr.getValue());
 
         boolean tls_enabled = !enabledSslProtocols.getValue().equals(TLS_DISABELD);
-        applicationYmlHandler.setAt(getPathPrefix() + "ssl/enabled", tls_enabled);
+        applicationConfigService.setAt(getPathPrefix() + "ssl/enabled", tls_enabled);
 
         if (tls_enabled) {
-            applicationYmlHandler.setAt(getPathPrefix() + "ssl/key-store-type", keyStoreType.getValue());
-            applicationYmlHandler.setAt(getPathPrefix() + "ssl/key-store", keyStore.getValue());
-            applicationYmlHandler.setAt(getPathPrefix() + "ssl/key-store-password", keyStorePassword.getValue());
-            applicationYmlHandler.setAt(getPathPrefix() + "ssl/key-password", keyPassword.getValue());
-            applicationYmlHandler.setAt(getPathPrefix() + "ssl/key-alias", keyAlias.getValue());
+            applicationConfigService.setAt(getPathPrefix() + "ssl/key-store-type", keyStoreType.getValue());
+            applicationConfigService.setAt(getPathPrefix() + "ssl/key-store", keyStore.getValue());
+            applicationConfigService.setAt(getPathPrefix() + "ssl/key-store-password", keyStorePassword.getValue());
+            applicationConfigService.setAt(getPathPrefix() + "ssl/key-password", keyPassword.getValue());
+            applicationConfigService.setAt(getPathPrefix() + "ssl/key-alias", keyAlias.getValue());
 
-            applicationYmlHandler.setAt(getPathPrefix() + "ssl/ciphers", ciphers.getSelectedItems());
-            applicationYmlHandler.setAt(getPathPrefix() + "ssl/enabled-protocols",
+            applicationConfigService.setAt(getPathPrefix() + "ssl/ciphers", ciphers.getSelectedItems());
+            applicationConfigService.setAt(getPathPrefix() + "ssl/enabled-protocols",
                     enabledSslProtocols.getValue().split(" \\+ "));
-            applicationYmlHandler.setAt(getPathPrefix() + "ssl/protocols", TLS_V1_3_PROTOCOL);
+            applicationConfigService.setAt(getPathPrefix() + "ssl/protocols", TLS_V1_3_PROTOCOL);
         }
 
         try {
-            applicationYmlHandler.saveYmlFiles();
+            applicationConfigService.saveYmlFiles();
             ConfirmUtils.inform("saved", "Endpoint setup successfully saved");
         } catch (IOException ioe) {
             ConfirmUtils.inform("IO-Error",

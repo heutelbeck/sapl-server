@@ -16,16 +16,16 @@
  * limitations under the License.
  */
 
-package io.sapl.server.ce.setup;
+package io.sapl.server.ce.model.setup;
 
-import io.sapl.server.ce.setup.condition.SetupNotFinishedCondition;
+import io.sapl.server.ce.model.setup.condition.SetupNotFinishedCondition;
 import lombok.Getter;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertySource;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,9 +35,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@Component
+@Service
 @Conditional(SetupNotFinishedCondition.class)
-public class ApplicationYmlHandler {
+public class ApplicationConfigService {
 
     private final List<ApplicationYml>    appYmls         = new ArrayList<>();
     private final ConfigurableEnvironment env;
@@ -46,7 +46,7 @@ public class ApplicationYmlHandler {
     @Getter
     private final AdminUserConfig         adminUserConfig = new AdminUserConfig();
 
-    public ApplicationYmlHandler(ConfigurableEnvironment env) throws IOException {
+    public ApplicationConfigService(ConfigurableEnvironment env) throws IOException {
         this.env = env;
         for (File f : this.getAppYmlsFromProperties()) {
             var ay = new ApplicationYml(f);

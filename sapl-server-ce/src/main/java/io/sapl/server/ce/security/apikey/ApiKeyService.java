@@ -17,7 +17,7 @@
  */
 package io.sapl.server.ce.security.apikey;
 
-import io.sapl.server.ce.setup.condition.SetupFinishedCondition;
+import io.sapl.server.ce.model.setup.condition.SetupFinishedCondition;
 import io.sapl.server.ce.model.clients.AuthType;
 import io.sapl.server.ce.model.clients.ClientCredentialsRepository;
 import lombok.Getter;

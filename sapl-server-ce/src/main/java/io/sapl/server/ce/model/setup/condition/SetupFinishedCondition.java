@@ -15,16 +15,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.sapl.server.ce.setup.condition;
+package io.sapl.server.ce.model.setup.condition;
 
 import org.springframework.context.annotation.Condition;
 import org.springframework.context.annotation.ConditionContext;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 
-public class SetupNotFinishedCondition implements Condition {
+public class SetupFinishedCondition implements Condition {
     @Override
     public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
-        return context.getEnvironment().getProperty("spring.datasource.url", "").isEmpty()
-                || context.getEnvironment().getProperty("io.sapl.server.accesscontrol.admin-username", "").isEmpty();
+        return !context.getEnvironment().getProperty("spring.datasource.url", "").isEmpty()
+                && !context.getEnvironment().getProperty("io.sapl.server.accesscontrol.admin-username", "").isEmpty();
     }
 }

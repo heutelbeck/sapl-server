@@ -17,7 +17,7 @@
  */
 package io.sapl.server.ce.security;
 
-import io.sapl.server.ce.setup.condition.SetupNotFinishedCondition;
+import io.sapl.server.ce.model.setup.condition.SetupNotFinishedCondition;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;

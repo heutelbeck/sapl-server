@@ -18,7 +18,7 @@
 
 package io.sapl.server.ce.config;
 
-import io.sapl.server.ce.setup.condition.SetupFinishedCondition;
+import io.sapl.server.ce.model.setup.condition.SetupFinishedCondition;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;

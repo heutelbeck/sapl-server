@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package io.sapl.server.ce.setup;
+package io.sapl.server.ce.model.setup;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
