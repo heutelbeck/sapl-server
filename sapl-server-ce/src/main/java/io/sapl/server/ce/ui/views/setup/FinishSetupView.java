@@ -48,10 +48,13 @@ import org.springframework.context.annotation.Conditional;
 @Conditional(SetupNotFinishedCondition.class)
 public class FinishSetupView extends VerticalLayout {
 
-    public static final String ROUTE = "/setup/finish";
+    public static final String  ROUTE                  = "/setup/finish";
+    private static final String THEME_BADGEERRORPILL   = "badge error pill";
+    private static final String THEME_BADGESUCCESSPILL = "badge success pill";
+    private static final String PADDING_XS             = "var(--lumo-space-xs";
 
     @Autowired
-    private ApplicationYmlHandler applicationYmlHandler;
+    private transient ApplicationYmlHandler applicationYmlHandler;
 
     @PostConstruct
     private void init() {
@@ -62,8 +65,7 @@ public class FinishSetupView extends VerticalLayout {
         Button restart = new Button("Restart Server CE");
 
         restart.addClickListener(e -> SaplServerCeApplication.restart());
-        if (applicationYmlHandler.getAt("spring/datasource/url", "").toString().isEmpty()
-                || applicationYmlHandler.getAt("io.sapl/server/accesscontrol/admin-username", "").toString().isEmpty()
+        if (!applicationYmlHandler.getDbmsConfig().isSaved() || !applicationYmlHandler.getAdminUserConfig().isSaved()
                 || applicationYmlHandler.getAt("server/address", "").toString().isEmpty()
                 || applicationYmlHandler.getAt("server/port", "").toString().isEmpty()
                 || applicationYmlHandler.getAt("spring.rsocket.server/port", "").toString().isEmpty()) {
@@ -72,27 +74,27 @@ public class FinishSetupView extends VerticalLayout {
 
         Div  adminStateView = new Div();
         Icon adminStateIcon;
-        if (applicationYmlHandler.getAt("io.sapl/server/accesscontrol/admin-username", "").toString().isEmpty()) {
+        if (!applicationYmlHandler.getAdminUserConfig().isSaved()) {
             adminStateIcon = VaadinIcon.CLOSE.create();
-            adminStateIcon.getElement().getThemeList().add("badge error pill");
-            adminStateIcon.getStyle().set("padding", "var(--lumo-space-xs");
+            adminStateIcon.getElement().getThemeList().add(THEME_BADGEERRORPILL);
+            adminStateIcon.getStyle().setPadding(PADDING_XS);
         } else {
             adminStateIcon = VaadinIcon.CHECK_CIRCLE.create();
-            adminStateIcon.getElement().getThemeList().add("badge success pill");
-            adminStateIcon.getStyle().set("padding", "var(--lumo-space-xs");
+            adminStateIcon.getElement().getThemeList().add(THEME_BADGESUCCESSPILL);
+            adminStateIcon.getStyle().setPadding(PADDING_XS);
         }
         adminStateView.add(new Text("Admin user setup finished "), adminStateIcon);
 
         Div  dbmsStateView = new Div();
         Icon dbmsStateIcon;
-        if (applicationYmlHandler.getAt("spring/datasource/url", "").toString().isEmpty()) {
+        if (!applicationYmlHandler.getDbmsConfig().isSaved()) {
             dbmsStateIcon = VaadinIcon.CLOSE.create();
-            dbmsStateIcon.getElement().getThemeList().add("badge error pill");
-            dbmsStateIcon.getStyle().set("padding", "var(--lumo-space-xs");
+            dbmsStateIcon.getElement().getThemeList().add(THEME_BADGEERRORPILL);
+            dbmsStateIcon.getStyle().setPadding(PADDING_XS);
         } else {
             dbmsStateIcon = VaadinIcon.CHECK_CIRCLE.create();
-            dbmsStateIcon.getElement().getThemeList().add("badge success pill");
-            dbmsStateIcon.getStyle().set("padding", "var(--lumo-space-xs");
+            dbmsStateIcon.getElement().getThemeList().add(THEME_BADGESUCCESSPILL);
+            dbmsStateIcon.getStyle().setPadding(PADDING_XS);
         }
         dbmsStateView.add(new Text("Database setup finished "), dbmsStateIcon);
 
@@ -101,12 +103,12 @@ public class FinishSetupView extends VerticalLayout {
         if (applicationYmlHandler.getAt("server/address", "").toString().isEmpty()
                 || applicationYmlHandler.getAt("server/port", "").toString().isEmpty()) {
             httpStateIcon = VaadinIcon.CLOSE.create();
-            httpStateIcon.getElement().getThemeList().add("badge error pill");
-            httpStateIcon.getStyle().set("padding", "var(--lumo-space-xs");
+            httpStateIcon.getElement().getThemeList().add(THEME_BADGEERRORPILL);
+            httpStateIcon.getStyle().setPadding(PADDING_XS);
         } else {
             httpStateIcon = VaadinIcon.CHECK_CIRCLE.create();
-            httpStateIcon.getElement().getThemeList().add("badge success pill");
-            httpStateIcon.getStyle().set("padding", "var(--lumo-space-xs");
+            httpStateIcon.getElement().getThemeList().add(THEME_BADGESUCCESSPILL);
+            httpStateIcon.getStyle().setPadding(PADDING_XS);
         }
         httpStateView.add(new Text("HTTP endpoint setup finished "), httpStateIcon);
 
@@ -114,12 +116,12 @@ public class FinishSetupView extends VerticalLayout {
         Icon rsocketStateIcon;
         if (applicationYmlHandler.getAt("spring.rsocket.server/port", "").toString().isEmpty()) {
             rsocketStateIcon = VaadinIcon.CLOSE.create();
-            rsocketStateIcon.getElement().getThemeList().add("badge error pill");
-            rsocketStateIcon.getStyle().set("padding", "var(--lumo-space-xs");
+            rsocketStateIcon.getElement().getThemeList().add(THEME_BADGEERRORPILL);
+            rsocketStateIcon.getStyle().setPadding(PADDING_XS);
         } else {
             rsocketStateIcon = VaadinIcon.CHECK_CIRCLE.create();
-            rsocketStateIcon.getElement().getThemeList().add("badge success pill");
-            rsocketStateIcon.getStyle().set("padding", "var(--lumo-space-xs");
+            rsocketStateIcon.getElement().getThemeList().add(THEME_BADGESUCCESSPILL);
+            rsocketStateIcon.getStyle().setPadding(PADDING_XS);
         }
         rsocketStateView.add(new Text("RSocket endpoint setup finished "), rsocketStateIcon);
 

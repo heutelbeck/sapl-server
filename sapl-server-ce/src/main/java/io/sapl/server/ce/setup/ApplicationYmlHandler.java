@@ -18,7 +18,10 @@
 
 package io.sapl.server.ce.setup;
 
+import io.sapl.server.ce.setup.condition.SetupNotFinishedCondition;
+import lombok.Getter;
 import org.apache.commons.lang3.ObjectUtils;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertySource;
@@ -33,10 +36,15 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Component
+@Conditional(SetupNotFinishedCondition.class)
 public class ApplicationYmlHandler {
 
-    private final List<ApplicationYml>    appYmls = new ArrayList<>();
+    private final List<ApplicationYml>    appYmls         = new ArrayList<>();
     private final ConfigurableEnvironment env;
+    @Getter
+    private final DBMSConfig              dbmsConfig      = new DBMSConfig();
+    @Getter
+    private final AdminUserConfig         adminUserConfig = new AdminUserConfig();
 
     public ApplicationYmlHandler(ConfigurableEnvironment env) throws IOException {
         this.env = env;
@@ -44,8 +52,9 @@ public class ApplicationYmlHandler {
             var ay = new ApplicationYml(f);
             ay.initMap();
             appYmls.add(ay);
-
         }
+        this.initDbmsConfig();
+        this.initAdminUserConfig();
     }
 
     private List<File> getAppYmlsFromProperties() {
@@ -106,6 +115,37 @@ public class ApplicationYmlHandler {
         for (ApplicationYml f : appYmls) {
             f.saveYmlFile();
         }
+    }
+
+    public void initDbmsConfig() {
+        this.dbmsConfig.setDbms(DBMSConfig.getDatasourceTypeFromDriverClassName(
+                this.getAt(DBMSConfig.DRIVERCLASSNAME_PATH, DBMSConfig.DRIVERCLASSNAME_H2).toString()));
+        this.dbmsConfig.setUrl(this.getAt(DBMSConfig.URL_PATH, "").toString());
+        if (this.dbmsConfig.getUrl().isEmpty()) {
+            dbmsConfig.setToDbmsDefaults(dbmsConfig.getDbms());
+        }
+        this.dbmsConfig.setUsername(this.getAt(DBMSConfig.USERNAME_PATH, "").toString());
+        this.dbmsConfig.setPassword(this.getAt(DBMSConfig.PASSWORD_PATH, "").toString());
+
+    }
+
+    public void persistDbmsConfig() throws IOException {
+        this.setAt(DBMSConfig.DRIVERCLASSNAME_PATH, dbmsConfig.getDriverClassName());
+        this.setAt(DBMSConfig.URL_PATH, dbmsConfig.getUrl());
+        this.setAt(DBMSConfig.USERNAME_PATH, dbmsConfig.getUsername());
+        this.setAt(DBMSConfig.PASSWORD_PATH, dbmsConfig.getPassword());
+        this.saveYmlFiles();
+
+    }
+
+    public void initAdminUserConfig() {
+        this.adminUserConfig.setUsername(this.getAt(AdminUserConfig.USERNAME_PATH, "").toString());
+    }
+
+    public void persistAdminUserConfig() throws IOException {
+        this.setAt(AdminUserConfig.USERNAME_PATH, this.adminUserConfig.getUsername());
+        this.setAt(AdminUserConfig.ENCODEDPASSWORD_PATH, this.adminUserConfig.getEncodedPassword());
+        this.saveYmlFiles();
     }
 
 }

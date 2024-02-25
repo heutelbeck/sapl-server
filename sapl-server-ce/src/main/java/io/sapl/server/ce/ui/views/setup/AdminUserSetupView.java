@@ -18,11 +18,11 @@
 
 package io.sapl.server.ce.ui.views.setup;
 
-import com.vaadin.flow.component.Text;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -33,16 +33,14 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
-import io.sapl.server.ce.setup.condition.SetupNotFinishedCondition;
 import io.sapl.server.ce.setup.ApplicationYmlHandler;
+import io.sapl.server.ce.setup.condition.SetupNotFinishedCondition;
 import io.sapl.server.ce.ui.utils.ConfirmUtils;
 import io.sapl.server.ce.ui.views.SetupLayout;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Conditional;
-import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.io.IOException;
 
@@ -55,19 +53,19 @@ public class AdminUserSetupView extends VerticalLayout {
 
     public static final String ROUTE = "/setup/admin";
 
+    private static final String SUCCESS_COLOR  = "var(--lumo-success-color)";
+    private static final String MODERATE_COLOR = "#e7c200";
+    private static final String ERROR_COLOR    = "var(--lumo-error-color)";
+
     @Autowired
-    private ApplicationYmlHandler applicationYmlHandler;
-    private static String         user              = "";
-    private static String         pwd               = "";
-    private static String         pwdRepeat         = "";
-    private static boolean        enableSaveConfigBtn;
-    private final TextField       username          = new TextField("Username");
-    private final PasswordField   password          = new PasswordField("Password");
-    private final PasswordField   passwordRepeat    = new PasswordField("Repeat Password");
-    private final Button          pwdSaveConfig     = new Button("Save Admin-User Settings");
-    private final Icon            pwdEqualCheckIcon = VaadinIcon.CHECK.create();
-    private Span                  passwordStrengthText;
-    private Span                  passwordEqualText;
+    private transient ApplicationYmlHandler applicationYmlHandler;
+    private final TextField                 username          = new TextField("Username");
+    private final PasswordField             password          = new PasswordField("Password");
+    private final PasswordField             passwordRepeat    = new PasswordField("Repeat Password");
+    private final Button                    pwdSaveConfig     = new Button("Save Admin-User Settings");
+    private final Icon                      pwdEqualCheckIcon = VaadinIcon.CHECK.create();
+    private Span                            passwordStrengthText;
+    private Span                            passwordEqualText;
 
     @PostConstruct
     private void init() {
@@ -76,14 +74,11 @@ public class AdminUserSetupView extends VerticalLayout {
     }
 
     public Component getLayout() {
-        pwdSaveConfig.setEnabled(enableSaveConfigBtn);
+        pwdSaveConfig.setEnabled(applicationYmlHandler.getAdminUserConfig().isValidConfig());
         pwdSaveConfig.addClickListener(e -> {
-            PasswordEncoder encoder = Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8();
-            applicationYmlHandler.setAt("io.sapl/server/accesscontrol/admin-username", username.getValue());
-            applicationYmlHandler.setAt("io.sapl/server/accesscontrol/encoded-admin-password",
-                    encoder.encode(password.getValue()));
             try {
-                applicationYmlHandler.saveYmlFiles();
+                applicationYmlHandler.persistAdminUserConfig();
+                applicationYmlHandler.getAdminUserConfig().setSaved(true);
                 ConfirmUtils.inform("saved", "Username and password successfully saved");
             } catch (IOException ioe) {
                 ConfirmUtils.inform("IO-Error",
@@ -92,9 +87,8 @@ public class AdminUserSetupView extends VerticalLayout {
             }
         });
 
-        username.setValue(user);
-        username.addValueChangeListener(
-                e -> validateAdminUser(username.getValue(), password.getValue(), passwordRepeat.getValue()));
+        username.setValue(applicationYmlHandler.getAdminUserConfig().getUsername());
+        username.addValueChangeListener(e -> updateAdminUserConfig());
         username.setValueChangeMode(ValueChangeMode.EAGER);
         username.setRequiredIndicatorVisible(true);
         username.setRequired(true);
@@ -116,75 +110,67 @@ public class AdminUserSetupView extends VerticalLayout {
         password.setHelperComponent(passwordStrength);
 
         add(password);
-        password.setValue(pwd);
         password.setValueChangeMode(ValueChangeMode.EAGER);
-        password.addValueChangeListener(e -> {
-            validateAdminUser(username.getValue(), password.getValue(), passwordRepeat.getValue());
-            pwdStrengthText(e.getValue());
-            pwdEqualText(e.getValue(), passwordRepeat.getValue());
-        });
-
-        pwdStrengthText("");
-
+        password.addValueChangeListener(e -> updateAdminUserConfig());
         return password;
     }
 
     private PasswordField pwdRepeatLayout() {
         pwdEqualCheckIcon.setVisible(false);
-        pwdEqualCheckIcon.getStyle().set("color", "var(--lumo-success-color)");
-        passwordRepeat.setValue(pwdRepeat);
+        pwdEqualCheckIcon.getStyle().setColor(SUCCESS_COLOR);
         passwordRepeat.setSuffixComponent(pwdEqualCheckIcon);
         passwordRepeat.setValueChangeMode(ValueChangeMode.EAGER);
-        passwordRepeat.addValueChangeListener(e -> {
-            validateAdminUser(username.getValue(), password.getValue(), passwordRepeat.getValue());
-            pwdEqualText(password.getValue(), e.getValue());
-        });
+        passwordRepeat.addValueChangeListener(e -> updateAdminUserConfig());
 
         Div passwordEqual = new Div();
         passwordEqualText = new Span();
-        passwordEqual.add(new Text("Password is "), passwordEqualText);
+        passwordEqual.add(new Text("Passwords are "), passwordEqualText);
         passwordRepeat.setHelperComponent(passwordEqual);
 
         add(passwordRepeat);
 
-        pwdStrengthText("");
-
         return passwordRepeat;
     }
 
-    private void pwdStrengthText(String password) {
-        if (password.length() > 9) {
+    private void updatePwdStrengthText() {
+        switch (applicationYmlHandler.getAdminUserConfig().getPasswordStrength()) {
+        case STRONG:
             passwordStrengthText.setText("strong");
-            passwordStrengthText.getStyle().set("color", "var(--lumo-success-color)");
-        } else if (password.length() > 5) {
+            passwordStrengthText.getStyle().setColor(SUCCESS_COLOR);
+            break;
+        case MODERATE:
             passwordStrengthText.setText("moderate");
-            passwordStrengthText.getStyle().set("color", "#e7c200");
-        } else {
+            passwordStrengthText.getStyle().setColor(MODERATE_COLOR);
+            break;
+        default:
             passwordStrengthText.setText("weak");
-            passwordStrengthText.getStyle().set("color", "var(--lumo-error-color)");
+            passwordStrengthText.getStyle().setColor(ERROR_COLOR);
         }
     }
 
-    private void pwdEqualText(String pwd, String pwdRepeat) {
-        if (pwd.equals(pwdRepeat)) {
+    private void updatePwdEqualText() {
+        if (password.getValue().equals(passwordRepeat.getValue())) {
             passwordEqualText.setText("equal");
-            passwordEqualText.getStyle().set("color", "var(--lumo-success-color)");
-        } else if (pwd.isBlank() || pwdRepeat.isBlank()) {
+            passwordEqualText.getStyle().setColor(SUCCESS_COLOR);
+        } else if (password.getValue().isBlank() || passwordRepeat.getValue().isBlank()) {
             passwordEqualText.setText("not set");
-            passwordEqualText.getStyle().set("color", "#e7c200");
+            passwordEqualText.getStyle().setColor(MODERATE_COLOR);
         } else {
             passwordEqualText.setText("not equal");
-            passwordEqualText.getStyle().set("color", "var(--lumo-error-color)");
+            passwordEqualText.getStyle().setColor(ERROR_COLOR);
         }
     }
 
-    private void validateAdminUser(String user, String pwd, String pwdRepeat) {
-        AdminUserSetupView.user      = user;
-        AdminUserSetupView.pwd       = pwd;
-        AdminUserSetupView.pwdRepeat = pwdRepeat;
-        pwdEqualCheckIcon.setVisible(pwd.equals(pwdRepeat));
-        enableSaveConfigBtn = pwdEqualCheckIcon.isVisible() && !user.isEmpty();
-        pwdSaveConfig.setEnabled(enableSaveConfigBtn);
+    private void updateAdminUserConfig() {
+        applicationYmlHandler.getAdminUserConfig().setUsername(username.getValue());
+        applicationYmlHandler.getAdminUserConfig().setPassword(password.getValue());
+        applicationYmlHandler.getAdminUserConfig().setPasswordRepeat(passwordRepeat.getValue());
+
+        updatePwdEqualText();
+        updatePwdStrengthText();
+        pwdEqualCheckIcon.setVisible(password.getValue().equals(passwordRepeat.getValue()));
+        pwdSaveConfig.setEnabled(applicationYmlHandler.getAdminUserConfig().isValidConfig());
+
     }
 
 }

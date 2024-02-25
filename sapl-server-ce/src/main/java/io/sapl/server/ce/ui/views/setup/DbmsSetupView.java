@@ -30,6 +30,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import io.sapl.server.ce.setup.ApplicationYmlHandler;
+import io.sapl.server.ce.setup.SupportedDatasourceTypes;
 import io.sapl.server.ce.setup.condition.SetupNotFinishedCondition;
 import io.sapl.server.ce.ui.utils.ConfirmUtils;
 import io.sapl.server.ce.ui.utils.ErrorNotificationUtils;
@@ -40,9 +41,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Conditional;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 @AnonymousAllowed
 @RequiredArgsConstructor
@@ -54,61 +55,54 @@ public class DbmsSetupView extends VerticalLayout {
     public static final String ROUTE = "/setup/dbms";
 
     @Autowired
-    private ApplicationYmlHandler          applicationYmlHandler;
-    private static final String            H2_DRIVER_CLASS_NAME      = "org.h2.Driver";
-    private static final String            MARIADB_DRIVER_CLASS_NAME = "org.mariadb.jdbc.Driver";
-    private static String                  url                       = "jdbc:h2:file:~/sapl/db";
-    private static String                  user                      = "";
-    private static String                  pwd                       = "";
-    private static String                  dbmsType                  = "H2";
-    private static boolean                 enableSaveConfigBtn;
-    private final RadioButtonGroup<String> dbms                      = new RadioButtonGroup<>("DBMS");
-    private final TextField                dbmsURL                   = new TextField("DBMS URL");
-    private final TextField                dbmsUsername              = new TextField("DBMS Username");
-    private final PasswordField            dbmsPwd                   = new PasswordField("DBMS Password");
-    private final Button                   dbmsTest                  = new Button("Test connection");
-    private final Button                   dbmsSaveConfig            = new Button("Save DBMS-Configuration");
+    private transient ApplicationYmlHandler applicationYmlHandler;
+
+    private final RadioButtonGroup<String> dbms           = new RadioButtonGroup<>("DBMS");
+    private final TextField                dbmsURL        = new TextField("DBMS URL");
+    private final TextField                dbmsUsername   = new TextField("DBMS Username");
+    private final PasswordField            dbmsPwd        = new PasswordField("DBMS Password");
+    private final Button                   dbmsTest       = new Button("Test connection");
+    private final Button                   dbmsSaveConfig = new Button("Save DBMS-Configuration");
+
+    private final List<String> dbmsDisplayNames = new ArrayList<>();
 
     @PostConstruct
     private void init() {
+        dbmsDisplayNames.add(SupportedDatasourceTypes.H2.ordinal(), "H2");
+        dbmsDisplayNames.add(SupportedDatasourceTypes.MARIADB.ordinal(), "MariaDB");
         add(getLayout());
     }
 
     public Component getLayout() {
-        dbms.setItems("H2", "MariaDB");
-        dbms.setValue(dbmsType);
+        dbms.setItems(dbmsDisplayNames);
+        dbms.setValue(dbmsDisplayNames.get(applicationYmlHandler.getDbmsConfig().getDbms().ordinal()));
         dbms.addValueChangeListener(e -> {
-            setDbmsConnStringDefault();
-            dbmsType = e.getValue();
+            updateDbmsConfig();
+            applicationYmlHandler.getDbmsConfig()
+                    .setToDbmsDefaults(SupportedDatasourceTypes.values()[dbmsDisplayNames.indexOf(e.getValue())]);
+            dbmsURL.setValue(applicationYmlHandler.getDbmsConfig().getUrl());
         });
-        dbmsURL.setValue(url);
+        dbmsURL.setValue(applicationYmlHandler.getDbmsConfig().getUrl());
         dbmsURL.setRequiredIndicatorVisible(true);
         dbmsURL.setClearButtonVisible(true);
         dbmsURL.setValueChangeMode(ValueChangeMode.EAGER);
-        dbmsURL.addValueChangeListener(e -> {
-            setSaveButtonDisable();
-            url = e.getValue();
-        });
+        dbmsURL.addValueChangeListener(e -> updateDbmsConfig());
+
         dbmsUsername.setRequiredIndicatorVisible(true);
         dbmsUsername.setClearButtonVisible(true);
-        dbmsUsername.setValue(user);
+        dbmsUsername.setValue(applicationYmlHandler.getDbmsConfig().getUsername());
         dbmsUsername.setValueChangeMode(ValueChangeMode.EAGER);
-        dbmsUsername.addValueChangeListener(e -> {
-            setSaveButtonDisable();
-            user = e.getValue();
-        });
+        dbmsUsername.addValueChangeListener(e -> updateDbmsConfig());
+
         dbmsPwd.setRequiredIndicatorVisible(true);
         dbmsPwd.setClearButtonVisible(true);
-        dbmsPwd.setValue(pwd);
+        dbmsPwd.setValue(applicationYmlHandler.getDbmsConfig().getPassword());
         dbmsPwd.setValueChangeMode(ValueChangeMode.EAGER);
-        dbmsPwd.addValueChangeListener(e -> {
-            setSaveButtonDisable();
-            pwd = e.getValue();
-        });
+        dbmsPwd.addValueChangeListener(e -> updateDbmsConfig());
         dbmsTest.setVisible(true);
         dbmsTest.addClickListener(e -> dbmsConnectionTest());
         dbmsSaveConfig.setVisible(true);
-        dbmsSaveConfig.setEnabled(enableSaveConfigBtn);
+        dbmsSaveConfig.setEnabled(applicationYmlHandler.getDbmsConfig().isValidConfig());
         dbmsSaveConfig.addClickListener(e -> writeDbmsConfigToApplicationYml());
 
         FormLayout dbmsLayout = new FormLayout(dbms, dbmsURL, dbmsUsername, dbmsPwd, dbmsTest, dbmsSaveConfig);
@@ -120,41 +114,10 @@ public class DbmsSetupView extends VerticalLayout {
         return dbmsLayout;
     }
 
-    private void setSaveButtonDisable() {
-        enableSaveConfigBtn = false;
-        dbmsSaveConfig.setEnabled(false);
-    }
-
-    private void setDbmsConnStringDefault() {
-        switch (dbms.getValue()) {
-        case "H2":
-            dbmsURL.setValue("jdbc:h2:file:~/sapl/db");
-            break;
-        case "MariaDB":
-            dbmsURL.setValue("jdbc:mariadb://127.17.0.2:3306/saplserver");
-            break;
-        default:
-        }
-    }
-
     private void writeDbmsConfigToApplicationYml() {
-        String driverClassName = "";
-        switch (dbms.getValue()) {
-        case "H2":
-            driverClassName = H2_DRIVER_CLASS_NAME;
-            break;
-        case "MariaDB":
-            driverClassName = MARIADB_DRIVER_CLASS_NAME;
-            break;
-        default:
-        }
-
-        applicationYmlHandler.setAt("spring/datasource/driverClassName", driverClassName);
-        applicationYmlHandler.setAt("spring/datasource/url", dbmsURL.getValue());
-        applicationYmlHandler.setAt("spring/datasource/username", dbmsUsername.getValue());
-        applicationYmlHandler.setAt("spring/datasource/password", dbmsPwd.getValue());
         try {
-            applicationYmlHandler.saveYmlFiles();
+            applicationYmlHandler.persistDbmsConfig();
+            applicationYmlHandler.getDbmsConfig().setSaved(true);
             ConfirmUtils.inform("saved", "DBMS setup successfully saved");
         } catch (IOException ioe) {
             ConfirmUtils.inform("IO-Error",
@@ -165,21 +128,22 @@ public class DbmsSetupView extends VerticalLayout {
 
     private void dbmsConnectionTest() {
         try {
-            SqlConnection.test(dbmsURL.getValue(), dbmsUsername.getValue(), dbmsPwd.getValue());
-            enableSaveConfigBtn = true;
-            dbmsSaveConfig.setEnabled(true);
-            ConfirmUtils.inform("Success", "Connection test sucessfull");
+            applicationYmlHandler.getDbmsConfig().testConnection();
+            dbmsSaveConfig.setEnabled(applicationYmlHandler.getDbmsConfig().isValidConfig());
+            ConfirmUtils.inform("Success", "Connection test successful");
         } catch (SQLException e) {
             dbmsSaveConfig.setEnabled(false);
             ErrorNotificationUtils.show("Connection to the database not possible. " + e.getMessage());
         }
     }
 
-}
-
-class SqlConnection {
-    public static void test(String jdbcURL, String username, String pwd) throws SQLException {
-        Connection connection = DriverManager.getConnection(jdbcURL, username, pwd);
-        connection.close();
+    private void updateDbmsConfig() {
+        applicationYmlHandler.getDbmsConfig()
+                .setDbms(SupportedDatasourceTypes.values()[dbmsDisplayNames.indexOf(dbms.getValue())]);
+        applicationYmlHandler.getDbmsConfig().setUrl(dbmsURL.getValue());
+        applicationYmlHandler.getDbmsConfig().setUsername(dbmsUsername.getValue());
+        applicationYmlHandler.getDbmsConfig().setPassword(dbmsPwd.getValue());
+        dbmsSaveConfig.setEnabled(applicationYmlHandler.getDbmsConfig().isValidConfig());
     }
+
 }
