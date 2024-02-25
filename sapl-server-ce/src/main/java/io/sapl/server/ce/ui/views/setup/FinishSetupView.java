@@ -24,6 +24,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -129,7 +130,9 @@ public class FinishSetupView extends VerticalLayout {
         stateLayout.add(dbmsStateView);
         stateLayout.add(adminStateView);
         stateLayout.add(httpStateView);
+        stateLayout.add(getTlsDisabledWarning("Http", !getTlsEnableState("server/ssl/enabled")));
         stateLayout.add(rsocketStateView);
+        stateLayout.add(getTlsDisabledWarning("RSocket", !getTlsEnableState("spring.rsocket.server/ssl/enabled")));
 
         var hInfo = new H2(
                 "The following settings must be adjusted and saved before the application can be restarted and used.");
@@ -143,5 +146,28 @@ public class FinishSetupView extends VerticalLayout {
         adminUserLayout.setColspan(stateLayout, 2);
 
         return adminUserLayout;
+    }
+
+    private Span getTlsDisabledWarning(String protocol, boolean visible) {
+        String warning            = "Note: Do not use the option \"Disable TLS\" for " + protocol + " in production.\n"
+                + "This option may open the server to malicious probing and exfiltration attempts through "
+                + "the authorization endpoints, potentially resulting in unauthorized access to your "
+                + "organization's data, depending on your policies.";
+        Span   tlsDisabledWarning = new Span(warning);
+        tlsDisabledWarning.getStyle().set("color", "var(--lumo-error-text-color)");
+        tlsDisabledWarning.setVisible(visible);
+
+        return tlsDisabledWarning;
+    }
+
+    private boolean getTlsEnableState(String path) {
+        var result = applicationYmlHandler.getAt(path, false);
+        if (result == null)
+            return false;
+
+        if (!(result instanceof Boolean))
+            return false;
+
+        return (Boolean) result;
     }
 }
