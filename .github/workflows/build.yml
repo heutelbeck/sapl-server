@@ -17,6 +17,10 @@ name: Testing and Publishing
 
 on:
   workflow_dispatch:
+  repository_dispatch:
+  create:
+    branches:
+      - '**'
   push:
     branches:
       - '**'
@@ -71,7 +75,7 @@ jobs:
       run: mvn -U -B verify -fae spotbugs:spotbugs -Pspotbugs -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn
 
     - name: Cache Sonar Packages
-      if: ${{ !github.event.pull_request.head.repo.fork && (matrix.os == 'ubuntu-latest') && (matrix.java == '17') && (github.actor != 'dependabot[bot]') }}
+      if: ${{ !github.event.pull_request.head.repo.fork && (github.actor != 'dependabot[bot]') }}
       uses: actions/cache@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
       with:
         path: ~/.sonar/cache
