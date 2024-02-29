@@ -100,7 +100,7 @@ public class DbmsSetupView extends VerticalLayout {
         dbmsPwd.setValueChangeMode(ValueChangeMode.EAGER);
         dbmsPwd.addValueChangeListener(e -> updateDbmsConfig());
         dbmsTest.setVisible(true);
-        dbmsTest.addClickListener(e -> dbmsConnectionTest());
+        dbmsTest.addClickListener(e -> dbmsConnectionTest(false));
         dbmsSaveConfig.setVisible(true);
         dbmsSaveConfig.setEnabled(applicationConfigService.getDbmsConfig().isValidConfig());
         dbmsSaveConfig.addClickListener(e -> writeDbmsConfigToApplicationYml());
@@ -122,18 +122,27 @@ public class DbmsSetupView extends VerticalLayout {
         } catch (IOException ioe) {
             ConfirmUtils.inform("IO-Error",
                     "Error while writing application.yml-File. Please make sure that the file is not in use and can be written. Otherwise configure the application.yml-file manually. Error: "
-                            + ioe.getMessage());
+                            + ioe.getLocalizedMessage());
         }
     }
 
-    private void dbmsConnectionTest() {
+    private void dbmsConnectionTest(boolean createDbFileForSupportedDbms) {
         try {
-            applicationConfigService.getDbmsConfig().testConnection();
+            applicationConfigService.getDbmsConfig().testConnection(createDbFileForSupportedDbms);
             dbmsSaveConfig.setEnabled(applicationConfigService.getDbmsConfig().isValidConfig());
             ConfirmUtils.inform("Success", "Connection test successful");
         } catch (SQLException e) {
             dbmsSaveConfig.setEnabled(false);
-            ErrorNotificationUtils.show("Connection to the database not possible. " + e.getMessage());
+            if (applicationConfigService.getDbmsConfig().getDbms() == SupportedDatasourceTypes.H2
+                    && e.getErrorCode() == 90146) {
+                ConfirmUtils.letConfirm("Database does not exist",
+                        e.getLocalizedMessage() + "\n\nTry now to create it?", () -> this.dbmsConnectionTest(true),
+                        () -> {
+                        });
+            } else {
+                ErrorNotificationUtils.show("Connection to the database not possible. " + e.getLocalizedMessage());
+            }
+
         }
     }
 

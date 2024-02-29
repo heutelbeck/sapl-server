@@ -84,9 +84,14 @@ public class DBMSConfig {
         }
     }
 
-    public void testConnection() throws SQLException {
+    public void testConnection(boolean createDbFileForSupportedDbms) throws SQLException {
         this.validConfig = false;
-        Connection connection = DriverManager.getConnection(this.url, this.username, this.password);
+        Connection connection;
+        if (this.dbms == SupportedDatasourceTypes.H2 && !createDbFileForSupportedDbms) {
+            connection = DriverManager.getConnection(this.url + ";IFEXISTS=TRUE", this.username, this.password);
+        } else {
+            connection = DriverManager.getConnection(this.url, this.username, this.password);
+        }
         connection.close();
         this.validConfig = true;
     }
