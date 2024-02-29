@@ -42,6 +42,7 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import io.sapl.server.ce.model.setup.ApplicationConfigService;
 import io.sapl.server.ce.model.setup.EndpointConfig;
 import io.sapl.server.ce.ui.utils.ConfirmUtils;
+import io.sapl.server.ce.ui.utils.ErrorNotificationUtils;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -143,7 +144,7 @@ public abstract class EndpointSetupView extends VerticalLayout {
                 writeConfigToApplicationYml();
                 ConfirmUtils.inform("saved", "Endpoint setup successfully saved");
             } catch (IOException ioe) {
-                ConfirmUtils.inform("IO-Error",
+                ErrorNotificationUtils.show(
                         "Error while writing application.yml-File. Please make sure that the file is not in use and can be written. Otherwise configure the application.yml-file manually. Error: "
                                 + ioe.getMessage());
             }
@@ -309,24 +310,8 @@ public abstract class EndpointSetupView extends VerticalLayout {
     private void checkIfAtLeastOneCipherOptionSelected() {
         setEnableTlsConfigBtn();
 
-        if (ciphers.getSelectedItems().isEmpty()) {
-            Notification notification = new Notification();
-            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-
-            Div text = new Div(new Text("At least one cipher option must be selected"));
-
-            Button closeButton = new Button(new Icon("lumo", "cross"));
-            closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
-            closeButton.setAriaLabel("Close");
-            closeButton.addClickListener(event -> notification.close());
-
-            HorizontalLayout layout = new HorizontalLayout(text, closeButton);
-            layout.setAlignItems(Alignment.CENTER);
-
-            notification.add(layout);
-            notification.setPosition(Notification.Position.MIDDLE);
-            notification.open();
-        }
+        if (ciphers.getSelectedItems().isEmpty())
+            ErrorNotificationUtils.show("At least one cipher option must be selected");
     }
 
     private void setEnableTlsConfigBtn() {
@@ -345,7 +330,7 @@ public abstract class EndpointSetupView extends VerticalLayout {
 
     private void openKeyStore() {
         if (keyStorePathInvalid()) {
-            ConfirmUtils.inform("Key store path invalid", "Key store path must begin with \"file:\"");
+            ErrorNotificationUtils.show("Key store path invalid: Key store path must begin with \"file:\"");
             return;
         }
 
@@ -356,7 +341,7 @@ public abstract class EndpointSetupView extends VerticalLayout {
             ks.load(new FileInputStream(keyStore.getValue().substring(5)), pwdArray);
 
             if (!ks.containsAlias(keyAlias.getValue())) {
-                ConfirmUtils.inform("Alias fault", "The given alias does not exists in this keystore");
+                ErrorNotificationUtils.show("Key alias fault: The given key alias does not exists in this keystore");
                 return;
             }
 
@@ -364,15 +349,15 @@ public abstract class EndpointSetupView extends VerticalLayout {
             setEnableTlsConfigBtn();
             ConfirmUtils.inform("success", "Keystore settings valid");
         } catch (CertificateException e) {
-            ConfirmUtils.inform("Certificate fault", e.getMessage());
+            ErrorNotificationUtils.show("Certificate fault: " + e.getMessage());
         } catch (KeyStoreException e) {
-            ConfirmUtils.inform("Key store fault", e.getMessage());
+            ErrorNotificationUtils.show("Key store fault: " + e.getMessage());
         } catch (NoSuchAlgorithmException e) {
-            ConfirmUtils.inform("No such algorithm exception", e.getMessage());
+            ErrorNotificationUtils.show("No such algorithm exception: " + e.getMessage());
         } catch (FileNotFoundException e) {
-            ConfirmUtils.inform("File not found", e.getMessage());
+            ErrorNotificationUtils.show("File not found: " + e.getMessage());
         } catch (IOException e) {
-            ConfirmUtils.inform("Error", e.getMessage());
+            ErrorNotificationUtils.show("Error: " + e.getMessage());
         }
     }
 
