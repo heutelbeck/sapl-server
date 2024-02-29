@@ -67,7 +67,7 @@ public class RSocketEndpointSetupView extends EndpointSetupView {
 
     @Override
     String getAdr() {
-        return applicationConfigService.getHttpEndpoint().getAdr();
+        return applicationConfigService.getRsocketEndpoint().getAdr();
     }
 
     @Override
@@ -77,7 +77,7 @@ public class RSocketEndpointSetupView extends EndpointSetupView {
 
     @Override
     int getPort() {
-        return applicationConfigService.getHttpEndpoint().getPort();
+        return applicationConfigService.getRsocketEndpoint().getPort();
     }
 
     @Override
@@ -126,9 +126,7 @@ public class RSocketEndpointSetupView extends EndpointSetupView {
     }
 
     @Override
-    Set<String> getSelectedCiphers() {
-        return applicationConfigService.getRsocketEndpoint().getSelectedCiphers();
-    }
+    Set<String> getSelectedCiphers() { return applicationConfigService.getRsocketEndpoint().getSelectedCiphers(); }
 
     @Override
     void setSelectedCiphers(Set<String> selectedCiphers) {
