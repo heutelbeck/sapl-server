@@ -29,10 +29,10 @@ import java.sql.SQLException;
 @Getter
 @NoArgsConstructor
 public class DBMSConfig {
-    static final String DRIVERCLASSNAME_PATH = "spring/datasource/driverClassName";
-    static final String URL_PATH             = "spring/datasource/url";
-    static final String USERNAME_PATH        = "spring/datasource/username";
-    static final String PASSWORD_PATH        = "spring/datasource/password";
+    static final String DRIVERCLASSNAME_PATH = "spring.datasource.driverClassName";
+    static final String URL_PATH             = "spring.datasource.url";
+    static final String USERNAME_PATH        = "spring.datasource.username";
+    static final String PASSWORD_PATH        = "spring.datasource.password";
 
     static final String DRIVERCLASSNAME_H2      = "org.h2.Driver";
     static final String DRIVERCLASSNAME_MARIADB = "org.mariadb.jdbc.Driver";

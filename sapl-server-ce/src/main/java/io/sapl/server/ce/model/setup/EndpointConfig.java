@@ -52,9 +52,9 @@ public class EndpointConfig {
 
     @Getter
     @Setter
-    private boolean saved = false;
+    private boolean     saved               = false;
     @Setter
-    private boolean enabled = false;
+    private boolean     enabled             = false;
     @Getter
     private String      adr                 = "";
     @Getter
@@ -81,15 +81,15 @@ public class EndpointConfig {
         PORT_PATH      = prefix + "port";
         TRANSPORT_PATH = prefix + "transport";
 
-        SSL_ENABLED_PATH            = prefix + "ssl/enabled";
-        SSL_KEY_STORE_TYPE_PATH     = prefix + "ssl/key-store-type";
-        SSL_KEY_STORE_PATH          = prefix + "ssl/key-store";
-        SSL_KEY_STORE_PASSWORD_PATH = prefix + "ssl/key-store-password";
-        SSL_KEY_PASSWORD_PATH       = prefix + "ssl/key-password";
-        SSL_KEY_ALIAS_PATH          = prefix + "ssl/key-alias";
-        SSL_CIPHERS_PATH            = prefix + "ssl/ciphers";
-        SSL_ENABLED_PROTOCOLS_PATH  = prefix + "ssl/enabled-protocols";
-        SSL_PROTOCOLS_PATH          = prefix + "ssl/protocols";
+        SSL_ENABLED_PATH            = prefix + "ssl.enabled";
+        SSL_KEY_STORE_TYPE_PATH     = prefix + "ssl.key-store-type";
+        SSL_KEY_STORE_PATH          = prefix + "ssl.key-store";
+        SSL_KEY_STORE_PASSWORD_PATH = prefix + "ssl.key-store-password";
+        SSL_KEY_PASSWORD_PATH       = prefix + "ssl.key-password";
+        SSL_KEY_ALIAS_PATH          = prefix + "ssl.key-alias";
+        SSL_CIPHERS_PATH            = prefix + "ssl.ciphers";
+        SSL_ENABLED_PROTOCOLS_PATH  = prefix + "ssl.enabled-protocols";
+        SSL_PROTOCOLS_PATH          = prefix + "ssl.protocols";
 
         DEFAULT_PORT = port;
     }

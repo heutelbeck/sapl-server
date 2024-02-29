@@ -30,8 +30,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AdminUserConfig {
-    static final String USERNAME_PATH        = "io.sapl/server/accesscontrol/admin-username";
-    static final String ENCODEDPASSWORD_PATH = "io.sapl/server/accesscontrol/encoded-admin-password";
+    static final String USERNAME_PATH        = "io.sapl.server.accesscontrol.admin-username";
+    static final String ENCODEDPASSWORD_PATH = "io.sapl.server.accesscontrol.encoded-admin-password";
 
     private String  username       = "";
     private String  password       = "";

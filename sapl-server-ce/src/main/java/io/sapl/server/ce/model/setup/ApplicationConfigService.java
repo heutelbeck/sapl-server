@@ -46,9 +46,9 @@ public class ApplicationConfigService {
     @Getter
     private final AdminUserConfig         adminUserConfig = new AdminUserConfig();
     @Getter
-    private final EndpointConfig          httpEndpoint    = new EndpointConfig("server/", 8443);
+    private final EndpointConfig          httpEndpoint    = new EndpointConfig("server.", 8443);
     @Getter
-    final EndpointConfig                  rsocketEndpoint = new EndpointConfig("spring.rsocket.server/", 7000);
+    final EndpointConfig                  rsocketEndpoint = new EndpointConfig("spring.rsocket.server.", 7000);
 
     public ApplicationConfigService(ConfigurableEnvironment env) throws IOException {
         this.env = env;

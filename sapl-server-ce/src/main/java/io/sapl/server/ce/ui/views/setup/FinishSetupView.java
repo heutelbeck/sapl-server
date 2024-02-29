@@ -67,9 +67,9 @@ public class FinishSetupView extends VerticalLayout {
         restart.addClickListener(e -> SaplServerCeApplication.restart());
         if (!applicationConfigService.getDbmsConfig().isSaved()
                 || !applicationConfigService.getAdminUserConfig().isSaved()
-                || applicationConfigService.getAt("server/address", "").toString().isEmpty()
-                || applicationConfigService.getAt("server/port", "").toString().isEmpty()
-                || applicationConfigService.getAt("spring.rsocket.server/port", "").toString().isEmpty()) {
+                || applicationConfigService.getAt("server.address", "").toString().isEmpty()
+                || applicationConfigService.getAt("server.port", "").toString().isEmpty()
+                || applicationConfigService.getAt("spring.rsocket.server.port", "").toString().isEmpty()) {
             restart.setEnabled(false);
         }
 
@@ -101,8 +101,8 @@ public class FinishSetupView extends VerticalLayout {
 
         Div  httpStateView = new Div();
         Icon httpStateIcon;
-        if (applicationConfigService.getAt("server/address", "").toString().isEmpty()
-                || applicationConfigService.getAt("server/port", "").toString().isEmpty()) {
+        if (applicationConfigService.getAt("server.address", "").toString().isEmpty()
+                || applicationConfigService.getAt("server.port", "").toString().isEmpty()) {
             httpStateIcon = VaadinIcon.CLOSE.create();
             httpStateIcon.getElement().getThemeList().add(THEME_BADGEERRORPILL);
             httpStateIcon.getStyle().setPadding(PADDING_XS);
@@ -115,7 +115,7 @@ public class FinishSetupView extends VerticalLayout {
 
         Div  rsocketStateView = new Div();
         Icon rsocketStateIcon;
-        if (applicationConfigService.getAt("spring.rsocket.server/port", "").toString().isEmpty()) {
+        if (applicationConfigService.getAt("spring.rsocket.server.port", "").toString().isEmpty()) {
             rsocketStateIcon = VaadinIcon.CLOSE.create();
             rsocketStateIcon.getElement().getThemeList().add(THEME_BADGEERRORPILL);
             rsocketStateIcon.getStyle().setPadding(PADDING_XS);
@@ -133,9 +133,9 @@ public class FinishSetupView extends VerticalLayout {
         stateLayout.add(dbmsStateView);
         stateLayout.add(adminStateView);
         stateLayout.add(httpStateView);
-        stateLayout.add(getTlsDisabledWarning("Http", !getTlsEnableState("server/ssl/enabled")));
+        stateLayout.add(getTlsDisabledWarning("Http", !getTlsEnableState("server.ssl.enabled")));
         stateLayout.add(rsocketStateView);
-        stateLayout.add(getTlsDisabledWarning("RSocket", !getTlsEnableState("spring.rsocket.server/ssl/enabled")));
+        stateLayout.add(getTlsDisabledWarning("RSocket", !getTlsEnableState("spring.rsocket.server.ssl.enabled")));
 
         var hInfo = new H2(
                 "The following settings must be adjusted and saved before the application can be restarted and used.");

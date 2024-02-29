@@ -29,13 +29,14 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Slf4j
 @Getter
 class ApplicationYml {
     private final File          file;
-    private Map<String, Object> map;
+    private Map<String, Object> map            = new HashMap<>();
     private boolean             hasBeenChanged = false;
 
     ApplicationYml(File f) {
@@ -45,13 +46,12 @@ class ApplicationYml {
     void initMap() throws IOException {
 
         if (file.exists()) {
-            InputStream                            inputStream   = new FileInputStream(file);
-            ObjectMapper                           objectMapper  = new ObjectMapper(new YAMLFactory());
-            TypeReference<HashMap<String, Object>> typeReference = new TypeReference<>() {
-                                                                 };
+            InputStream                                  inputStream   = new FileInputStream(file);
+            ObjectMapper                                 objectMapper  = new ObjectMapper(new YAMLFactory());
+            TypeReference<LinkedHashMap<String, Object>> typeReference = new TypeReference<>() {
+                                                                       };
             try {
-                map = objectMapper.readValue(inputStream, typeReference);
-                return;
+                this.addNormalizedAt("", objectMapper.readValue(inputStream, typeReference));
             } catch (IOException e) {
                 log.warn(file + " is an invalid yml-file. Setup wizard will create an new, empty file");
 
@@ -59,7 +59,6 @@ class ApplicationYml {
         } else {
             log.info(file + " does not exist. Setup wizard will create it on save");
         }
-        map = new HashMap<>();
     }
 
     public void saveYmlFile() throws IOException {
@@ -76,9 +75,27 @@ class ApplicationYml {
         objectMapper.writeValue(file, map);
     }
 
+    /**
+     * Add recursively a Map to map and normalize properties like a.b.c: d to
+     * a=(b=(c=d)) This will prevent reading/writing properties that are doubled in
+     * a file by different notations
+     */
+    @SuppressWarnings("unchecked")
+    private void addNormalizedAt(String path, Map<String, Object> map) {
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            String key   = entry.getKey();
+            Object value = entry.getValue();
+            if (value instanceof Map) {
+                addNormalizedAt(path + key + ".", (Map<String, Object>) value);
+            } else {
+                this.setAt(path + key, value);
+            }
+        }
+    }
+
     @SuppressWarnings("unchecked")
     public Object getAt(String path) {
-        String[]            p          = path.split("/");
+        String[]            p          = path.split("\\.(?![^\\[\\]]*])");
         Map<String, Object> currentMap = this.map;
         for (String key : p) {
             if (currentMap.containsKey(key)) {
@@ -100,7 +117,7 @@ class ApplicationYml {
         if (getAt(path) == null || !getAt(path).equals(value)) {
             hasBeenChanged = true;
         }
-        String[]            p          = path.split("/");
+        String[]            p          = path.split("\\.(?![^\\[\\]]*])");
         Map<String, Object> currentMap = map;
         for (int i = 0; i < p.length; i++) {
             String key = p[i];
@@ -117,7 +134,7 @@ class ApplicationYml {
 
     @SuppressWarnings("unchecked")
     public boolean existsAt(String path) {
-        String[]            p          = path.split("/");
+        String[]            p          = path.split("\\.(?![^\\[\\]]*])");
         Map<String, Object> currentMap = this.map;
         for (String key : p) {
             if (currentMap.containsKey(key)) {
