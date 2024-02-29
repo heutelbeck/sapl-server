@@ -141,6 +141,10 @@ public class EndpointConfig {
     public void setCiphers(Object obj) {
         if (obj instanceof String) {
             String ciphers = obj.toString();
+
+            if (ciphers.isEmpty())
+                return;
+
             ciphers = ciphers.replace("[", "").replace("]", "");
             selectedCiphers.clear();
             selectedCiphers = Stream.of(ciphers.trim().split("\\s*,\\s*")).collect(Collectors.toSet());
