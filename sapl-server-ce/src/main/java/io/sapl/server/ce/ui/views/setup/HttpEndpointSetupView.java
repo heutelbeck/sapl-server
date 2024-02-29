@@ -25,7 +25,7 @@ import io.sapl.server.ce.model.setup.condition.SetupNotFinishedCondition;
 import io.sapl.server.ce.ui.views.SetupLayout;
 import org.springframework.context.annotation.Conditional;
 
-import java.util.HashSet;
+import java.io.IOException;
 import java.util.Set;
 
 @AnonymousAllowed
@@ -33,123 +33,111 @@ import java.util.Set;
 @Route(value = HttpEndpointSetupView.ROUTE, layout = SetupLayout.class)
 @Conditional(SetupNotFinishedCondition.class)
 public class HttpEndpointSetupView extends EndpointSetupView {
-    public static final String  ROUTE       = "/setup/http";
-    private static final String PATH_PREFIX = "server/";
-
-    private static boolean     enableSaveConfigBtn;
-    private static String      enabledSslProtocols = TLS_V1_3_PROTOCOL;
-    private static String      keyStoreType        = PKCS12;
-    private static String      adr                 = "";
-    private static int         port                = 8443;
-    private static String      keyStore            = "";
-    private static String      keyAlias            = "";
-    private static String      keyStorePassword    = "";
-    private static String      keyPassword         = "";
-    private static Set<String> selectedCiphers     = new HashSet<String>(
-            Set.of(TLS_AES_128_GCM_SHA256, TLS_AES_256_GCM_SHA384));
+    public static final String ROUTE = "/setup/http";
 
     @Override
     boolean getSaveConfigBtnState() {
-        return enableSaveConfigBtn;
+        return applicationConfigService.getHttpEndpoint().getEnabled();
     }
 
     @Override
     void setSaveConfigBtnState(boolean enable) {
-        enableSaveConfigBtn = enable;
-    }
-
-    @Override
-    String getPathPrefix() {
-        return PATH_PREFIX;
+        applicationConfigService.getHttpEndpoint().setEnabled(enable);
     }
 
     @Override
     String getEnabledSslProtocols() {
-        return enabledSslProtocols;
+        return applicationConfigService.getHttpEndpoint().getEnabledSslProtocols();
     }
 
     @Override
     void setEnabledSslProtocols(String protocols) {
-        enabledSslProtocols = protocols;
+        applicationConfigService.getHttpEndpoint().setEnabledSslProtocols(protocols);
     }
 
     @Override
     String getKeyStoreType() {
-        return keyStoreType;
+        return applicationConfigService.getHttpEndpoint().getKeyStoreType();
     }
 
     @Override
     void setKeyStoreType(String keyStoreType) {
-        HttpEndpointSetupView.keyStoreType = keyStoreType;
+        applicationConfigService.getHttpEndpoint().setKeyStoreType(keyStoreType);
     }
 
     @Override
     String getAdr() {
-        return adr;
+        return applicationConfigService.getHttpEndpoint().getAdr();
     }
 
     @Override
     void setAdr(String adr) {
-        HttpEndpointSetupView.adr = adr;
+        applicationConfigService.getHttpEndpoint().setAddress(adr);
     }
 
     @Override
     int getPort() {
-        return port;
+        return applicationConfigService.getHttpEndpoint().getPort();
     }
 
     @Override
     void setPort(int port) {
-        HttpEndpointSetupView.port = port;
+        applicationConfigService.getHttpEndpoint().setPort(port);
     }
 
     @Override
     String getKeyStore() {
-        return keyStore;
+        return applicationConfigService.getHttpEndpoint().getKeyStore();
     }
 
     @Override
     void setKeyStore(String keyStore) {
-        HttpEndpointSetupView.keyStore = keyStore;
+        applicationConfigService.getHttpEndpoint().setKeyStore(keyStore);
     }
 
     @Override
     String getKeyAlias() {
-        return keyAlias;
+        return applicationConfigService.getHttpEndpoint().getKeyAlias();
     }
 
     @Override
     void setKeyAlias(String keyAlias) {
-        HttpEndpointSetupView.keyAlias = keyAlias;
+        applicationConfigService.getHttpEndpoint().setKeyAlias(keyAlias);
     }
 
     @Override
     String getKeyStorePassword() {
-        return keyStorePassword;
+        return applicationConfigService.getHttpEndpoint().getKeyStorePassword();
     }
 
     @Override
     void setKeyStorePassword(String keyStorePassword) {
-        HttpEndpointSetupView.keyStorePassword = keyStorePassword;
+        applicationConfigService.getHttpEndpoint().setKeyStorePassword(keyStorePassword);
     }
 
     @Override
     String getKeyPassword() {
-        return keyPassword;
+        return applicationConfigService.getHttpEndpoint().getKeyPassword();
     }
 
     @Override
     void setKeyPassword(String keyPassword) {
-        HttpEndpointSetupView.keyPassword = keyPassword;
+        applicationConfigService.getHttpEndpoint().setKeyPassword(keyPassword);
     }
 
     @Override
     Set<String> getSelectedCiphers() {
-        return selectedCiphers;
+        return applicationConfigService.getHttpEndpoint().getSelectedCiphers();
     }
 
     @Override
     void setSelectedCiphers(Set<String> selectedCiphers) {
-        HttpEndpointSetupView.selectedCiphers = selectedCiphers;
+        applicationConfigService.getHttpEndpoint().setCiphers(selectedCiphers);
+    }
+
+    @Override
+    void writeConfigToApplicationYml() throws IOException {
+        applicationConfigService.persistHttpEndpointConfig();
+        applicationConfigService.getHttpEndpoint().setSaved(true);
     }
 }

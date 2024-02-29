@@ -25,7 +25,7 @@ import io.sapl.server.ce.model.setup.condition.SetupNotFinishedCondition;
 import io.sapl.server.ce.ui.views.SetupLayout;
 import org.springframework.context.annotation.Conditional;
 
-import java.util.HashSet;
+import java.io.IOException;
 import java.util.Set;
 
 @AnonymousAllowed
@@ -33,129 +33,111 @@ import java.util.Set;
 @Route(value = RSocketEndpointSetupView.ROUTE, layout = SetupLayout.class)
 @Conditional(SetupNotFinishedCondition.class)
 public class RSocketEndpointSetupView extends EndpointSetupView {
-    public static final String  ROUTE       = "/setup/rsocket";
-    private static final String PATH_PREFIX = "spring.rsocket.server/";
-
-    private static boolean     enableSaveConfigBtn;
-    private static String      enabledSslProtocols = TLS_V1_3_PROTOCOL;
-    private static String      keyStoreType        = PKCS12;
-    private static String      adr                 = "";
-    private static int         port                = 7000;
-    private static String      keyStore            = "";
-    private static String      keyAlias            = "";
-    private static String      keyStorePassword    = "";
-    private static String      keyPassword         = "";
-    private static Set<String> selectedCiphers     = new HashSet<String>(
-            Set.of(TLS_AES_128_GCM_SHA256, TLS_AES_256_GCM_SHA384));
+    public static final String ROUTE = "/setup/rsocket";
 
     @Override
     boolean getSaveConfigBtnState() {
-        return enableSaveConfigBtn;
+        return applicationConfigService.getRsocketEndpoint().getEnabled();
     }
 
     @Override
-    void setSaveConfigBtnState(boolean enable) {
-        enableSaveConfigBtn = enable;
-    }
-
-    @Override
-    String getPathPrefix() {
-        return PATH_PREFIX;
-    }
-
-    @Override
-    void writeTlsConfigToApplicationYml() {
-        super.writeTlsConfigToApplicationYml();
-        applicationConfigService.setAt(getPathPrefix() + "transport", "tcp");
+    void setSaveConfigBtnState(boolean enabled) {
+        applicationConfigService.getRsocketEndpoint().setEnabled(enabled);
     }
 
     @Override
     String getEnabledSslProtocols() {
-        return enabledSslProtocols;
+        return applicationConfigService.getRsocketEndpoint().getEnabledSslProtocols();
     }
 
     @Override
     void setEnabledSslProtocols(String protocols) {
-        enabledSslProtocols = protocols;
+        applicationConfigService.getRsocketEndpoint().setEnabledSslProtocols(protocols);
     }
 
     @Override
     String getKeyStoreType() {
-        return keyStoreType;
+        return applicationConfigService.getRsocketEndpoint().getKeyStoreType();
     }
 
     @Override
     void setKeyStoreType(String keyStoreType) {
-        RSocketEndpointSetupView.keyStoreType = keyStoreType;
+        applicationConfigService.getRsocketEndpoint().setKeyStoreType(keyStoreType);
     }
 
     @Override
     String getAdr() {
-        return adr;
+        return applicationConfigService.getHttpEndpoint().getAdr();
     }
 
     @Override
     void setAdr(String adr) {
-        RSocketEndpointSetupView.adr = adr;
+        applicationConfigService.getRsocketEndpoint().setAddress(adr);
     }
 
     @Override
     int getPort() {
-        return port;
+        return applicationConfigService.getHttpEndpoint().getPort();
     }
 
     @Override
     void setPort(int port) {
-        RSocketEndpointSetupView.port = port;
+        applicationConfigService.getRsocketEndpoint().setPort(port);
     }
 
     @Override
     String getKeyStore() {
-        return keyStore;
+        return applicationConfigService.getRsocketEndpoint().getKeyStore();
     }
 
     @Override
     void setKeyStore(String keyStore) {
-        RSocketEndpointSetupView.keyStore = keyStore;
+        applicationConfigService.getRsocketEndpoint().setKeyStore(keyStore);
     }
 
     @Override
     String getKeyAlias() {
-        return keyAlias;
+        return applicationConfigService.getRsocketEndpoint().getKeyAlias();
     }
 
     @Override
     void setKeyAlias(String keyAlias) {
-        RSocketEndpointSetupView.keyAlias = keyAlias;
+        applicationConfigService.getRsocketEndpoint().setKeyAlias(keyAlias);
     }
 
     @Override
     String getKeyStorePassword() {
-        return keyStorePassword;
+        return applicationConfigService.getRsocketEndpoint().getKeyStorePassword();
     }
 
     @Override
     void setKeyStorePassword(String keyStorePassword) {
-        RSocketEndpointSetupView.keyStorePassword = keyStorePassword;
+        applicationConfigService.getRsocketEndpoint().setKeyStorePassword(keyStorePassword);
     }
 
     @Override
     String getKeyPassword() {
-        return keyPassword;
+        return applicationConfigService.getRsocketEndpoint().getKeyPassword();
     }
 
     @Override
     void setKeyPassword(String keyPassword) {
-        RSocketEndpointSetupView.keyPassword = keyPassword;
+        applicationConfigService.getRsocketEndpoint().setKeyPassword(keyPassword);
     }
 
     @Override
     Set<String> getSelectedCiphers() {
-        return selectedCiphers;
+        return applicationConfigService.getRsocketEndpoint().getSelectedCiphers();
     }
 
     @Override
     void setSelectedCiphers(Set<String> selectedCiphers) {
-        RSocketEndpointSetupView.selectedCiphers = selectedCiphers;
+        applicationConfigService.getRsocketEndpoint().setCiphers(selectedCiphers);
+    }
+
+    @Override
+    void writeConfigToApplicationYml() throws IOException {
+        applicationConfigService.persistRsocketEndpointConfig();
+        applicationConfigService.getRsocketEndpoint().setSaved(true);
     }
 }

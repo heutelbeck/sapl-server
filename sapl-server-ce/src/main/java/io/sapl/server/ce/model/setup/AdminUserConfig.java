@@ -48,14 +48,12 @@ public class AdminUserConfig {
     }
 
     public AdminUserPasswordStrength getPasswordStrength() {
-        if (password.length() > 9) {
+        if (password.length() > 9)
             return AdminUserPasswordStrength.STRONG;
-        } else if (password.length() > 5) {
+
+        if (password.length() > 5)
             return AdminUserPasswordStrength.MODERATE;
 
-        } else {
-            return AdminUserPasswordStrength.WEAK;
-        }
+        return AdminUserPasswordStrength.WEAK;
     }
-
 }

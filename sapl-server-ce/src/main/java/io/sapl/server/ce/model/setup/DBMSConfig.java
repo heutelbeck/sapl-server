@@ -98,5 +98,4 @@ public class DBMSConfig {
         default -> null;
         };
     }
-
 }
