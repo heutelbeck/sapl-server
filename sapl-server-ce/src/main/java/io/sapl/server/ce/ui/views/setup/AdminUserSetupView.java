@@ -59,13 +59,13 @@ public class AdminUserSetupView extends VerticalLayout {
 
     @Autowired
     private transient ApplicationConfigService applicationConfigService;
-    private final TextField                    username          = new TextField("Username");
-    private final PasswordField                password          = new PasswordField("Password");
-    private final PasswordField                passwordRepeat    = new PasswordField("Repeat Password");
-    private final Button                       pwdSaveConfig     = new Button("Save Admin-User Settings");
-    private final Icon                         pwdEqualCheckIcon = VaadinIcon.CHECK.create();
-    private Span                               passwordStrengthText;
-    private Span                               passwordEqualText;
+    private final TextField                    username             = new TextField("Username");
+    private final PasswordField                password             = new PasswordField("Password");
+    private final PasswordField                passwordRepeat       = new PasswordField("Repeat Password");
+    private final Button                       pwdSaveConfig        = new Button("Save Admin-User Settings");
+    private final Icon                         pwdEqualCheckIcon    = VaadinIcon.CHECK.create();
+    private Span                               passwordStrengthText = new Span();
+    private Span                               passwordEqualText    = new Span();
 
     @PostConstruct
     private void init() {
@@ -87,6 +87,8 @@ public class AdminUserSetupView extends VerticalLayout {
             }
         });
 
+        password.setValue(applicationConfigService.getAdminUserConfig().getPassword());
+        passwordRepeat.setValue(applicationConfigService.getAdminUserConfig().getPasswordRepeat());
         username.setValue(applicationConfigService.getAdminUserConfig().getUsername());
         username.addValueChangeListener(e -> updateAdminUserConfig());
         username.setValueChangeMode(ValueChangeMode.EAGER);
@@ -105,7 +107,6 @@ public class AdminUserSetupView extends VerticalLayout {
 
     private PasswordField pwdLayout() {
         Div passwordStrength = new Div();
-        passwordStrengthText = new Span();
         passwordStrength.add(new Text("Password strength: "), passwordStrengthText);
         password.setHelperComponent(passwordStrength);
 
@@ -123,7 +124,6 @@ public class AdminUserSetupView extends VerticalLayout {
         passwordRepeat.addValueChangeListener(e -> updateAdminUserConfig());
 
         Div passwordEqual = new Div();
-        passwordEqualText = new Span();
         passwordEqual.add(new Text("Passwords are "), passwordEqualText);
         passwordRepeat.setHelperComponent(passwordEqual);
 
