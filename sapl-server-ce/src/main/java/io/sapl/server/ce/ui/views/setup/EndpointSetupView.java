@@ -36,6 +36,7 @@ import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import io.sapl.server.ce.model.setup.ApplicationConfigService;
 import io.sapl.server.ce.model.setup.EndpointConfig;
+import io.sapl.server.ce.model.setup.SupportedCiphers;
 import io.sapl.server.ce.ui.utils.ConfirmUtils;
 import io.sapl.server.ce.ui.utils.ErrorNotificationUtils;
 import jakarta.annotation.PostConstruct;
@@ -47,8 +48,8 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public abstract class EndpointSetupView extends VerticalLayout {
 
@@ -179,13 +180,12 @@ public abstract class EndpointSetupView extends VerticalLayout {
             endpointConfig.setKeyPassword(e.getValue());
             setEnableTlsConfigBtn();
         });
-
-        ciphers.setItems(getCiphers());
+        ciphers.setItems(EnumSet.allOf(SupportedCiphers.class).stream().map(Enum::name).toList());
         ciphers.addSelectionListener(e -> {
             checkIfAtLeastOneCipherOptionSelected();
-            endpointConfig.setCiphers(e.getValue());
+            endpointConfig.setCiphers(e.getValue().stream().map(SupportedCiphers::valueOf).collect(Collectors.toSet()));
         });
-        ciphers.select(endpointConfig.getSelectedCiphers());
+        ciphers.select(endpointConfig.getCiphers().stream().map(SupportedCiphers::name).collect(Collectors.toSet()));
         ciphers.addThemeVariants(CheckboxGroupVariant.LUMO_VERTICAL);
         add(ciphers);
 
@@ -211,30 +211,6 @@ public abstract class EndpointSetupView extends VerticalLayout {
         tlsLayout.setColspan(tlsSaveConfig, 2);
 
         return tlsLayout;
-    }
-
-    private static List<String> getCiphers() {
-        List<String> ciphers = new ArrayList<>();
-        ciphers.add("TLS_AES_128_GCM_SHA256");
-        ciphers.add("TLS_AES_256_GCM_SHA384");
-        ciphers.add("TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384");
-        ciphers.add("TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256");
-        ciphers.add("TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384");
-        ciphers.add("TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256");
-        ciphers.add("TLS_DHE_RSA_WITH_AES_256_GCM_SHA384");
-        ciphers.add("TLS_DHE_RSA_WITH_AES_128_GCM_SHA256");
-        ciphers.add("TLS_DHE_DSS_WITH_AES_256_GCM_SHA384");
-        ciphers.add("TLS_DHE_DSS_WITH_AES_128_GCM_SHA256");
-        ciphers.add("TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384");
-        ciphers.add("TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256");
-        ciphers.add("TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384");
-        ciphers.add("TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256");
-        ciphers.add("TLS_DHE_RSA_WITH_AES_256_CBC_SHA256");
-        ciphers.add("TLS_DHE_RSA_WITH_AES_128_CBC_SHA256");
-        ciphers.add("TLS_DHE_DSS_WITH_AES_256_CBC_SHA256");
-        ciphers.add("TLS_DHE_DSS_WITH_AES_128_CBC_SHA256");
-
-        return ciphers;
     }
 
     private static List<String> getKeyStoreTypes() {
@@ -270,7 +246,7 @@ public abstract class EndpointSetupView extends VerticalLayout {
     private void setEnableTlsConfigBtn() {
         int portNumber = port.getValue() != null ? port.getValue() : -1;
 
-        boolean tlsEnabled                = !enabledSslProtocols.getValue().equals(EndpointConfig.TLS_DISABELD);
+        boolean tlsEnabled                 = !enabledSslProtocols.getValue().equals(EndpointConfig.TLS_DISABELD);
         boolean adrValidAndPortInputExists = isValidURI(adr.getValue()) && portNumber > 0;
         boolean btnEnabled                 = tlsEnabled
                 ? adrValidAndPortInputExists && !ciphers.getSelectedItems().isEmpty() && !keyStore.getValue().isEmpty()

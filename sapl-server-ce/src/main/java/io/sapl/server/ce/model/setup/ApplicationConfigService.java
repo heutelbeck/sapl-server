@@ -156,39 +156,46 @@ public class ApplicationConfigService {
         this.saveYmlFiles();
     }
 
+    @SuppressWarnings("unchecked")
     private void initHttpEndpointConfig() {
         this.httpEndpoint.setAddress(this.getAt(httpEndpoint.addressPath, "localhost").toString());
-        try {
-            var port = this.getAt(httpEndpoint.portPath, "").toString();
-            this.httpEndpoint.setPort(getPortNumber(port));
-        } catch (NumberFormatException e) {
-            log.warn("Can't retrieve RSocket port from properties. Falling back to port " + this.httpEndpoint.getPort());
 
+        var port = this.getAt(httpEndpoint.portPath, "").toString();
+        if(getPortNumber(port) > 0) {
+            this.httpEndpoint.setPort(getPortNumber(port));
         }
+
         this.httpEndpoint
                 .setSslEnabled(Boolean.parseBoolean(this.getAt(httpEndpoint.sslEnabledPath, "false").toString()));
 
         if (Boolean.TRUE.equals(this.httpEndpoint.getSslEnabled())) {
-            this.httpEndpoint
-                    .setEnabledSslProtocols(this.getAt(httpEndpoint.sslEnabledProtocolsPath, "").toString());
+            this.httpEndpoint.setEnabledSslProtocols(this.getAt(httpEndpoint.sslEnabledProtocolsPath, "").toString());
             this.httpEndpoint.setKeyStoreType(this.getAt(httpEndpoint.sslKeyStoreTypePath, "").toString());
             this.httpEndpoint
                     .setKeyStore(this.getAt(httpEndpoint.sslKeyStorePath, "file:config/keystore.p12").toString());
             this.httpEndpoint.setKeyPassword(this.getAt(httpEndpoint.sslKeyPasswordPath, "").toString());
             this.httpEndpoint.setKeyStorePassword(this.getAt(httpEndpoint.sslKeyStorePasswordPath, "").toString());
             this.httpEndpoint.setKeyAlias(this.getAt(httpEndpoint.sslKeyAliasPath, "").toString());
-            this.httpEndpoint.setCiphers(this.getAt(httpEndpoint.sslCiphersPath, "").toString());
+
+            if (this.getAt(httpEndpoint.sslCiphersPath) != null) {
+                if (this.getAt(httpEndpoint.sslCiphersPath) instanceof List) {
+                    this.httpEndpoint.setCiphers((List<String>) this.getAt(httpEndpoint.sslCiphersPath));
+                } else if (this.getAt(httpEndpoint.sslCiphersPath) instanceof String string) {
+                    this.httpEndpoint.setCiphers(string);
+                }
+            }
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void initRsocketEndpointConfig() {
         this.rsocketEndpoint.setAddress(this.getAt(rsocketEndpoint.addressPath, "localhost").toString());
-        try {
+
             var port = this.getAt(rsocketEndpoint.portPath, "").toString();
-            this.rsocketEndpoint.setPort(getPortNumber(port));
-        } catch (NumberFormatException e) {
-            log.warn("Can't retrieve RSocket port from properties. Falling back to port " + this.rsocketEndpoint.getPort());
-        }
+            if(getPortNumber(port) > 0) {
+                this.rsocketEndpoint.setPort(getPortNumber(port));
+            }
+
         this.rsocketEndpoint
                 .setSslEnabled(Boolean.parseBoolean(this.getAt(rsocketEndpoint.sslEnabledPath, "false").toString()));
 
@@ -202,7 +209,13 @@ public class ApplicationConfigService {
             this.rsocketEndpoint
                     .setKeyStorePassword(this.getAt(rsocketEndpoint.sslKeyStorePasswordPath, "").toString());
             this.rsocketEndpoint.setKeyAlias(this.getAt(rsocketEndpoint.sslKeyAliasPath, "").toString());
-            this.rsocketEndpoint.setCiphers(this.getAt(rsocketEndpoint.sslCiphersPath, "").toString());
+            if (this.getAt(rsocketEndpoint.sslCiphersPath) != null) {
+                if (this.getAt(rsocketEndpoint.sslCiphersPath) instanceof List) {
+                    this.rsocketEndpoint.setCiphers((List<String>) this.getAt(rsocketEndpoint.sslCiphersPath));
+                } else if (this.getAt(rsocketEndpoint.sslCiphersPath) instanceof String string) {
+                    this.rsocketEndpoint.setCiphers(string);
+                }
+            }
         }
     }
 
@@ -219,9 +232,8 @@ public class ApplicationConfigService {
             this.setAt(httpEndpoint.sslKeyStorePasswordPath, this.httpEndpoint.getKeyStorePassword());
             this.setAt(httpEndpoint.sslKeyPasswordPath, this.httpEndpoint.getKeyPassword());
             this.setAt(httpEndpoint.sslKeyAliasPath, this.httpEndpoint.getKeyAlias());
-            this.setAt(httpEndpoint.sslCiphersPath, this.httpEndpoint.getSelectedCiphers());
-            this.setAt(httpEndpoint.sslEnabledProtocolsPath,
-                    this.httpEndpoint.getEnabledSslProtocols().split(" \\+ "));
+            this.setAt(httpEndpoint.sslCiphersPath, this.httpEndpoint.getCiphers());
+            this.setAt(httpEndpoint.sslEnabledProtocolsPath, this.httpEndpoint.getEnabledSslProtocols().split(" \\+ "));
             this.setAt(httpEndpoint.sslProtocolsPath, EndpointConfig.TLS_V1_3_PROTOCOL);
         }
 
@@ -242,7 +254,7 @@ public class ApplicationConfigService {
             this.setAt(rsocketEndpoint.sslKeyStorePasswordPath, this.rsocketEndpoint.getKeyStorePassword());
             this.setAt(rsocketEndpoint.sslKeyPasswordPath, this.rsocketEndpoint.getKeyPassword());
             this.setAt(rsocketEndpoint.sslKeyAliasPath, this.rsocketEndpoint.getKeyAlias());
-            this.setAt(rsocketEndpoint.sslCiphersPath, this.rsocketEndpoint.getSelectedCiphers());
+            this.setAt(rsocketEndpoint.sslCiphersPath, this.rsocketEndpoint.getCiphers());
             this.setAt(rsocketEndpoint.sslEnabledProtocolsPath,
                     this.rsocketEndpoint.getEnabledSslProtocols().split(" \\+ "));
             this.setAt(rsocketEndpoint.sslProtocolsPath, EndpointConfig.TLS_V1_3_PROTOCOL);
@@ -252,7 +264,13 @@ public class ApplicationConfigService {
     }
 
     private int getPortNumber(String s) {
-        s = s.replace(PORT_PREFIX, "").replace("}", "");
-        return Integer.parseInt(s);
+        String regex = "\\{PORT:(\\d+)}";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(s);
+        if (matcher.find()) {
+            return Integer.parseInt(matcher.group(1));
+        } else {
+            return 0;
+        }
     }
 }

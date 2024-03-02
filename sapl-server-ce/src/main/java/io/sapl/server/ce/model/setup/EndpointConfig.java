@@ -21,10 +21,8 @@ package io.sapl.server.ce.model.setup;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class EndpointConfig {
     public static final String TLS_V1_3_PROTOCOL          = "TLSv1.3";
@@ -34,8 +32,6 @@ public class EndpointConfig {
     public static final String KEY_STORE_TYPE_PKCS12      = "PKCS12";
     public static final String KEY_STORE_TYPE_JCEKS       = "JCEKS";
     public static final String KEY_STORE_TYPE_JKS         = "JKS";
-    public static final String TLS_AES_128_GCM_SHA256     = "TLS_AES_128_GCM_SHA256";
-    public static final String TLS_AES_256_GCM_SHA384     = "TLS_AES_256_GCM_SHA384";
 
     final String portPath;
     final String addressPath;
@@ -52,46 +48,48 @@ public class EndpointConfig {
 
     @Getter
     @Setter
-    private boolean     saved               = false;
+    private boolean               saved               = false;
     @Setter
-    private boolean     enabled             = false;
-    @Setter
-    @Getter
-    private String      address             = "";
+    private boolean               enabled             = false;
     @Setter
     @Getter
-    private int         port                = 1;
+    private String                address             = "";
+    @Setter
     @Getter
-    private Boolean     sslEnabled          = false;
+    private int                   port;
     @Getter
-    private String      enabledSslProtocols = "";
+    private Boolean               sslEnabled          = false;
     @Getter
-    private String      keyStoreType        = "";
+    private String                enabledSslProtocols = "";
     @Getter
-    private String      keyStore            = "";
+    private String                keyStoreType        = "";
     @Getter
-    private String      keyPassword         = "";
+    private String                keyStore            = "";
     @Getter
-    private String      keyStorePassword    = "";
+    private String                keyPassword         = "";
     @Getter
-    private String      keyAlias            = "";
+    private String                keyStorePassword    = "";
     @Getter
-    private Set<String> selectedCiphers     = new HashSet<>(Set.of(TLS_AES_128_GCM_SHA256, TLS_AES_256_GCM_SHA384));
+    private String                keyAlias            = "";
+    @Getter
+    private Set<SupportedCiphers> ciphers             = new HashSet<>(
+            Set.of(SupportedCiphers.TLS_AES_128_GCM_SHA256, SupportedCiphers.TLS_AES_256_GCM_SHA384));
 
     public EndpointConfig(String prefix, int port) {
-        addressPath = prefix + "address";
-        portPath = prefix + "port";
+
+        addressPath   = prefix + "address";
+        portPath      = prefix + "port";
         transportPath = prefix + "transport";
 
-        sslEnabledPath = prefix + "ssl.enabled";
-        sslKeyStoreTypePath = prefix + "ssl.key-store-type";
-        sslKeyStorePath = prefix + "ssl.key-store";
+        sslEnabledPath          = prefix + "ssl.enabled";
+        sslKeyStoreTypePath     = prefix + "ssl.key-store-type";
+        sslKeyStorePath         = prefix + "ssl.key-store";
         sslKeyStorePasswordPath = prefix + "ssl.key-store-password";
-        sslKeyPasswordPath = prefix + "ssl.key-password";
-        sslKeyAliasPath = prefix + "ssl.key-alias";
-        sslCiphersPath = prefix + "ssl.ciphers";
+        sslKeyPasswordPath      = prefix + "ssl.key-password";
+        sslKeyAliasPath         = prefix + "ssl.key-alias";
+        sslCiphersPath          = prefix + "ssl.ciphers";
         sslEnabledProtocolsPath = prefix + "ssl.enabled-protocols";
-        sslProtocolsPath = prefix + "ssl.protocols";
+        sslProtocolsPath        = prefix + "ssl.protocols";
 
         this.port = port;
     }
@@ -135,21 +133,16 @@ public class EndpointConfig {
         this.keyAlias = keyAlias;
     }
 
-    public void setCiphers(Object obj) {
-        if (obj instanceof String) {
-            String ciphers = obj.toString();
-
-            if (ciphers.isEmpty())
-                return;
-
-            ciphers = ciphers.replace("[", "").replace("]", "");
-            selectedCiphers.clear();
-            selectedCiphers = Stream.of(ciphers.trim().split("\\s*,\\s*")).collect(Collectors.toSet());
-        }
+    public void setCiphers(Set<SupportedCiphers> ciphers) {
+        this.ciphers = ciphers;
     }
 
-    public void setCiphers(Set<String> selectedCiphers) {
-        this.selectedCiphers = selectedCiphers;
+    public void setCiphers(List<String> ciphers) {
+        this.ciphers = ciphers.stream().map(SupportedCiphers::valueOf).collect(Collectors.toSet());
+    }
+
+    public void setCiphers(String ciphers) {
+        this.ciphers = Arrays.stream(ciphers.split(",")).map(SupportedCiphers::valueOf).collect(Collectors.toSet());
     }
 
     public boolean getEnabled() {
