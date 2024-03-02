@@ -39,6 +39,7 @@ import java.util.regex.Pattern;
 @Conditional(SetupNotFinishedCondition.class)
 public class ApplicationConfigService {
 
+    private static final String           PORT_PREFIX     = "${PORT:";
     private final List<ApplicationYml>    appYmls         = new ArrayList<>();
     private final ConfigurableEnvironment env;
     @Getter
@@ -163,7 +164,7 @@ public class ApplicationConfigService {
         }
         this.httpEndpoint.setSslEnabled(Boolean.parseBoolean(this.getAt(httpEndpoint.SSL_ENABLED_PATH, "").toString()));
 
-        if (this.httpEndpoint.getSslEnabled()) {
+        if (Boolean.TRUE.equals(this.httpEndpoint.getSslEnabled())) {
             this.httpEndpoint
                     .setEnabledSslProtocols(this.getAt(httpEndpoint.SSL_ENABLED_PROTOCOLS_PATH, "").toString());
             this.httpEndpoint.setKeyStoreType(this.getAt(httpEndpoint.SSL_KEY_STORE_TYPE_PATH, "").toString());
@@ -187,7 +188,7 @@ public class ApplicationConfigService {
         this.rsocketEndpoint
                 .setSslEnabled(Boolean.parseBoolean(this.getAt(rsocketEndpoint.SSL_ENABLED_PATH, "").toString()));
 
-        if (this.rsocketEndpoint.getSslEnabled()) {
+        if (Boolean.TRUE.equals(this.rsocketEndpoint.getSslEnabled())) {
             this.rsocketEndpoint
                     .setEnabledSslProtocols(this.getAt(rsocketEndpoint.SSL_ENABLED_PROTOCOLS_PATH, "").toString());
             this.rsocketEndpoint.setKeyStoreType(this.getAt(rsocketEndpoint.SSL_KEY_STORE_TYPE_PATH, "").toString());
@@ -202,13 +203,13 @@ public class ApplicationConfigService {
     }
 
     public void persistHttpEndpointConfig() throws IOException {
-        this.setAt(httpEndpoint.PORT_PATH, "${PORT:" + this.httpEndpoint.getPort() + "}");
+        this.setAt(httpEndpoint.PORT_PATH, PORT_PREFIX + this.httpEndpoint.getPort() + "}");
         this.setAt(httpEndpoint.ADDRESS_PATH, httpEndpoint.getAddress());
 
-        boolean tls_enabled = this.httpEndpoint.getSslEnabled();
-        this.setAt(httpEndpoint.SSL_ENABLED_PATH, tls_enabled);
+        boolean tlsEnabled = this.httpEndpoint.getSslEnabled();
+        this.setAt(httpEndpoint.SSL_ENABLED_PATH, tlsEnabled);
 
-        if (tls_enabled) {
+        if (tlsEnabled) {
             this.setAt(httpEndpoint.SSL_KEY_STORE_TYPE_PATH, this.httpEndpoint.getKeyStoreType());
             this.setAt(httpEndpoint.SSL_KEY_STORE_PATH, this.httpEndpoint.getKeyStore());
             this.setAt(httpEndpoint.SSL_KEY_STORE_PASSWORD_PATH, this.httpEndpoint.getKeyStorePassword());
@@ -224,14 +225,14 @@ public class ApplicationConfigService {
     }
 
     public void persistRsocketEndpointConfig() throws IOException {
-        this.setAt(rsocketEndpoint.PORT_PATH, "${PORT:" + this.rsocketEndpoint.getPort() + "}");
+        this.setAt(rsocketEndpoint.PORT_PATH, PORT_PREFIX + this.rsocketEndpoint.getPort() + "}");
         this.setAt(rsocketEndpoint.ADDRESS_PATH, rsocketEndpoint.getAddress());
         this.setAt(rsocketEndpoint.TRANSPORT_PATH, "tcp");
 
-        boolean tls_enabled = this.rsocketEndpoint.getSslEnabled();
-        this.setAt(rsocketEndpoint.SSL_ENABLED_PATH, tls_enabled);
+        boolean tlsEnabled = this.rsocketEndpoint.getSslEnabled();
+        this.setAt(rsocketEndpoint.SSL_ENABLED_PATH, tlsEnabled);
 
-        if (tls_enabled) {
+        if (tlsEnabled) {
             this.setAt(rsocketEndpoint.SSL_KEY_STORE_TYPE_PATH, this.rsocketEndpoint.getKeyStoreType());
             this.setAt(rsocketEndpoint.SSL_KEY_STORE_PATH, this.rsocketEndpoint.getKeyStore());
             this.setAt(rsocketEndpoint.SSL_KEY_STORE_PASSWORD_PATH, this.rsocketEndpoint.getKeyStorePassword());
@@ -247,8 +248,7 @@ public class ApplicationConfigService {
     }
 
     private int getPortNumber(String s) {
-        s.replace("${PORT:", "");
-        s.replace("}", "");
+        s = s.replace(PORT_PREFIX, "").replace("}", "");
         return Integer.parseInt(s);
     }
 }
