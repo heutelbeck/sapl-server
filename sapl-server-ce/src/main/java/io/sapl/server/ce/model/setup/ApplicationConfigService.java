@@ -162,7 +162,8 @@ public class ApplicationConfigService {
         } catch (NumberFormatException e) {
             this.httpEndpoint.setPort(httpEndpoint.DEFAULT_PORT);
         }
-        this.httpEndpoint.setSslEnabled(Boolean.parseBoolean(this.getAt(httpEndpoint.SSL_ENABLED_PATH, "").toString()));
+        this.httpEndpoint
+                .setSslEnabled(Boolean.parseBoolean(this.getAt(httpEndpoint.SSL_ENABLED_PATH, "false").toString()));
 
         if (Boolean.TRUE.equals(this.httpEndpoint.getSslEnabled())) {
             this.httpEndpoint
@@ -186,7 +187,7 @@ public class ApplicationConfigService {
             this.rsocketEndpoint.setPort(rsocketEndpoint.DEFAULT_PORT);
         }
         this.rsocketEndpoint
-                .setSslEnabled(Boolean.parseBoolean(this.getAt(rsocketEndpoint.SSL_ENABLED_PATH, "").toString()));
+                .setSslEnabled(Boolean.parseBoolean(this.getAt(rsocketEndpoint.SSL_ENABLED_PATH, "false").toString()));
 
         if (Boolean.TRUE.equals(this.rsocketEndpoint.getSslEnabled())) {
             this.rsocketEndpoint

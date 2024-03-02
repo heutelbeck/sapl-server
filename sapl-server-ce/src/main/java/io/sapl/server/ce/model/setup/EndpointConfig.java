@@ -104,10 +104,13 @@ public class EndpointConfig {
 
     public void setEnabledSslProtocols(String s) {
         enabledSslProtocols = EndpointConfig.TLS_DISABELD;
+
         if (s.contains("TLSv1.3"))
             enabledSslProtocols = EndpointConfig.TLS_V1_3_PROTOCOL;
         if (s.contains("TLSv1.3") && s.contains("TLSv1.2"))
             enabledSslProtocols = EndpointConfig.TLS_V1_3_AND_V1_2_PROTOCOL;
+
+        this.sslEnabled = !enabledSslProtocols.equals(EndpointConfig.TLS_DISABELD);
     }
 
     public void setKeyStoreType(String keyStoreType) {
@@ -152,4 +155,5 @@ public class EndpointConfig {
     public boolean getEnabled() {
         return enabled;
     }
+
 }
