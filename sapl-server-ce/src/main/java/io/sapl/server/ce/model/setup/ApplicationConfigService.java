@@ -155,94 +155,94 @@ public class ApplicationConfigService {
     }
 
     private void initHttpEndpointConfig() {
-        this.httpEndpoint.setAddress(this.getAt(httpEndpoint.ADDRESS_PATH, "localhost").toString());
+        this.httpEndpoint.setAddress(this.getAt(httpEndpoint.addressPath, "localhost").toString());
         try {
-            var port = this.getAt(httpEndpoint.PORT_PATH, "").toString();
+            var port = this.getAt(httpEndpoint.portPath, "").toString();
             this.httpEndpoint.setPort(getPortNumber(port));
         } catch (NumberFormatException e) {
             this.httpEndpoint.setPort(httpEndpoint.DEFAULT_PORT);
         }
         this.httpEndpoint
-                .setSslEnabled(Boolean.parseBoolean(this.getAt(httpEndpoint.SSL_ENABLED_PATH, "false").toString()));
+                .setSslEnabled(Boolean.parseBoolean(this.getAt(httpEndpoint.sslEnabledPath, "false").toString()));
 
         if (Boolean.TRUE.equals(this.httpEndpoint.getSslEnabled())) {
             this.httpEndpoint
-                    .setEnabledSslProtocols(this.getAt(httpEndpoint.SSL_ENABLED_PROTOCOLS_PATH, "").toString());
-            this.httpEndpoint.setKeyStoreType(this.getAt(httpEndpoint.SSL_KEY_STORE_TYPE_PATH, "").toString());
+                    .setEnabledSslProtocols(this.getAt(httpEndpoint.sslEnabledProtocolsPath, "").toString());
+            this.httpEndpoint.setKeyStoreType(this.getAt(httpEndpoint.sslKeyStoreTypePath, "").toString());
             this.httpEndpoint
-                    .setKeyStore(this.getAt(httpEndpoint.SSL_KEY_STORE_PATH, "file:config/keystore.p12").toString());
-            this.httpEndpoint.setKeyPassword(this.getAt(httpEndpoint.SSL_KEY_PASSWORD_PATH, "").toString());
-            this.httpEndpoint.setKeyStorePassword(this.getAt(httpEndpoint.SSL_KEY_STORE_PASSWORD_PATH, "").toString());
-            this.httpEndpoint.setKeyAlias(this.getAt(httpEndpoint.SSL_KEY_ALIAS_PATH, "").toString());
-            this.httpEndpoint.setCiphers(this.getAt(httpEndpoint.SSL_CIPHERS_PATH, "").toString());
+                    .setKeyStore(this.getAt(httpEndpoint.sslKeyStorePath, "file:config/keystore.p12").toString());
+            this.httpEndpoint.setKeyPassword(this.getAt(httpEndpoint.sslKeyPasswordPath, "").toString());
+            this.httpEndpoint.setKeyStorePassword(this.getAt(httpEndpoint.sslKeyStorePasswordPath, "").toString());
+            this.httpEndpoint.setKeyAlias(this.getAt(httpEndpoint.sslKeyAliasPath, "").toString());
+            this.httpEndpoint.setCiphers(this.getAt(httpEndpoint.sslCiphersPath, "").toString());
         }
     }
 
     private void initRsocketEndpointConfig() {
-        this.rsocketEndpoint.setAddress(this.getAt(rsocketEndpoint.ADDRESS_PATH, "localhost").toString());
+        this.rsocketEndpoint.setAddress(this.getAt(rsocketEndpoint.addressPath, "localhost").toString());
         try {
-            var port = this.getAt(rsocketEndpoint.PORT_PATH, "").toString();
+            var port = this.getAt(rsocketEndpoint.portPath, "").toString();
             this.rsocketEndpoint.setPort(getPortNumber(port));
         } catch (NumberFormatException e) {
             this.rsocketEndpoint.setPort(rsocketEndpoint.DEFAULT_PORT);
         }
         this.rsocketEndpoint
-                .setSslEnabled(Boolean.parseBoolean(this.getAt(rsocketEndpoint.SSL_ENABLED_PATH, "false").toString()));
+                .setSslEnabled(Boolean.parseBoolean(this.getAt(rsocketEndpoint.sslEnabledPath, "false").toString()));
 
         if (Boolean.TRUE.equals(this.rsocketEndpoint.getSslEnabled())) {
             this.rsocketEndpoint
-                    .setEnabledSslProtocols(this.getAt(rsocketEndpoint.SSL_ENABLED_PROTOCOLS_PATH, "").toString());
-            this.rsocketEndpoint.setKeyStoreType(this.getAt(rsocketEndpoint.SSL_KEY_STORE_TYPE_PATH, "").toString());
+                    .setEnabledSslProtocols(this.getAt(rsocketEndpoint.sslEnabledProtocolsPath, "").toString());
+            this.rsocketEndpoint.setKeyStoreType(this.getAt(rsocketEndpoint.sslKeyStoreTypePath, "").toString());
             this.rsocketEndpoint
-                    .setKeyStore(this.getAt(rsocketEndpoint.SSL_KEY_STORE_PATH, "file:config/keystore.p12").toString());
-            this.rsocketEndpoint.setKeyPassword(this.getAt(rsocketEndpoint.SSL_KEY_PASSWORD_PATH, "").toString());
+                    .setKeyStore(this.getAt(rsocketEndpoint.sslKeyStorePath, "file:config/keystore.p12").toString());
+            this.rsocketEndpoint.setKeyPassword(this.getAt(rsocketEndpoint.sslKeyPasswordPath, "").toString());
             this.rsocketEndpoint
-                    .setKeyStorePassword(this.getAt(rsocketEndpoint.SSL_KEY_STORE_PASSWORD_PATH, "").toString());
-            this.rsocketEndpoint.setKeyAlias(this.getAt(rsocketEndpoint.SSL_KEY_ALIAS_PATH, "").toString());
-            this.rsocketEndpoint.setCiphers(this.getAt(rsocketEndpoint.SSL_CIPHERS_PATH, "").toString());
+                    .setKeyStorePassword(this.getAt(rsocketEndpoint.sslKeyStorePasswordPath, "").toString());
+            this.rsocketEndpoint.setKeyAlias(this.getAt(rsocketEndpoint.sslKeyAliasPath, "").toString());
+            this.rsocketEndpoint.setCiphers(this.getAt(rsocketEndpoint.sslCiphersPath, "").toString());
         }
     }
 
     public void persistHttpEndpointConfig() throws IOException {
-        this.setAt(httpEndpoint.PORT_PATH, PORT_PREFIX + this.httpEndpoint.getPort() + "}");
-        this.setAt(httpEndpoint.ADDRESS_PATH, httpEndpoint.getAddress());
+        this.setAt(httpEndpoint.portPath, PORT_PREFIX + this.httpEndpoint.getPort() + "}");
+        this.setAt(httpEndpoint.addressPath, httpEndpoint.getAddress());
 
         boolean tlsEnabled = this.httpEndpoint.getSslEnabled();
-        this.setAt(httpEndpoint.SSL_ENABLED_PATH, tlsEnabled);
+        this.setAt(httpEndpoint.sslEnabledPath, tlsEnabled);
 
         if (tlsEnabled) {
-            this.setAt(httpEndpoint.SSL_KEY_STORE_TYPE_PATH, this.httpEndpoint.getKeyStoreType());
-            this.setAt(httpEndpoint.SSL_KEY_STORE_PATH, this.httpEndpoint.getKeyStore());
-            this.setAt(httpEndpoint.SSL_KEY_STORE_PASSWORD_PATH, this.httpEndpoint.getKeyStorePassword());
-            this.setAt(httpEndpoint.SSL_KEY_PASSWORD_PATH, this.httpEndpoint.getKeyPassword());
-            this.setAt(httpEndpoint.SSL_KEY_ALIAS_PATH, this.httpEndpoint.getKeyAlias());
-            this.setAt(httpEndpoint.SSL_CIPHERS_PATH, this.httpEndpoint.getSelectedCiphers());
-            this.setAt(httpEndpoint.SSL_ENABLED_PROTOCOLS_PATH,
+            this.setAt(httpEndpoint.sslKeyStoreTypePath, this.httpEndpoint.getKeyStoreType());
+            this.setAt(httpEndpoint.sslKeyStorePath, this.httpEndpoint.getKeyStore());
+            this.setAt(httpEndpoint.sslKeyStorePasswordPath, this.httpEndpoint.getKeyStorePassword());
+            this.setAt(httpEndpoint.sslKeyPasswordPath, this.httpEndpoint.getKeyPassword());
+            this.setAt(httpEndpoint.sslKeyAliasPath, this.httpEndpoint.getKeyAlias());
+            this.setAt(httpEndpoint.sslCiphersPath, this.httpEndpoint.getSelectedCiphers());
+            this.setAt(httpEndpoint.sslEnabledProtocolsPath,
                     this.httpEndpoint.getEnabledSslProtocols().split(" \\+ "));
-            this.setAt(httpEndpoint.SSL_PROTOCOLS_PATH, EndpointConfig.TLS_V1_3_PROTOCOL);
+            this.setAt(httpEndpoint.sslProtocolsPath, EndpointConfig.TLS_V1_3_PROTOCOL);
         }
 
         this.saveYmlFiles();
     }
 
     public void persistRsocketEndpointConfig() throws IOException {
-        this.setAt(rsocketEndpoint.PORT_PATH, PORT_PREFIX + this.rsocketEndpoint.getPort() + "}");
-        this.setAt(rsocketEndpoint.ADDRESS_PATH, rsocketEndpoint.getAddress());
-        this.setAt(rsocketEndpoint.TRANSPORT_PATH, "tcp");
+        this.setAt(rsocketEndpoint.portPath, PORT_PREFIX + this.rsocketEndpoint.getPort() + "}");
+        this.setAt(rsocketEndpoint.addressPath, rsocketEndpoint.getAddress());
+        this.setAt(rsocketEndpoint.transportPath, "tcp");
 
         boolean tlsEnabled = this.rsocketEndpoint.getSslEnabled();
-        this.setAt(rsocketEndpoint.SSL_ENABLED_PATH, tlsEnabled);
+        this.setAt(rsocketEndpoint.sslEnabledPath, tlsEnabled);
 
         if (tlsEnabled) {
-            this.setAt(rsocketEndpoint.SSL_KEY_STORE_TYPE_PATH, this.rsocketEndpoint.getKeyStoreType());
-            this.setAt(rsocketEndpoint.SSL_KEY_STORE_PATH, this.rsocketEndpoint.getKeyStore());
-            this.setAt(rsocketEndpoint.SSL_KEY_STORE_PASSWORD_PATH, this.rsocketEndpoint.getKeyStorePassword());
-            this.setAt(rsocketEndpoint.SSL_KEY_PASSWORD_PATH, this.rsocketEndpoint.getKeyPassword());
-            this.setAt(rsocketEndpoint.SSL_KEY_ALIAS_PATH, this.rsocketEndpoint.getKeyAlias());
-            this.setAt(rsocketEndpoint.SSL_CIPHERS_PATH, this.rsocketEndpoint.getSelectedCiphers());
-            this.setAt(rsocketEndpoint.SSL_ENABLED_PROTOCOLS_PATH,
+            this.setAt(rsocketEndpoint.sslKeyStoreTypePath, this.rsocketEndpoint.getKeyStoreType());
+            this.setAt(rsocketEndpoint.sslKeyStorePath, this.rsocketEndpoint.getKeyStore());
+            this.setAt(rsocketEndpoint.sslKeyStorePasswordPath, this.rsocketEndpoint.getKeyStorePassword());
+            this.setAt(rsocketEndpoint.sslKeyPasswordPath, this.rsocketEndpoint.getKeyPassword());
+            this.setAt(rsocketEndpoint.sslKeyAliasPath, this.rsocketEndpoint.getKeyAlias());
+            this.setAt(rsocketEndpoint.sslCiphersPath, this.rsocketEndpoint.getSelectedCiphers());
+            this.setAt(rsocketEndpoint.sslEnabledProtocolsPath,
                     this.rsocketEndpoint.getEnabledSslProtocols().split(" \\+ "));
-            this.setAt(rsocketEndpoint.SSL_PROTOCOLS_PATH, EndpointConfig.TLS_V1_3_PROTOCOL);
+            this.setAt(rsocketEndpoint.sslProtocolsPath, EndpointConfig.TLS_V1_3_PROTOCOL);
         }
 
         this.saveYmlFiles();

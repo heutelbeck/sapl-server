@@ -28,6 +28,7 @@ import java.util.stream.Stream;
 
 public class EndpointConfig {
     public static final String TLS_V1_3_PROTOCOL          = "TLSv1.3";
+    public static final String TLS_V1_2_PROTOCOL          = "TLSv1.2";
     public static final String TLS_V1_3_AND_V1_2_PROTOCOL = "TLSv1.3 + TLSv1.2";
     public static final String TLS_DISABELD               = "Disable TLS";
     public static final String KEY_STORE_TYPE_PKCS12      = "PKCS12";
@@ -36,19 +37,18 @@ public class EndpointConfig {
     public static final String TLS_AES_128_GCM_SHA256     = "TLS_AES_128_GCM_SHA256";
     public static final String TLS_AES_256_GCM_SHA384     = "TLS_AES_256_GCM_SHA384";
 
-    final int    DEFAULT_PORT;
-    final String PORT_PATH;
-    final String ADDRESS_PATH;
-    final String TRANSPORT_PATH;
-    final String SSL_ENABLED_PATH;
-    final String SSL_KEY_STORE_TYPE_PATH;
-    final String SSL_KEY_STORE_PATH;
-    final String SSL_KEY_STORE_PASSWORD_PATH;
-    final String SSL_KEY_PASSWORD_PATH;
-    final String SSL_KEY_ALIAS_PATH;
-    final String SSL_CIPHERS_PATH;
-    final String SSL_ENABLED_PROTOCOLS_PATH;
-    final String SSL_PROTOCOLS_PATH;
+    final String portPath;
+    final String addressPath;
+    final String transportPath;
+    final String sslEnabledPath;
+    final String sslKeyStoreTypePath;
+    final String sslKeyStorePath;
+    final String sslKeyStorePasswordPath;
+    final String sslKeyPasswordPath;
+    final String sslKeyAliasPath;
+    final String sslCiphersPath;
+    final String sslEnabledProtocolsPath;
+    final String sslProtocolsPath;
 
     @Getter
     @Setter
@@ -60,7 +60,7 @@ public class EndpointConfig {
     private String      address             = "";
     @Setter
     @Getter
-    private int         port                = 0;
+    private int         port                = 1;
     @Getter
     private Boolean     sslEnabled          = false;
     @Getter
@@ -79,21 +79,21 @@ public class EndpointConfig {
     private Set<String> selectedCiphers     = new HashSet<>(Set.of(TLS_AES_128_GCM_SHA256, TLS_AES_256_GCM_SHA384));
 
     public EndpointConfig(String prefix, int port) {
-        ADDRESS_PATH   = prefix + "address";
-        PORT_PATH      = prefix + "port";
-        TRANSPORT_PATH = prefix + "transport";
+        addressPath = prefix + "address";
+        portPath = prefix + "port";
+        transportPath = prefix + "transport";
 
-        SSL_ENABLED_PATH            = prefix + "ssl.enabled";
-        SSL_KEY_STORE_TYPE_PATH     = prefix + "ssl.key-store-type";
-        SSL_KEY_STORE_PATH          = prefix + "ssl.key-store";
-        SSL_KEY_STORE_PASSWORD_PATH = prefix + "ssl.key-store-password";
-        SSL_KEY_PASSWORD_PATH       = prefix + "ssl.key-password";
-        SSL_KEY_ALIAS_PATH          = prefix + "ssl.key-alias";
-        SSL_CIPHERS_PATH            = prefix + "ssl.ciphers";
-        SSL_ENABLED_PROTOCOLS_PATH  = prefix + "ssl.enabled-protocols";
-        SSL_PROTOCOLS_PATH          = prefix + "ssl.protocols";
+        sslEnabledPath = prefix + "ssl.enabled";
+        sslKeyStoreTypePath = prefix + "ssl.key-store-type";
+        sslKeyStorePath = prefix + "ssl.key-store";
+        sslKeyStorePasswordPath = prefix + "ssl.key-store-password";
+        sslKeyPasswordPath = prefix + "ssl.key-password";
+        sslKeyAliasPath = prefix + "ssl.key-alias";
+        sslCiphersPath = prefix + "ssl.ciphers";
+        sslEnabledProtocolsPath = prefix + "ssl.enabled-protocols";
+        sslProtocolsPath = prefix + "ssl.protocols";
 
-        DEFAULT_PORT = port;
+        this.port = port;
     }
 
     public void setSslEnabled(boolean sslEnabled) {
@@ -105,9 +105,9 @@ public class EndpointConfig {
     public void setEnabledSslProtocols(String s) {
         enabledSslProtocols = EndpointConfig.TLS_DISABELD;
 
-        if (s.contains("TLSv1.3"))
+        if (s.contains(TLS_V1_3_PROTOCOL))
             enabledSslProtocols = EndpointConfig.TLS_V1_3_PROTOCOL;
-        if (s.contains("TLSv1.3") && s.contains("TLSv1.2"))
+        if (s.contains(TLS_V1_3_PROTOCOL) && s.contains(TLS_V1_2_PROTOCOL))
             enabledSslProtocols = EndpointConfig.TLS_V1_3_AND_V1_2_PROTOCOL;
 
         this.sslEnabled = !enabledSslProtocols.equals(EndpointConfig.TLS_DISABELD);
