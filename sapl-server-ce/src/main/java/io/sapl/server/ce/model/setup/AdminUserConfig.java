@@ -56,7 +56,7 @@ public class AdminUserConfig {
     }
 
     public boolean isValidConfig() {
-        return !this.username.isEmpty() && this.password.equals(this.passwordRepeat);
+        return !this.username.isEmpty() && !this.password.isEmpty() && this.password.equals(this.passwordRepeat);
     }
 
     public AdminUserPasswordStrength getPasswordStrength() {
