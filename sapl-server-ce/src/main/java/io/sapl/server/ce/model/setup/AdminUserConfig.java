@@ -64,7 +64,7 @@ public class AdminUserConfig {
             return AdminUserPasswordStrength.STRONG;
         }
         if (moderatePasswordPattern.matcher(password).matches()) {
-            return AdminUserPasswordStrength.STRONG;
+            return AdminUserPasswordStrength.MODERATE;
         }
         return AdminUserPasswordStrength.WEAK;
     }

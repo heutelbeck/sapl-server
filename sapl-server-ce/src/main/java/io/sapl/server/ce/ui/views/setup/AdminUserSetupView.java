@@ -64,8 +64,8 @@ public class AdminUserSetupView extends VerticalLayout {
     private final PasswordField                passwordRepeat       = new PasswordField("Repeat Password");
     private final Button                       pwdSaveConfig        = new Button("Save Admin-User Settings");
     private final Icon                         pwdEqualCheckIcon    = VaadinIcon.CHECK.create();
-    private Span                               passwordStrengthText = new Span();
-    private Span                               passwordEqualText    = new Span();
+    private final Span                         passwordStrengthText = new Span();
+    private final Span                         passwordEqualText    = new Span();
 
     @PostConstruct
     private void init() {
