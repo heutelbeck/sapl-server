@@ -29,16 +29,13 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class EndpointConfig {
-    public static final String TLS_V1_3_PROTOCOL          = "TLSv1.3";
-    public static final String TLS_V1_2_PROTOCOL          = "TLSv1.2";
-    public static final String TLS_V1_3_AND_V1_2_PROTOCOL = "TLSv1.3 + TLSv1.2";
-    public static final String TLS_DISABELD               = "Disable TLS";
-    public static final String KEY_STORE_TYPE_PKCS12      = "PKCS12";
-    public static final String KEY_STORE_TYPE_JCEKS       = "JCEKS";
-    public static final String KEY_STORE_TYPE_JKS         = "JKS";
+    public static final String TLS_V1_3_PROTOCOL     = "TLSv1.3";
+    public static final String TLS_V1_2_PROTOCOL     = "TLSv1.2";
+    public static final String KEY_STORE_TYPE_PKCS12 = "PKCS12";
+    public static final String KEY_STORE_TYPE_JCEKS  = "JCEKS";
+    public static final String KEY_STORE_TYPE_JKS    = "JKS";
 
     final String portPath;
     final String addressPath;
@@ -51,7 +48,7 @@ public class EndpointConfig {
     final String sslKeyAliasPath;
     final String sslCiphersPath;
     final String sslEnabledProtocolsPath;
-    final String sslProtocolsPath;
+    final String sslProtocolPath;
 
     @Getter
     @Setter
@@ -63,9 +60,14 @@ public class EndpointConfig {
     @Getter
     private int                   port;
     @Getter
-    private Boolean               sslEnabled          = false;
+    @Setter
+    private boolean               tls12Enabled        = false;
     @Getter
-    private String                enabledSslProtocols = "";
+    @Setter
+    private boolean               tls13Enabled        = false;
+    @Setter
+    @Getter
+    private Set<String>           enabledSslProtocols = new HashSet<>();
     @Getter
     private String                keyStoreType        = "";
     @Getter
@@ -76,6 +78,7 @@ public class EndpointConfig {
     private String                keyStorePassword    = "";
     @Getter
     private String                keyAlias            = "";
+    @Setter
     @Getter
     private Set<SupportedCiphers> ciphers             = new HashSet<>(
             Set.of(SupportedCiphers.TLS_AES_128_GCM_SHA256, SupportedCiphers.TLS_AES_256_GCM_SHA384));
@@ -95,26 +98,9 @@ public class EndpointConfig {
         sslKeyAliasPath         = prefix + "ssl.key-alias";
         sslCiphersPath          = prefix + "ssl.ciphers";
         sslEnabledProtocolsPath = prefix + "ssl.enabled-protocols";
-        sslProtocolsPath        = prefix + "ssl.protocols";
+        sslProtocolPath         = prefix + "ssl.protocol";
 
         this.port = port;
-    }
-
-    public void setSslEnabled(boolean sslEnabled) {
-        this.sslEnabled = sslEnabled;
-        if (!sslEnabled)
-            enabledSslProtocols = EndpointConfig.TLS_DISABELD;
-    }
-
-    public void setEnabledSslProtocols(String s) {
-        enabledSslProtocols = EndpointConfig.TLS_DISABELD;
-
-        if (s.contains(TLS_V1_3_PROTOCOL))
-            enabledSslProtocols = EndpointConfig.TLS_V1_3_PROTOCOL;
-        if (s.contains(TLS_V1_3_PROTOCOL) && s.contains(TLS_V1_2_PROTOCOL))
-            enabledSslProtocols = EndpointConfig.TLS_V1_3_AND_V1_2_PROTOCOL;
-
-        this.sslEnabled = !enabledSslProtocols.equals(EndpointConfig.TLS_DISABELD);
     }
 
     public void setKeyStoreType(String keyStoreType) {
@@ -154,16 +140,18 @@ public class EndpointConfig {
         }
     }
 
-    public void setCiphers(Set<SupportedCiphers> ciphers) {
-        this.ciphers = ciphers;
+    public boolean getSslEnabled() {
+        return !enabledSslProtocols.isEmpty();
     }
 
-    public void setCiphers(List<String> ciphers) {
-        this.ciphers = ciphers.stream().map(SupportedCiphers::valueOf).collect(Collectors.toSet());
-    }
-
-    public void setCiphers(String ciphers) {
-        this.ciphers = Arrays.stream(ciphers.split(",")).map(SupportedCiphers::valueOf).collect(Collectors.toSet());
+    public String getPrimarySslProtocol() {
+        if (enabledSslProtocols.contains(TLS_V1_3_PROTOCOL)) {
+            return TLS_V1_3_PROTOCOL;
+        }
+        if (enabledSslProtocols.contains(TLS_V1_2_PROTOCOL)) {
+            return TLS_V1_2_PROTOCOL;
+        }
+        return null;
     }
 
     public boolean isValidConfig() {
@@ -179,15 +167,15 @@ public class EndpointConfig {
     }
 
     public boolean isValidProtocolConfig() {
-        if (Boolean.TRUE.equals(sslEnabled)) {
+        if (!this.enabledSslProtocols.isEmpty()) {
             return this.validKeystoreConfig && !this.ciphers.isEmpty();
         }
         return true;
     }
 
     public boolean portAndProtocolsMatch() {
-        return (sslEnabled && this.port != 80 && this.port != 8080)
-                || (!sslEnabled && this.port != 443 && this.port != 8443);
+        return (!this.enabledSslProtocols.isEmpty() && this.port != 80 && this.port != 8080)
+                || (this.enabledSslProtocols.isEmpty() && this.port != 443 && this.port != 8443);
     }
 
     public boolean testKeystore()

@@ -63,7 +63,7 @@ class ApplicationYml {
         }
     }
 
-    public void saveYmlFile() throws IOException {
+    public void persistYmlFile() throws IOException {
         if (!hasBeenChanged) {
             return;
         }
