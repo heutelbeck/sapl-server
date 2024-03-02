@@ -270,9 +270,9 @@ public abstract class EndpointSetupView extends VerticalLayout {
     private void setEnableTlsConfigBtn() {
         int portNumber = port.getValue() != null ? port.getValue() : -1;
 
-        boolean tls_enabled                = !enabledSslProtocols.getValue().equals(EndpointConfig.TLS_DISABELD);
+        boolean tlsEnabled                = !enabledSslProtocols.getValue().equals(EndpointConfig.TLS_DISABELD);
         boolean adrValidAndPortInputExists = isValidURI(adr.getValue()) && portNumber > 0;
-        boolean btnEnabled                 = tls_enabled
+        boolean btnEnabled                 = tlsEnabled
                 ? adrValidAndPortInputExists && !ciphers.getSelectedItems().isEmpty() && !keyStore.getValue().isEmpty()
                         && !keyStorePassword.getValue().isEmpty() && !keyPassword.getValue().isEmpty()
                         && endpointConfig.getEnabled()

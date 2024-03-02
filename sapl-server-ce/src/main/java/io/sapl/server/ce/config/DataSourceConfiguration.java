@@ -31,16 +31,16 @@ import javax.sql.DataSource;
 @Conditional(SetupFinishedCondition.class)
 public class DataSourceConfiguration {
 
-    @Value("${spring.datasource.url:}")
+    @Value("${spring.datasource.url:#{null}}")
     private String dataSourceUrl;
 
-    @Value("${spring.datasource.username:}")
+    @Value("${spring.datasource.username:#{null}}")
     private String dataSourceUsername;
 
-    @Value("${spring.datasource.password:}")
+    @Value("${spring.datasource.password:#{null}}")
     private String dataSourcePassword;
 
-    @Value("${spring.datasource.driverClassName:}")
+    @Value("${spring.datasource.driverClassName:#{null}}")
     private String dataSourceDriverClassName;
 
     @Bean

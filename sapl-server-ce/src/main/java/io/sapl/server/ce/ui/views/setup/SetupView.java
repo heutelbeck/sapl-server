@@ -22,6 +22,7 @@ import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
@@ -52,7 +53,7 @@ public class SetupView extends VerticalLayout {
 
         var hKeyFeatures = new H2("Key Features");
         var pKeyFeatures = new Paragraph();
-        pKeyFeatures.getStyle().set("white-space", "pre-line");
+        pKeyFeatures.getStyle().setWhiteSpace(Style.WhiteSpace.PRE_LINE);
         pKeyFeatures.setText(pKeyFeatures.getText()
                 + "1. Configure the DBMS connection, either with an existing H2 or MariaDB database or a newly created H2 database.\n");
         pKeyFeatures.setText(pKeyFeatures.getText()
@@ -63,7 +64,7 @@ public class SetupView extends VerticalLayout {
 
         var hUsage = new H2("Usage");
         var pUsage = new Paragraph();
-        pUsage.getStyle().set("white-space", "pre-line");
+        pUsage.getStyle().setWhiteSpace(Style.WhiteSpace.PRE_LINE);
         pUsage.setText(pUsage.getText()
                 + "- Run the SAPL Server CE with the production profile as described in the readme.\n");
         pUsage.setText(pUsage.getText()
@@ -75,13 +76,13 @@ public class SetupView extends VerticalLayout {
 
         var hLimitations = new H2("Limitations");
         var pLimitations = new Paragraph();
-        pLimitations.getStyle().set("white-space", "pre-line");
+        pLimitations.getStyle().setWhiteSpace(Style.WhiteSpace.PRE_LINE);
         pLimitations.setText(pLimitations.getText()
                 + "- The restart functionality works correctly only in the production profile or with disabled spring-dev-tools, which has to be removed from pom.xml. If you use a non-production profile, you have to restart the application yourself.\n");
 
         var hGoodToKnow = new H2("Good to know");
         var pGoodToKnow = new Paragraph();
-        pGoodToKnow.getStyle().set("white-space", "pre-line");
+        pGoodToKnow.getStyle().setWhiteSpace(Style.WhiteSpace.PRE_LINE);
         pGoodToKnow.setText(pGoodToKnow.getText()
                 + "- The configuration properties are stored in the Spring application.yml files.\n");
         pGoodToKnow.setText(pGoodToKnow.getText()
@@ -96,7 +97,7 @@ public class SetupView extends VerticalLayout {
         var hNotUseIt = new H2("If you don't want to use it");
         var pNotUseIt = new Paragraph();
         var aDocu     = new Anchor("https://github.com/heutelbeck/sapl-server");
-        pNotUseIt.getStyle().set("white-space", "pre-line");
+        pNotUseIt.getStyle().setWhiteSpace(Style.WhiteSpace.PRE_LINE);
         pNotUseIt.setText(pNotUseIt.getText()
                 + "If you don't want to use it, just have a look at the documentation, set up the application.yml files as you prefer and start the SAPL Server CE\n");
         aDocu.setText("Have a look at the documentation");

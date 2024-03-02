@@ -36,7 +36,7 @@ public class SaplServerCeApplication implements AppShellConfigurator {
         context = SpringApplication.run(SaplServerCeApplication.class, args);
     }
 
-    public static ConfigurableApplicationContext context;
+    private static ConfigurableApplicationContext context;
 
     public static void restart() {
         UI.getCurrent().getPage().setLocation("/");

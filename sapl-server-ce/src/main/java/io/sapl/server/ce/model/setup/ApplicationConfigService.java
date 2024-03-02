@@ -20,6 +20,7 @@ package io.sapl.server.ce.model.setup;
 
 import io.sapl.server.ce.model.setup.condition.SetupNotFinishedCondition;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.core.env.ConfigurableEnvironment;
@@ -37,6 +38,7 @@ import java.util.regex.Pattern;
 
 @Service
 @Conditional(SetupNotFinishedCondition.class)
+@Slf4j
 public class ApplicationConfigService {
 
     private static final String           PORT_PREFIX     = "${PORT:";
@@ -160,7 +162,8 @@ public class ApplicationConfigService {
             var port = this.getAt(httpEndpoint.portPath, "").toString();
             this.httpEndpoint.setPort(getPortNumber(port));
         } catch (NumberFormatException e) {
-            this.httpEndpoint.setPort(httpEndpoint.DEFAULT_PORT);
+            log.warn("Can't retrieve RSocket port from properties. Falling back to port " + this.httpEndpoint.getPort());
+
         }
         this.httpEndpoint
                 .setSslEnabled(Boolean.parseBoolean(this.getAt(httpEndpoint.sslEnabledPath, "false").toString()));
@@ -184,7 +187,7 @@ public class ApplicationConfigService {
             var port = this.getAt(rsocketEndpoint.portPath, "").toString();
             this.rsocketEndpoint.setPort(getPortNumber(port));
         } catch (NumberFormatException e) {
-            this.rsocketEndpoint.setPort(rsocketEndpoint.DEFAULT_PORT);
+            log.warn("Can't retrieve RSocket port from properties. Falling back to port " + this.rsocketEndpoint.getPort());
         }
         this.rsocketEndpoint
                 .setSslEnabled(Boolean.parseBoolean(this.getAt(rsocketEndpoint.sslEnabledPath, "false").toString()));

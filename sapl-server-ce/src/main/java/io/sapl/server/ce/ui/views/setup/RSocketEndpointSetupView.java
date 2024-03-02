@@ -27,7 +27,6 @@ import io.sapl.server.ce.ui.views.SetupLayout;
 import org.springframework.context.annotation.Conditional;
 
 import java.io.IOException;
-import java.util.Set;
 
 @AnonymousAllowed
 @PageTitle("RSocket Endpoint Setup")

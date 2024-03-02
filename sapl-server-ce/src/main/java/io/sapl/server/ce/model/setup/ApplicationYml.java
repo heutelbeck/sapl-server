@@ -31,13 +31,15 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 @Slf4j
 @Getter
 class ApplicationYml {
-    private final File          file;
-    private Map<String, Object> map            = new HashMap<>();
-    private boolean             hasBeenChanged = false;
+    private final File                file;
+    private final Map<String, Object> map              = new HashMap<>();
+    private boolean                   hasBeenChanged   = false;
+    private static final Pattern      splitPathPattern = Pattern.compile("\\.(?![^\\[\\]]*])");
 
     ApplicationYml(File f) {
         this.file = f;
@@ -95,7 +97,7 @@ class ApplicationYml {
 
     @SuppressWarnings("unchecked")
     public Object getAt(String path) {
-        String[]            p          = path.split("\\.(?![^\\[\\]]*])");
+        String[]            p          = splitPathPattern.split(path);
         Map<String, Object> currentMap = this.map;
         for (String key : p) {
             if (currentMap.containsKey(key)) {
@@ -117,7 +119,7 @@ class ApplicationYml {
         if (getAt(path) == null || !getAt(path).equals(value)) {
             hasBeenChanged = true;
         }
-        String[]            p          = path.split("\\.(?![^\\[\\]]*])");
+        String[]            p          = splitPathPattern.split(path);
         Map<String, Object> currentMap = map;
         for (int i = 0; i < p.length; i++) {
             String key = p[i];
@@ -134,7 +136,7 @@ class ApplicationYml {
 
     @SuppressWarnings("unchecked")
     public boolean existsAt(String path) {
-        String[]            p          = path.split("\\.(?![^\\[\\]]*])");
+        String[]            p          = splitPathPattern.split(path);
         Map<String, Object> currentMap = this.map;
         for (String key : p) {
             if (currentMap.containsKey(key)) {

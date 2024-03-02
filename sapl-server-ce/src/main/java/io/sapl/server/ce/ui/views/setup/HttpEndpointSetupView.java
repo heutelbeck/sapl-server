@@ -28,7 +28,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Conditional;
 
 import java.io.IOException;
-import java.util.Set;
 
 @AnonymousAllowed
 @PageTitle("HTTP Endpoint Setup")
