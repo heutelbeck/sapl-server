@@ -65,63 +65,59 @@ public class FinishSetupView extends VerticalLayout {
         Button restart = new Button("Restart Server CE");
 
         restart.addClickListener(e -> SaplServerCeApplication.restart());
-        if (!applicationConfigService.getDbmsConfig().isSaved()
-                || !applicationConfigService.getAdminUserConfig().isSaved()
-                || applicationConfigService.getAt("server.address", "").toString().isEmpty()
-                || applicationConfigService.getAt("server.port", "").toString().isEmpty()
-                || applicationConfigService.getAt("spring.rsocket.server.port", "").toString().isEmpty()) {
-            restart.setEnabled(false);
-        }
+        restart.setEnabled(applicationConfigService.getDbmsConfig().isSaved()
+                && applicationConfigService.getAdminUserConfig().isSaved()
+                && applicationConfigService.getHttpEndpoint().isSaved()
+                && applicationConfigService.getRsocketEndpoint().isSaved());
 
         Div  adminStateView = new Div();
         Icon adminStateIcon;
-        if (!applicationConfigService.getAdminUserConfig().isSaved()) {
-            adminStateIcon = VaadinIcon.CLOSE.create();
-            adminStateIcon.getElement().getThemeList().add(THEME_BADGEERRORPILL);
-            adminStateIcon.getStyle().setPadding(PADDING_XS);
-        } else {
+        if (applicationConfigService.getAdminUserConfig().isSaved()) {
             adminStateIcon = VaadinIcon.CHECK_CIRCLE.create();
             adminStateIcon.getElement().getThemeList().add(THEME_BADGESUCCESSPILL);
+            adminStateIcon.getStyle().setPadding(PADDING_XS);
+        } else {
+            adminStateIcon = VaadinIcon.CLOSE.create();
+            adminStateIcon.getElement().getThemeList().add(THEME_BADGEERRORPILL);
             adminStateIcon.getStyle().setPadding(PADDING_XS);
         }
         adminStateView.add(new Text("Admin user setup finished "), adminStateIcon);
 
         Div  dbmsStateView = new Div();
         Icon dbmsStateIcon;
-        if (!applicationConfigService.getDbmsConfig().isSaved()) {
-            dbmsStateIcon = VaadinIcon.CLOSE.create();
-            dbmsStateIcon.getElement().getThemeList().add(THEME_BADGEERRORPILL);
-            dbmsStateIcon.getStyle().setPadding(PADDING_XS);
-        } else {
+        if (applicationConfigService.getDbmsConfig().isSaved()) {
             dbmsStateIcon = VaadinIcon.CHECK_CIRCLE.create();
             dbmsStateIcon.getElement().getThemeList().add(THEME_BADGESUCCESSPILL);
+            dbmsStateIcon.getStyle().setPadding(PADDING_XS);
+        } else {
+            dbmsStateIcon = VaadinIcon.CLOSE.create();
+            dbmsStateIcon.getElement().getThemeList().add(THEME_BADGEERRORPILL);
             dbmsStateIcon.getStyle().setPadding(PADDING_XS);
         }
         dbmsStateView.add(new Text("Database setup finished "), dbmsStateIcon);
 
         Div  httpStateView = new Div();
         Icon httpStateIcon;
-        if (applicationConfigService.getAt("server.address", "").toString().isEmpty()
-                || applicationConfigService.getAt("server.port", "").toString().isEmpty()) {
-            httpStateIcon = VaadinIcon.CLOSE.create();
-            httpStateIcon.getElement().getThemeList().add(THEME_BADGEERRORPILL);
-            httpStateIcon.getStyle().setPadding(PADDING_XS);
-        } else {
+        if (applicationConfigService.getHttpEndpoint().isSaved()) {
             httpStateIcon = VaadinIcon.CHECK_CIRCLE.create();
             httpStateIcon.getElement().getThemeList().add(THEME_BADGESUCCESSPILL);
+            httpStateIcon.getStyle().setPadding(PADDING_XS);
+        } else {
+            httpStateIcon = VaadinIcon.CLOSE.create();
+            httpStateIcon.getElement().getThemeList().add(THEME_BADGEERRORPILL);
             httpStateIcon.getStyle().setPadding(PADDING_XS);
         }
         httpStateView.add(new Text("HTTP endpoint setup finished "), httpStateIcon);
 
         Div  rsocketStateView = new Div();
         Icon rsocketStateIcon;
-        if (applicationConfigService.getAt("spring.rsocket.server.port", "").toString().isEmpty()) {
-            rsocketStateIcon = VaadinIcon.CLOSE.create();
-            rsocketStateIcon.getElement().getThemeList().add(THEME_BADGEERRORPILL);
-            rsocketStateIcon.getStyle().setPadding(PADDING_XS);
-        } else {
+        if (applicationConfigService.getRsocketEndpoint().isSaved()) {
             rsocketStateIcon = VaadinIcon.CHECK_CIRCLE.create();
             rsocketStateIcon.getElement().getThemeList().add(THEME_BADGESUCCESSPILL);
+            rsocketStateIcon.getStyle().setPadding(PADDING_XS);
+        } else {
+            rsocketStateIcon = VaadinIcon.CLOSE.create();
+            rsocketStateIcon.getElement().getThemeList().add(THEME_BADGEERRORPILL);
             rsocketStateIcon.getStyle().setPadding(PADDING_XS);
         }
         rsocketStateView.add(new Text("RSocket endpoint setup finished "), rsocketStateIcon);
