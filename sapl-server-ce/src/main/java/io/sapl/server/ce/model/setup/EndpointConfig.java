@@ -55,8 +55,10 @@ public class EndpointConfig {
     private boolean     saved               = false;
     @Setter
     private boolean     enabled             = false;
+    @Setter
     @Getter
-    private String      adr                 = "";
+    private String      address             = "";
+    @Setter
     @Getter
     private int         port                = 0;
     @Getter
@@ -92,14 +94,6 @@ public class EndpointConfig {
         SSL_PROTOCOLS_PATH          = prefix + "ssl.protocols";
 
         DEFAULT_PORT = port;
-    }
-
-    public void setAddress(String adr) {
-        this.adr = adr;
-    }
-
-    public void setPort(int port) {
-        this.port = port;
     }
 
     public void setSslEnabled(boolean sslEnabled) {

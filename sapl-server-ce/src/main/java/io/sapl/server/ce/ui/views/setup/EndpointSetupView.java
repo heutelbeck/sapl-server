@@ -22,17 +22,12 @@ import com.google.common.net.InetAddresses;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.checkbox.CheckboxGroupVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.textfield.PasswordField;
@@ -44,7 +39,6 @@ import io.sapl.server.ce.model.setup.EndpointConfig;
 import io.sapl.server.ce.ui.utils.ConfirmUtils;
 import io.sapl.server.ce.ui.utils.ErrorNotificationUtils;
 import jakarta.annotation.PostConstruct;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -55,7 +49,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 public abstract class EndpointSetupView extends VerticalLayout {
 
@@ -63,8 +56,8 @@ public abstract class EndpointSetupView extends VerticalLayout {
     private static final String SUCCESS_COLOR = "var(--lumo-success-color)";
     private static final String ERROR_COLOR   = "var(--lumo-error-color)";
 
-    @Autowired
     transient ApplicationConfigService applicationConfigService;
+    transient EndpointConfig           endpointConfig;
 
     private final TextField                adr                    = new TextField("Address");
     private final IntegerField             port                   = new IntegerField("Port");
@@ -80,47 +73,7 @@ public abstract class EndpointSetupView extends VerticalLayout {
     private final Span                     tlsDisabledWarning     = new Span();
     private Span                           inputValidText;
 
-    abstract boolean getSaveConfigBtnState();
-
-    abstract void setSaveConfigBtnState(boolean enable);
-
-    abstract String getEnabledSslProtocols();
-
-    abstract void setEnabledSslProtocols(String protocols);
-
-    abstract String getKeyStoreType();
-
-    abstract void setKeyStoreType(String keyStoreType);
-
-    abstract String getAdr();
-
-    abstract void setAdr(String adr);
-
-    abstract int getPort();
-
-    abstract void setPort(int port);
-
-    abstract String getKeyStore();
-
-    abstract void setKeyStore(String keyStore);
-
-    abstract String getKeyAlias();
-
-    abstract void setKeyAlias(String keyAlias);
-
-    abstract String getKeyStorePassword();
-
-    abstract void setKeyStorePassword(String keyStorePassword);
-
-    abstract String getKeyPassword();
-
-    abstract void setKeyPassword(String keyPassword);
-
-    abstract Set<String> getSelectedCiphers();
-
-    abstract void setSelectedCiphers(Set<String> keyPassword);
-
-    abstract void writeConfigToApplicationYml() throws IOException;
+    abstract void persistConfig() throws IOException;
 
     @PostConstruct
     private void init() {
@@ -130,10 +83,10 @@ public abstract class EndpointSetupView extends VerticalLayout {
     public Component getLayout() {
         enabledSslProtocols.setItems(EndpointConfig.TLS_V1_3_PROTOCOL, EndpointConfig.TLS_V1_3_AND_V1_2_PROTOCOL,
                 EndpointConfig.TLS_DISABELD);
-        enabledSslProtocols.setValue(getEnabledSslProtocols());
+        enabledSslProtocols.setValue(endpointConfig.getEnabledSslProtocols());
         enabledSslProtocols.addValueChangeListener(e -> {
             setTlsFieldsVisible(!e.getValue().equals(EndpointConfig.TLS_DISABELD));
-            setEnabledSslProtocols(e.getValue());
+            endpointConfig.setEnabledSslProtocols(e.getValue());
             setEnableTlsConfigBtn();
         });
 
@@ -141,7 +94,7 @@ public abstract class EndpointSetupView extends VerticalLayout {
         setTlsFieldsVisible(!enabledSslProtocols.getValue().equals(EndpointConfig.TLS_DISABELD));
         tlsSaveConfig.addClickListener(e -> {
             try {
-                writeConfigToApplicationYml();
+                persistConfig();
                 ConfirmUtils.inform("saved", "Endpoint setup successfully saved");
             } catch (IOException ioe) {
                 ErrorNotificationUtils.show(
@@ -153,7 +106,7 @@ public abstract class EndpointSetupView extends VerticalLayout {
 
         adr.setRequiredIndicatorVisible(true);
         adr.setValueChangeMode(ValueChangeMode.EAGER);
-        adr.setValue(getAdr());
+        adr.setValue(endpointConfig.getAddress());
         Div inputValid = new Div();
         inputValidText = new Span();
         inputValid.add(new Text("Input is "), inputValidText);
@@ -161,7 +114,7 @@ public abstract class EndpointSetupView extends VerticalLayout {
         adr.addValueChangeListener(e -> adrInputValidationInfo(e.getValue()));
         adr.addBlurListener(event -> {
             if (isValidURI(event.getSource().getValue())) {
-                setAdr(event.getSource().getValue());
+                endpointConfig.setAddress(event.getSource().getValue());
                 setEnableTlsConfigBtn();
             } else {
                 ConfirmUtils.inform("Address Input-Error", "The entry in the address field is no valid ip address!");
@@ -173,66 +126,66 @@ public abstract class EndpointSetupView extends VerticalLayout {
         port.setValueChangeMode(ValueChangeMode.EAGER);
         port.setMin(1);
         port.setMax(65535);
-        port.setValue(getPort());
+        port.setValue(endpointConfig.getPort());
         port.setHelperText("Rang from 1 to 65535");
         port.addValueChangeListener(e -> {
             if (e.getValue() != null)
-                setPort(e.getValue());
+                endpointConfig.setPort(e.getValue());
             setEnableTlsConfigBtn();
         });
 
         keyStore.setPlaceholder("file:config/keystore.p12");
         keyStore.setRequiredIndicatorVisible(true);
         keyStore.setValueChangeMode(ValueChangeMode.EAGER);
-        keyStore.setValue(getKeyStore());
+        keyStore.setValue(endpointConfig.getKeyStore());
         keyStore.addValueChangeListener(e -> {
-            setSaveConfigBtnState(false);
-            setKeyStore(e.getValue());
+            endpointConfig.setEnabled(false);
+            endpointConfig.setKeyStore(e.getValue());
             setEnableTlsConfigBtn();
         });
 
         keyAlias.setPlaceholder("netty");
         keyAlias.setRequiredIndicatorVisible(true);
         keyAlias.setValueChangeMode(ValueChangeMode.EAGER);
-        keyAlias.setValue(getKeyAlias());
+        keyAlias.setValue(endpointConfig.getKeyAlias());
         keyAlias.addValueChangeListener(e -> {
-            setKeyAlias(e.getValue());
+            endpointConfig.setKeyAlias(e.getValue());
             setEnableTlsConfigBtn();
         });
 
         keyStoreType.setItems(getKeyStoreTypes());
         keyStoreType.setRequiredIndicatorVisible(true);
-        keyStoreType.setValue(getKeyStoreType());
+        keyStoreType.setValue(endpointConfig.getKeyStoreType());
         keyStoreType.addValueChangeListener(e -> {
-            setSaveConfigBtnState(false);
-            setKeyStoreType(e.getValue());
+            endpointConfig.setEnabled(false);
+            endpointConfig.setKeyStoreType(e.getValue());
             setEnableTlsConfigBtn();
         });
 
         keyStorePassword.setValueChangeMode(ValueChangeMode.EAGER);
         keyStorePassword.setRequiredIndicatorVisible(true);
-        keyStorePassword.setValue(getKeyStorePassword());
+        keyStorePassword.setValue(endpointConfig.getKeyStorePassword());
         keyStorePassword.addValueChangeListener(e -> {
-            setSaveConfigBtnState(false);
-            setKeyStorePassword(e.getValue());
+            endpointConfig.setEnabled(false);
+            endpointConfig.setKeyStorePassword(e.getValue());
             setEnableTlsConfigBtn();
         });
 
         keyPassword.setValueChangeMode(ValueChangeMode.EAGER);
         keyPassword.setRequiredIndicatorVisible(true);
-        keyPassword.setValue(getKeyPassword());
+        keyPassword.setValue(endpointConfig.getKeyPassword());
         keyPassword.addValueChangeListener(e -> {
-            setSaveConfigBtnState(false);
-            setKeyPassword(e.getValue());
+            endpointConfig.setEnabled(false);
+            endpointConfig.setKeyPassword(e.getValue());
             setEnableTlsConfigBtn();
         });
 
         ciphers.setItems(getCiphers());
         ciphers.addSelectionListener(e -> {
             checkIfAtLeastOneCipherOptionSelected();
-            setSelectedCiphers(e.getValue());
+            endpointConfig.setCiphers(e.getValue());
         });
-        ciphers.select(getSelectedCiphers());
+        ciphers.select(endpointConfig.getSelectedCiphers());
         ciphers.addThemeVariants(CheckboxGroupVariant.LUMO_VERTICAL);
         add(ciphers);
 
@@ -322,7 +275,7 @@ public abstract class EndpointSetupView extends VerticalLayout {
         boolean btnEnabled                 = tls_enabled
                 ? adrValidAndPortInputExists && !ciphers.getSelectedItems().isEmpty() && !keyStore.getValue().isEmpty()
                         && !keyStorePassword.getValue().isEmpty() && !keyPassword.getValue().isEmpty()
-                        && getSaveConfigBtnState()
+                        && endpointConfig.getEnabled()
                 : adrValidAndPortInputExists;
 
         tlsSaveConfig.setEnabled(btnEnabled);
@@ -345,7 +298,7 @@ public abstract class EndpointSetupView extends VerticalLayout {
                 return;
             }
 
-            setSaveConfigBtnState(true);
+            endpointConfig.setEnabled(true);
             setEnableTlsConfigBtn();
             ConfirmUtils.inform("success", "Keystore settings valid");
         } catch (CertificateException e) {

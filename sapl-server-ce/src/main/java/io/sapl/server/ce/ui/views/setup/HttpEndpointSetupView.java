@@ -21,8 +21,10 @@ package io.sapl.server.ce.ui.views.setup;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
+import io.sapl.server.ce.model.setup.ApplicationConfigService;
 import io.sapl.server.ce.model.setup.condition.SetupNotFinishedCondition;
 import io.sapl.server.ce.ui.views.SetupLayout;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Conditional;
 
 import java.io.IOException;
@@ -35,108 +37,13 @@ import java.util.Set;
 public class HttpEndpointSetupView extends EndpointSetupView {
     public static final String ROUTE = "/setup/http";
 
-    @Override
-    boolean getSaveConfigBtnState() {
-        return applicationConfigService.getHttpEndpoint().getEnabled();
+    public HttpEndpointSetupView(@Autowired ApplicationConfigService applicationConfigService) {
+        this.applicationConfigService = applicationConfigService;
+        this.endpointConfig           = applicationConfigService.getHttpEndpoint();
     }
 
     @Override
-    void setSaveConfigBtnState(boolean enable) {
-        applicationConfigService.getHttpEndpoint().setEnabled(enable);
-    }
-
-    @Override
-    String getEnabledSslProtocols() {
-        return applicationConfigService.getHttpEndpoint().getEnabledSslProtocols();
-    }
-
-    @Override
-    void setEnabledSslProtocols(String protocols) {
-        applicationConfigService.getHttpEndpoint().setEnabledSslProtocols(protocols);
-    }
-
-    @Override
-    String getKeyStoreType() {
-        return applicationConfigService.getHttpEndpoint().getKeyStoreType();
-    }
-
-    @Override
-    void setKeyStoreType(String keyStoreType) {
-        applicationConfigService.getHttpEndpoint().setKeyStoreType(keyStoreType);
-    }
-
-    @Override
-    String getAdr() {
-        return applicationConfigService.getHttpEndpoint().getAdr();
-    }
-
-    @Override
-    void setAdr(String adr) {
-        applicationConfigService.getHttpEndpoint().setAddress(adr);
-    }
-
-    @Override
-    int getPort() {
-        return applicationConfigService.getHttpEndpoint().getPort();
-    }
-
-    @Override
-    void setPort(int port) {
-        applicationConfigService.getHttpEndpoint().setPort(port);
-    }
-
-    @Override
-    String getKeyStore() {
-        return applicationConfigService.getHttpEndpoint().getKeyStore();
-    }
-
-    @Override
-    void setKeyStore(String keyStore) {
-        applicationConfigService.getHttpEndpoint().setKeyStore(keyStore);
-    }
-
-    @Override
-    String getKeyAlias() {
-        return applicationConfigService.getHttpEndpoint().getKeyAlias();
-    }
-
-    @Override
-    void setKeyAlias(String keyAlias) {
-        applicationConfigService.getHttpEndpoint().setKeyAlias(keyAlias);
-    }
-
-    @Override
-    String getKeyStorePassword() {
-        return applicationConfigService.getHttpEndpoint().getKeyStorePassword();
-    }
-
-    @Override
-    void setKeyStorePassword(String keyStorePassword) {
-        applicationConfigService.getHttpEndpoint().setKeyStorePassword(keyStorePassword);
-    }
-
-    @Override
-    String getKeyPassword() {
-        return applicationConfigService.getHttpEndpoint().getKeyPassword();
-    }
-
-    @Override
-    void setKeyPassword(String keyPassword) {
-        applicationConfigService.getHttpEndpoint().setKeyPassword(keyPassword);
-    }
-
-    @Override
-    Set<String> getSelectedCiphers() {
-        return applicationConfigService.getHttpEndpoint().getSelectedCiphers();
-    }
-
-    @Override
-    void setSelectedCiphers(Set<String> selectedCiphers) {
-        applicationConfigService.getHttpEndpoint().setCiphers(selectedCiphers);
-    }
-
-    @Override
-    void writeConfigToApplicationYml() throws IOException {
+    void persistConfig() throws IOException {
         applicationConfigService.persistHttpEndpointConfig();
         applicationConfigService.getHttpEndpoint().setSaved(true);
     }

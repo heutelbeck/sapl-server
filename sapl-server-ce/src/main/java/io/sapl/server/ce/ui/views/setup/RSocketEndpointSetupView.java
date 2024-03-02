@@ -21,6 +21,7 @@ package io.sapl.server.ce.ui.views.setup;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
+import io.sapl.server.ce.model.setup.ApplicationConfigService;
 import io.sapl.server.ce.model.setup.condition.SetupNotFinishedCondition;
 import io.sapl.server.ce.ui.views.SetupLayout;
 import org.springframework.context.annotation.Conditional;
@@ -35,106 +36,13 @@ import java.util.Set;
 public class RSocketEndpointSetupView extends EndpointSetupView {
     public static final String ROUTE = "/setup/rsocket";
 
-    @Override
-    boolean getSaveConfigBtnState() {
-        return applicationConfigService.getRsocketEndpoint().getEnabled();
+    public RSocketEndpointSetupView(ApplicationConfigService applicationConfigService) {
+        this.applicationConfigService = applicationConfigService;
+        this.endpointConfig           = applicationConfigService.getRsocketEndpoint();
     }
 
     @Override
-    void setSaveConfigBtnState(boolean enabled) {
-        applicationConfigService.getRsocketEndpoint().setEnabled(enabled);
-    }
-
-    @Override
-    String getEnabledSslProtocols() {
-        return applicationConfigService.getRsocketEndpoint().getEnabledSslProtocols();
-    }
-
-    @Override
-    void setEnabledSslProtocols(String protocols) {
-        applicationConfigService.getRsocketEndpoint().setEnabledSslProtocols(protocols);
-    }
-
-    @Override
-    String getKeyStoreType() {
-        return applicationConfigService.getRsocketEndpoint().getKeyStoreType();
-    }
-
-    @Override
-    void setKeyStoreType(String keyStoreType) {
-        applicationConfigService.getRsocketEndpoint().setKeyStoreType(keyStoreType);
-    }
-
-    @Override
-    String getAdr() {
-        return applicationConfigService.getRsocketEndpoint().getAdr();
-    }
-
-    @Override
-    void setAdr(String adr) {
-        applicationConfigService.getRsocketEndpoint().setAddress(adr);
-    }
-
-    @Override
-    int getPort() {
-        return applicationConfigService.getRsocketEndpoint().getPort();
-    }
-
-    @Override
-    void setPort(int port) {
-        applicationConfigService.getRsocketEndpoint().setPort(port);
-    }
-
-    @Override
-    String getKeyStore() {
-        return applicationConfigService.getRsocketEndpoint().getKeyStore();
-    }
-
-    @Override
-    void setKeyStore(String keyStore) {
-        applicationConfigService.getRsocketEndpoint().setKeyStore(keyStore);
-    }
-
-    @Override
-    String getKeyAlias() {
-        return applicationConfigService.getRsocketEndpoint().getKeyAlias();
-    }
-
-    @Override
-    void setKeyAlias(String keyAlias) {
-        applicationConfigService.getRsocketEndpoint().setKeyAlias(keyAlias);
-    }
-
-    @Override
-    String getKeyStorePassword() {
-        return applicationConfigService.getRsocketEndpoint().getKeyStorePassword();
-    }
-
-    @Override
-    void setKeyStorePassword(String keyStorePassword) {
-        applicationConfigService.getRsocketEndpoint().setKeyStorePassword(keyStorePassword);
-    }
-
-    @Override
-    String getKeyPassword() {
-        return applicationConfigService.getRsocketEndpoint().getKeyPassword();
-    }
-
-    @Override
-    void setKeyPassword(String keyPassword) {
-        applicationConfigService.getRsocketEndpoint().setKeyPassword(keyPassword);
-    }
-
-    @Override
-    Set<String> getSelectedCiphers() { return applicationConfigService.getRsocketEndpoint().getSelectedCiphers(); }
-
-    @Override
-    void setSelectedCiphers(Set<String> selectedCiphers) {
-        applicationConfigService.getRsocketEndpoint().setCiphers(selectedCiphers);
-    }
-
-    @Override
-    void writeConfigToApplicationYml() throws IOException {
+    void persistConfig() throws IOException {
         applicationConfigService.persistRsocketEndpointConfig();
         applicationConfigService.getRsocketEndpoint().setSaved(true);
     }
