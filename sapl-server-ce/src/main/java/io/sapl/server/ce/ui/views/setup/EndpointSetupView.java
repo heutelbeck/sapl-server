@@ -18,7 +18,6 @@
 
 package io.sapl.server.ce.ui.views.setup;
 
-import com.google.common.net.InetAddresses;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
@@ -30,9 +29,9 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
+import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import io.sapl.server.ce.model.setup.ApplicationConfigService;
 import io.sapl.server.ce.model.setup.EndpointConfig;
@@ -41,14 +40,14 @@ import io.sapl.server.ce.ui.utils.ConfirmUtils;
 import io.sapl.server.ce.ui.utils.ErrorNotificationUtils;
 import jakarta.annotation.PostConstruct;
 
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public abstract class EndpointSetupView extends VerticalLayout {
@@ -70,9 +69,10 @@ public abstract class EndpointSetupView extends VerticalLayout {
     private final RadioButtonGroup<String> keyStoreType           = new RadioButtonGroup<>("Key Store Type");
     private final CheckboxGroup<String>    ciphers                = new CheckboxGroup<>("TLS ciphers");
     private final Button                   validateKeyStoreSecret = new Button("Validate keystore settings");
-    private final Button                   tlsSaveConfig          = new Button("Save Configuration");
+    private final Button                   endpointSaveConfig     = new Button("Save Configuration");
     private final Span                     tlsDisabledWarning     = new Span();
-    private Span                           inputValidText;
+    private Span                           addressInputValidText;
+    private Span                           portInputValidText;
 
     abstract void persistConfig() throws IOException;
 
@@ -85,15 +85,10 @@ public abstract class EndpointSetupView extends VerticalLayout {
         enabledSslProtocols.setItems(EndpointConfig.TLS_V1_3_PROTOCOL, EndpointConfig.TLS_V1_3_AND_V1_2_PROTOCOL,
                 EndpointConfig.TLS_DISABELD);
         enabledSslProtocols.setValue(endpointConfig.getEnabledSslProtocols());
-        enabledSslProtocols.addValueChangeListener(e -> {
-            setTlsFieldsVisible(!e.getValue().equals(EndpointConfig.TLS_DISABELD));
-            endpointConfig.setEnabledSslProtocols(e.getValue());
-            setEnableTlsConfigBtn();
-        });
+        enabledSslProtocols.addValueChangeListener(e -> updateEndpointConfig());
 
-        setEnableTlsConfigBtn();
         setTlsFieldsVisible(!enabledSslProtocols.getValue().equals(EndpointConfig.TLS_DISABELD));
-        tlsSaveConfig.addClickListener(e -> {
+        endpointSaveConfig.addClickListener(e -> {
             try {
                 persistConfig();
                 ConfirmUtils.inform("saved", "Endpoint setup successfully saved");
@@ -103,87 +98,66 @@ public abstract class EndpointSetupView extends VerticalLayout {
                                 + ioe.getMessage());
             }
         });
-        validateKeyStoreSecret.addClickListener(e -> openKeyStore());
+        validateKeyStoreSecret.addClickListener(e -> testKeystore());
 
         adr.setRequiredIndicatorVisible(true);
         adr.setValueChangeMode(ValueChangeMode.EAGER);
         adr.setValue(endpointConfig.getAddress());
-        Div inputValid = new Div();
-        inputValidText = new Span();
-        inputValid.add(new Text("Input is "), inputValidText);
-        adr.setHelperComponent(inputValid);
-        adr.addValueChangeListener(e -> adrInputValidationInfo(e.getValue()));
+        Div addressInputValid = new Div();
+        addressInputValidText = new Span();
+        addressInputValid.add(new Text("Input is "), addressInputValidText);
+        adr.setHelperComponent(addressInputValid);
+        adr.addValueChangeListener(e -> updateEndpointConfig());
         adr.addBlurListener(event -> {
-            if (isValidURI(event.getSource().getValue())) {
-                endpointConfig.setAddress(event.getSource().getValue());
-                setEnableTlsConfigBtn();
-            } else {
+            if (!endpointConfig.isValidURI()) {
                 ConfirmUtils.inform("Address Input-Error", "The entry in the address field is no valid ip address!");
             }
         });
-        adrInputValidationInfo(adr.getValue());
+        updateAddressHint();
 
         port.setRequiredIndicatorVisible(true);
         port.setValueChangeMode(ValueChangeMode.EAGER);
         port.setMin(1);
         port.setMax(65535);
         port.setValue(endpointConfig.getPort());
-        port.setHelperText("Rang from 1 to 65535");
-        port.addValueChangeListener(e -> {
-            if (e.getValue() != null)
-                endpointConfig.setPort(e.getValue());
-            setEnableTlsConfigBtn();
-        });
+
+        Div portInputValid = new Div();
+        portInputValidText = new Span();
+        portInputValid.add(new Text("Range from 1 to 65535    "), portInputValidText);
+        port.setHelperComponent(portInputValid);
+
+        port.addValueChangeListener(e -> updateEndpointConfig());
 
         keyStore.setPlaceholder("file:config/keystore.p12");
         keyStore.setRequiredIndicatorVisible(true);
         keyStore.setValueChangeMode(ValueChangeMode.EAGER);
         keyStore.setValue(endpointConfig.getKeyStore());
-        keyStore.addValueChangeListener(e -> {
-            endpointConfig.setEnabled(false);
-            endpointConfig.setKeyStore(e.getValue());
-            setEnableTlsConfigBtn();
-        });
+        keyStore.addValueChangeListener(e -> updateEndpointConfig());
 
         keyAlias.setPlaceholder("netty");
         keyAlias.setRequiredIndicatorVisible(true);
         keyAlias.setValueChangeMode(ValueChangeMode.EAGER);
         keyAlias.setValue(endpointConfig.getKeyAlias());
-        keyAlias.addValueChangeListener(e -> {
-            endpointConfig.setKeyAlias(e.getValue());
-            setEnableTlsConfigBtn();
-        });
+        keyAlias.addValueChangeListener(e -> updateEndpointConfig());
 
         keyStoreType.setItems(getKeyStoreTypes());
         keyStoreType.setRequiredIndicatorVisible(true);
         keyStoreType.setValue(endpointConfig.getKeyStoreType());
-        keyStoreType.addValueChangeListener(e -> {
-            endpointConfig.setEnabled(false);
-            endpointConfig.setKeyStoreType(e.getValue());
-            setEnableTlsConfigBtn();
-        });
+        keyStoreType.addValueChangeListener(e -> updateEndpointConfig());
 
         keyStorePassword.setValueChangeMode(ValueChangeMode.EAGER);
         keyStorePassword.setRequiredIndicatorVisible(true);
         keyStorePassword.setValue(endpointConfig.getKeyStorePassword());
-        keyStorePassword.addValueChangeListener(e -> {
-            endpointConfig.setEnabled(false);
-            endpointConfig.setKeyStorePassword(e.getValue());
-            setEnableTlsConfigBtn();
-        });
+        keyStorePassword.addValueChangeListener(e -> updateEndpointConfig());
 
         keyPassword.setValueChangeMode(ValueChangeMode.EAGER);
         keyPassword.setRequiredIndicatorVisible(true);
         keyPassword.setValue(endpointConfig.getKeyPassword());
-        keyPassword.addValueChangeListener(e -> {
-            endpointConfig.setEnabled(false);
-            endpointConfig.setKeyPassword(e.getValue());
-            setEnableTlsConfigBtn();
-        });
+        keyPassword.addValueChangeListener(e -> updateEndpointConfig());
         ciphers.setItems(EnumSet.allOf(SupportedCiphers.class).stream().map(Enum::name).toList());
         ciphers.addSelectionListener(e -> {
+            updateEndpointConfig();
             checkIfAtLeastOneCipherOptionSelected();
-            endpointConfig.setCiphers(e.getValue().stream().map(SupportedCiphers::valueOf).collect(Collectors.toSet()));
         });
         ciphers.select(endpointConfig.getCiphers().stream().map(SupportedCiphers::name).collect(Collectors.toSet()));
         ciphers.addThemeVariants(CheckboxGroupVariant.LUMO_VERTICAL);
@@ -206,9 +180,9 @@ public abstract class EndpointSetupView extends VerticalLayout {
         tlsDisabledWarning.setVisible(enabledSslProtocols.getValue().equals(EndpointConfig.TLS_DISABELD));
 
         FormLayout tlsLayout = new FormLayout(adr, port, enabledSslProtocols, keyStoreType, ciphers, keyLayout,
-                tlsDisabledWarning, tlsSaveConfig);
+                tlsDisabledWarning, endpointSaveConfig);
         tlsLayout.setColspan(tlsDisabledWarning, 2);
-        tlsLayout.setColspan(tlsSaveConfig, 2);
+        tlsLayout.setColspan(endpointSaveConfig, 2);
 
         return tlsLayout;
     }
@@ -222,61 +196,40 @@ public abstract class EndpointSetupView extends VerticalLayout {
         return keyTypes;
     }
 
-    private void adrInputValidationInfo(String adr) {
-        if (isValidURI(adr)) {
-            inputValidText.setText("valid");
-            inputValidText.getStyle().setColor(SUCCESS_COLOR);
+    private void updateAddressHint() {
+        if (endpointConfig.isValidURI()) {
+            addressInputValidText.setText("valid");
+            addressInputValidText.getStyle().setColor(SUCCESS_COLOR);
         } else {
-            inputValidText.setText("invalid");
-            inputValidText.getStyle().setColor(ERROR_COLOR);
+            addressInputValidText.setText("invalid");
+            addressInputValidText.getStyle().setColor(ERROR_COLOR);
         }
     }
 
-    private boolean isValidURI(String adr) {
-        return InetAddresses.isUriInetAddress(adr) || adr.equals("localhost");
+    private void updatePortHint() {
+        if (!endpointConfig.portAndProtocolsMatch()) {
+            portInputValidText.setText("Port doesn't match the protocol.");
+            portInputValidText.getStyle().setColor(ERROR_COLOR);
+        }
     }
 
     private void checkIfAtLeastOneCipherOptionSelected() {
-        setEnableTlsConfigBtn();
-
         if (ciphers.getSelectedItems().isEmpty())
             ErrorNotificationUtils.show("At least one cipher option must be selected");
     }
 
-    private void setEnableTlsConfigBtn() {
-        int portNumber = port.getValue() != null ? port.getValue() : -1;
-
-        boolean tlsEnabled                 = !enabledSslProtocols.getValue().equals(EndpointConfig.TLS_DISABELD);
-        boolean adrValidAndPortInputExists = isValidURI(adr.getValue()) && portNumber > 0;
-        boolean btnEnabled                 = tlsEnabled
-                ? adrValidAndPortInputExists && !ciphers.getSelectedItems().isEmpty() && !keyStore.getValue().isEmpty()
-                        && !keyStorePassword.getValue().isEmpty() && !keyPassword.getValue().isEmpty()
-                        && endpointConfig.getEnabled()
-                : adrValidAndPortInputExists;
-
-        tlsSaveConfig.setEnabled(btnEnabled);
-    }
-
-    private void openKeyStore() {
-        if (keyStorePathInvalid()) {
+    private void testKeystore() {
+        if (keyStore.getValue() == null || !keyStore.getValue().startsWith("file:")) {
             ErrorNotificationUtils.show("Key store path invalid: Key store path must begin with \"file:\"");
             return;
         }
-
-        char[] pwdArray = keyStorePassword.getValue().toCharArray();
-
         try {
-            KeyStore ks = KeyStore.getInstance(keyStoreType.getValue());
-            ks.load(new FileInputStream(keyStore.getValue().substring(5)), pwdArray);
-
-            if (!ks.containsAlias(keyAlias.getValue())) {
+            if (!endpointConfig.testKeystore()) {
                 ErrorNotificationUtils.show("Key alias fault: The given key alias does not exists in this keystore");
                 return;
             }
-
-            endpointConfig.setEnabled(true);
-            setEnableTlsConfigBtn();
             ConfirmUtils.inform("success", "Keystore settings valid");
+            updateEndpointConfig();
         } catch (CertificateException e) {
             ErrorNotificationUtils.show("Certificate fault: " + e.getMessage());
         } catch (KeyStoreException e) {
@@ -290,10 +243,6 @@ public abstract class EndpointSetupView extends VerticalLayout {
         }
     }
 
-    private boolean keyStorePathInvalid() {
-        return keyStore.getValue() == null || !keyStore.getValue().startsWith("file:");
-    }
-
     private void setTlsFieldsVisible(boolean visible) {
         keyStore.setVisible(visible);
         keyAlias.setVisible(visible);
@@ -303,5 +252,27 @@ public abstract class EndpointSetupView extends VerticalLayout {
         ciphers.setVisible(visible);
         validateKeyStoreSecret.setVisible(visible);
         tlsDisabledWarning.setVisible(!visible);
+    }
+
+    private void updateEndpointConfig() {
+        endpointConfig.setAddress(adr.getValue());
+        if (port.getValue() != null) {
+            endpointConfig.setPort(port.getValue());
+        } else {
+            endpointConfig.setPort(-1);
+        }
+        endpointConfig.setEnabledSslProtocols(enabledSslProtocols.getValue());
+        endpointConfig
+                .setCiphers(ciphers.getValue().stream().map(SupportedCiphers::valueOf).collect(Collectors.toSet()));
+        endpointConfig.setKeyStore(keyStore.getValue());
+        endpointConfig.setKeyAlias(keyAlias.getValue());
+        endpointConfig.setKeyStoreType(keyStoreType.getValue());
+        endpointConfig.setKeyStorePassword(keyStorePassword.getValue());
+        endpointConfig.setKeyPassword(keyPassword.getValue());
+
+        setTlsFieldsVisible(endpointConfig.getSslEnabled());
+        updateAddressHint();
+        updatePortHint();
+        endpointSaveConfig.setEnabled(endpointConfig.isValidConfig());
     }
 }

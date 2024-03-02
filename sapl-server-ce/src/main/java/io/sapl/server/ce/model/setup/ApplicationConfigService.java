@@ -161,7 +161,7 @@ public class ApplicationConfigService {
         this.httpEndpoint.setAddress(this.getAt(httpEndpoint.addressPath, "localhost").toString());
 
         var port = this.getAt(httpEndpoint.portPath, "").toString();
-        if(getPortNumber(port) > 0) {
+        if (getPortNumber(port) > 0) {
             this.httpEndpoint.setPort(getPortNumber(port));
         }
 
@@ -191,10 +191,10 @@ public class ApplicationConfigService {
     private void initRsocketEndpointConfig() {
         this.rsocketEndpoint.setAddress(this.getAt(rsocketEndpoint.addressPath, "localhost").toString());
 
-            var port = this.getAt(rsocketEndpoint.portPath, "").toString();
-            if(getPortNumber(port) > 0) {
-                this.rsocketEndpoint.setPort(getPortNumber(port));
-            }
+        var port = this.getAt(rsocketEndpoint.portPath, "").toString();
+        if (getPortNumber(port) > 0) {
+            this.rsocketEndpoint.setPort(getPortNumber(port));
+        }
 
         this.rsocketEndpoint
                 .setSslEnabled(Boolean.parseBoolean(this.getAt(rsocketEndpoint.sslEnabledPath, "false").toString()));
@@ -264,7 +264,7 @@ public class ApplicationConfigService {
     }
 
     private int getPortNumber(String s) {
-        String regex = "\\{PORT:(\\d+)}";
+        String  regex   = "\\{PORT:(\\d+)}";
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(s);
         if (matcher.find()) {

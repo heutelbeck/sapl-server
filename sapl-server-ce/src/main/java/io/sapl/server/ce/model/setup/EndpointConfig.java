@@ -18,9 +18,16 @@
 
 package io.sapl.server.ce.model.setup;
 
+import com.google.common.net.InetAddresses;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -50,8 +57,6 @@ public class EndpointConfig {
     @Setter
     private boolean               saved               = false;
     @Setter
-    private boolean               enabled             = false;
-    @Setter
     @Getter
     private String                address             = "";
     @Setter
@@ -74,6 +79,7 @@ public class EndpointConfig {
     @Getter
     private Set<SupportedCiphers> ciphers             = new HashSet<>(
             Set.of(SupportedCiphers.TLS_AES_128_GCM_SHA256, SupportedCiphers.TLS_AES_256_GCM_SHA384));
+    private boolean               validKeystoreConfig = false;
 
     public EndpointConfig(String prefix, int port) {
 
@@ -112,25 +118,40 @@ public class EndpointConfig {
     }
 
     public void setKeyStoreType(String keyStoreType) {
-        this.keyStoreType = keyStoreType;
+        if (!keyStoreType.equals(this.keyStoreType)) {
+            this.validKeystoreConfig = false;
+            this.keyStoreType        = keyStoreType;
+        }
         if (this.keyStoreType.isEmpty())
             this.keyStoreType = KEY_STORE_TYPE_PKCS12;
     }
 
     public void setKeyStore(String keyStore) {
-        this.keyStore = keyStore;
-    }
-
-    public void setKeyPassword(String keyPassword) {
-        this.keyPassword = keyPassword;
+        if (!keyStore.equals(this.keyStore)) {
+            this.validKeystoreConfig = false;
+            this.keyStore            = keyStore;
+        }
     }
 
     public void setKeyStorePassword(String keyStorePassword) {
-        this.keyStorePassword = keyStorePassword;
+        if (!keyStorePassword.equals(this.keyStorePassword)) {
+            this.validKeystoreConfig = false;
+            this.keyStorePassword    = keyStorePassword;
+        }
+    }
+
+    public void setKeyPassword(String keyPassword) {
+        if (!keyPassword.equals(this.keyPassword)) {
+            this.validKeystoreConfig = false;
+            this.keyPassword         = keyPassword;
+        }
     }
 
     public void setKeyAlias(String keyAlias) {
-        this.keyAlias = keyAlias;
+        if (!keyAlias.equals(this.keyAlias)) {
+            this.validKeystoreConfig = false;
+            this.keyAlias            = keyAlias;
+        }
     }
 
     public void setCiphers(Set<SupportedCiphers> ciphers) {
@@ -145,8 +166,37 @@ public class EndpointConfig {
         this.ciphers = Arrays.stream(ciphers.split(",")).map(SupportedCiphers::valueOf).collect(Collectors.toSet());
     }
 
-    public boolean getEnabled() {
-        return enabled;
+    public boolean isValidConfig() {
+        return isValidURI() && isValidPort() && isValidProtocolConfig();
+    }
+
+    public boolean isValidURI() {
+        return InetAddresses.isUriInetAddress(this.address) || this.address.equals("localhost");
+    }
+
+    public boolean isValidPort() {
+        return this.port > 0 && this.port < 65535;
+    }
+
+    public boolean isValidProtocolConfig() {
+        if (Boolean.TRUE.equals(sslEnabled)) {
+            return this.validKeystoreConfig && !this.ciphers.isEmpty();
+        }
+        return true;
+    }
+
+    public boolean portAndProtocolsMatch() {
+        return (sslEnabled && this.port != 80 && this.port != 8080)
+                || (!sslEnabled && this.port != 443 && this.port != 8443);
+    }
+
+    public boolean testKeystore()
+            throws CertificateException, KeyStoreException, NoSuchAlgorithmException, IOException {
+        char[]   pwdArray = keyStorePassword.toCharArray();
+        KeyStore ks       = KeyStore.getInstance(keyStoreType);
+        ks.load(new FileInputStream(keyStore.substring(5)), pwdArray);
+        this.validKeystoreConfig = ks.containsAlias(keyAlias);
+        return this.validKeystoreConfig;
     }
 
 }
