@@ -16,7 +16,7 @@ The Setup Wizard is a component designed to streamline the setup and initial con
 - Once restarted, the new configuration parameters will take effect.
 
 ## Limitations:
-- The restart functionality works correctly only in the production profile or with disabled spring-dev-tools, which has to be removed from pom.xml. If you use a non-production profile, you have to restart the application yourself.
+- If you use the spring-dev-tools by activating them in the pom.xml, the restart functionality works correctly only in the production profile. If you use spring-dev-tool with a non-production profile, you have to restart the application yourself.
 
 ## Good to know:
 - The configuration properties are stored in the Spring application.yml files.

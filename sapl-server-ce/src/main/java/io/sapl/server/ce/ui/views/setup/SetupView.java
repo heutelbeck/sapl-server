@@ -78,7 +78,7 @@ public class SetupView extends VerticalLayout {
         var pLimitations = new Paragraph();
         pLimitations.getStyle().setWhiteSpace(Style.WhiteSpace.PRE_LINE);
         pLimitations.setText(pLimitations.getText()
-                + "- The restart functionality works correctly only in the production profile or with disabled spring-dev-tools, which has to be removed from pom.xml. If you use a non-production profile, you have to restart the application yourself.\n");
+                + "- If you use the spring-dev-tools by activating them in the pom.xml, the restart functionality works correctly only in the production profile. If you use spring-dev-tool with a non-production profile, you have to restart the application yourself.\n");
 
         var hGoodToKnow = new H2("Good to know");
         var pGoodToKnow = new Paragraph();
