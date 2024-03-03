@@ -133,7 +133,7 @@ public class FinishSetupView extends VerticalLayout {
             apiAuthenticationIconState.getElement().getThemeList().add(THEME_BADGEERRORPILL);
             apiAuthenticationIconState.getStyle().setPadding(PADDING_XS);
         }
-        apiAuthenticationView.add(new Text("API Access Control setup finished "), apiAuthenticationIconState);
+        apiAuthenticationView.add(new Text("API Authentication setup finished "), apiAuthenticationIconState);
 
         VerticalLayout stateLayout = new VerticalLayout();
         stateLayout.setSpacing(false);

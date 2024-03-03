@@ -59,10 +59,10 @@ public class SetupView extends VerticalLayout {
         pKeyFeatures.setText(pKeyFeatures.getText()
                 + "2. Set up the username and password for the administrator user for the SAPL Server CE.\n");
 
-        pKeyFeatures
-                .setText(pKeyFeatures.getText() + "3. Configure the HTTP and RSocket endpoints of the SAPL Server CE.");
+        pKeyFeatures.setText(
+                pKeyFeatures.getText() + "3. Configure the HTTP and RSocket endpoints of the SAPL Server CE.\n");
         pKeyFeatures.setText(pKeyFeatures.getText()
-                + "4. Configure the basic authentication settings for accessing the API of SAPL Server CE.");
+                + "4. Configure the basic authentication settings for accessing the API of SAPL Server CE.\n");
 
         var hUsage = new H2("Usage");
         var pUsage = new Paragraph();
