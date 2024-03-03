@@ -16,7 +16,7 @@
 # limitations under the License.
 #
 
-# Security (BCrypt encoded client-secret (raw secret: demo))
+# Security (Argon2 encoded client-secret (raw secret: demo))
 io.sapl:
   server:
     accesscontrol:
