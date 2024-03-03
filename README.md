@@ -86,7 +86,7 @@ A basic configuration is required to operate the SAPL Server CE securely. This i
 
 In summary, the application's configuration is controlled by key-value pairs known as properties. These properties are provided to the application through `.properties` files, `.yml` files, or environment variables. The method of providing these values depends on the specific target environment.
 
-To start the SAPL Server LT for development, there is a minimal basic configuration `application.yml` file in the folder `sapl-server-ce/config` within the folder from where the server is started.
+To start the SAPL Server CE for development, there is a minimal basic configuration `application.yml` file in the folder `sapl-server-ce/config` within the folder from where the server is started.
 
 **Note:** This example configuration is not intended for production. It contains secrets and certificates which are publicly known. Whenever you run a SAPL Server CE with this configuration **you** **accept the resulting risks** making the API publicly accessible via the provided credentials and that the server and its decisions cannot be properly authenticated by client applications because of the use of a publicly known self-signed TLS certificate.
 
@@ -118,11 +118,72 @@ When using an H2 database, this can be configured and created by the setup wizar
 
 When using a MariaDB, the url, user name and password must be known for successful configuration in the setup wizard.
 
+#### How to start the wizard
 
+When the application is started, the parameters in application.yml are checked. If the entry
+```
+spring.datasource.url
+```
+or
+```
+io.sapl.server.accesscontrol.admin-username
+```
+not present here, the application starts with the setup wizard. The wizard is then accessible depending on the settings for `server.port` and `server.address` in the application.yml. If as an example, you delete the `application.yml` file under `sapl-server-ce/config`, the settings of the `application.yml` under `sapl-server-ce/src/main/resources take` effect and the application can be accessed under
+```
+http://localhost:8080/
+```
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-#################### alt
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+The start page is the welcome page. Here you will find all the information you need to successfully create a configuration with the wizard.
+
+### Logging Configuration
+
+The SAPL Server CE uses the Simple Logging Facade for Java (SLF4J) and the logging framework Logback for logging. The annotation types for SLF4J are imported via Lombok.
+
+Configuration of logging can be done in the `application.yml` file. Additional logging configurations can be found in the [Spring documentation](https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.logging).
+
+#### Logging Level
+
+To configure the logging level for the desired classes, use the `logging.level` property and select one of the following levels:
+
+- `TRACE`:  Detailed information for troubleshooting and debugging during development.
+- `DEBUG`: Logs useful information for development and debugging purposes.
+- `INFO`: These messages provide updates on the application's progress and significant events.
+- `WARN`: Records issues that do not result in errors.
+- `ERROR`: The application's errors or exceptions that occurred during execution are logged.
+
+The logging level for the `io.sapl` and `org.springframework` classes is set to `INFO` by default.
+
+To enhance the performance of the SAPL Server CE, consider adjusting the logging level to `WARN`. This will reduce the number of log messages and improve latency. However, it is important to note that decisions made by the PDP will still be logged with the `INFO` level.
+
+#### Logging specific to SAPL
+
+Configuration options for logging PDP decisions are set under `io.sapl.pdp.embedded`. Boolean values determine which log formats are activated or deactivated for PDP decisions.
+
+- `print-trace`: The PDP documents each individual calculation step in a fine-grained manner. The trace is provided in JSON format, which may become very large. This should only be considered as a final option for resolving issues.
+- `print-json-report`: This JSON report summarizes the applied algorithms and results of each evaluated policy (set) in the decision-making process. It includes lists of all errors and values of policy information point attributes encountered during the evaluation of each policy (set).
+- `print-text-report`: This will log a human-readable textual report based on the same data as the 'print-json-report' option generates.
+- `pretty-print-reports`: This option can enable formatting of JSON data while printing JSON during reporting and tracing.
+
+The following code example shows the format in which the information is logged when the `print-text-report` property is activated.
+
+```
+--- The PDP made a decision ---
+Subscription: {"subject":"bs@simpsons.com","action":"read","resource":"file://example/med/record/patient/BartSimpson"}
+Decision    : {"decision":"DENY"}
+Timestamp   : 2024-01-12T09:48:19.668342200Z
+Algorithm   : "DENY_OVERRIDES"
+Matches     : ["policy 1"]
+Policy Evaluation Result ===================
+Name        : "policy 1"
+Entitlement : "DENY"
+Decision    : {"decision":"DENY"}
+Target      : true
+Where       : true
+```
+
+#### Log to a file
+
+If you need to write the logs to a file, refer to the [Spring documentation](https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.logging.file-output) for the procedure.
 
 ### Deploy via Docker Image 
 
