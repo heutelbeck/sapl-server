@@ -20,12 +20,15 @@ package io.sapl.server.ce.ui.views.setup;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
@@ -135,10 +138,20 @@ public class DbmsSetupView extends VerticalLayout {
             dbmsSaveConfig.setEnabled(false);
             if (applicationConfigService.getDbmsConfig().getDbms() == SupportedDatasourceTypes.H2
                     && e.getErrorCode() == 90146) {
-                ConfirmUtils.letConfirm("Database does not exist",
-                        e.getLocalizedMessage() + "\n\nTry now to create it?", () -> this.dbmsConnectionTest(true),
-                        () -> {
-                        });
+                var dialog = new ConfirmDialog();
+                dialog.setHeader("Database does not exist");
+                var text = new Span();
+                text.getStyle().setWhiteSpace(Style.WhiteSpace.PRE_LINE);
+                text.setText(e.getLocalizedMessage() + "\n\nTry now to create it?");
+                dialog.setText(text);
+
+                dialog.setCancelable(true);
+
+                dialog.setConfirmText("Try to create");
+                dialog.setConfirmButtonTheme("success primary");
+                dialog.addConfirmListener(event -> this.dbmsConnectionTest(true));
+                dialog.open();
+
             } else {
                 ErrorNotificationUtils.show("Connection to the database not possible. " + e.getLocalizedMessage());
             }
