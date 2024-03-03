@@ -82,7 +82,7 @@ After a few minutes the complete engine and server should be built. There are tw
 
 ## Configuration
 
-A basic configuration is required to operate the SAPL Server CE securely. This includes configuring [client application authentication](#managing-client-authentications) and [TLS](#tls-configuration). SAPL Server CE is implemented using [Spring Boot](https://spring.io/projects/spring-boot/), which offers flexible tools for application configuration. The Spring Boot documentation for [Externalized Configuration](https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.external-config) provides helpful guidelines to follow. It is important to note the order in which configurations are loaded and can overwrite each other.
+A basic configuration is required to operate the SAPL Server CE securely. This includes configuring client application authentication and TLS. SAPL Server CE is implemented using [Spring Boot](https://spring.io/projects/spring-boot/), which offers flexible tools for application configuration. The Spring Boot documentation for [Externalized Configuration](https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.external-config) provides helpful guidelines to follow. It is important to note the order in which configurations are loaded and can overwrite each other.
 
 In summary, the application's configuration is controlled by key-value pairs known as properties. These properties are provided to the application through `.properties` files, `.yml` files, or environment variables. The method of providing these values depends on the specific target environment.
 
@@ -90,7 +90,10 @@ To start the SAPL Server CE for development, there is a minimal basic configurat
 
 **Note:** This example configuration is not intended for production. It contains secrets and certificates which are publicly known. Whenever you run a SAPL Server CE with this configuration **you** **accept the resulting risks** making the API publicly accessible via the provided credentials and that the server and its decisions cannot be properly authenticated by client applications because of the use of a publicly known self-signed TLS certificate.
 
-To create a configuration for productive use, it is strongly recommended to create an individual configuration using the setup wizard.
+To create a configuration for productive, we recommend using the setup wizard to create a basic configuration for the admin user, database and network endpoint setup.
+From this point, the user can customize further settings in the application.yml.
+
+**Note:** The Setup Wizard is designed to work with yml-Files. .properties-files are not supported. 
 
 ### Using Setup-Wizard
 
@@ -98,7 +101,7 @@ To create a configuration for productive use, it is strongly recommended to crea
 
 ##### Certificate
 
-Generate a Certificate using Certbot (Let's Encrypt client). Prerequisites: Server with Internetaccess, DNS Entry with Domain pointing to the IP addess of the Server, installed openssl (Example using Ubuntu 20)
+Generate a Certificate using Certbot (Let's Encrypt client). Prerequisites: Server with Internetaccess, DNS Entry with Domain pointing to the IP address of the Server, installed openssl (Example using Ubuntu 20)
 
 Pull Certbot https://github.com/certbot/certbot
 
@@ -116,7 +119,7 @@ The keystore.p12 file must then be saved in a directory to which the SAPL Server
 The SAPL Server CE requires a database. It is possible to use an H2 or MariaDB.
 When using an H2 database, this can be configured and created by the setup wizard.
 
-When using a MariaDB, the url, user name and password must be known for successful configuration in the setup wizard.
+When using a MariaDB, the url, username and password must be known for successful configuration in the setup wizard.
 
 #### How to start the wizard
 
@@ -128,7 +131,7 @@ or
 ```
 io.sapl.server.accesscontrol.admin-username
 ```
-not present here, the application starts with the setup wizard. The wizard is then accessible depending on the settings for `server.port` and `server.address` in the application.yml. If as an example, you delete the `application.yml` file under `sapl-server-ce/config`, the settings of the `application.yml` under `sapl-server-ce/src/main/resources take` effect and the application can be accessed under
+not present here, the application starts with the setup wizard. The wizard is then accessible depending on the settings for `server.port` and `server.address` in the application.yml. If as an example, you delete the `application.yml` file under `sapl-server-ce/config`, the settings of the `application.yml` under `sapl-server-ce/src/main/resources take` effect and the application can be accessed under the url configured in the application.yml, typically
 ```
 http://localhost:8080/
 ```

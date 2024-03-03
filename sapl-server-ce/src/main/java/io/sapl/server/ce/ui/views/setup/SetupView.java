@@ -79,6 +79,7 @@ public class SetupView extends VerticalLayout {
         pLimitations.getStyle().setWhiteSpace(Style.WhiteSpace.PRE_LINE);
         pLimitations.setText(pLimitations.getText()
                 + "- If you use the spring-dev-tools by activating them in the pom.xml, the restart functionality works correctly only in the production profile. If you use spring-dev-tool with a non-production profile, you have to restart the application yourself.\n");
+        pLimitations.setText(pLimitations.getText() + "- The Setup Wizard is designed to work with .yml-files. .properties-files are not supported.\n");
 
         var hGoodToKnow = new H2("Good to know");
         var pGoodToKnow = new Paragraph();
