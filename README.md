@@ -50,36 +50,6 @@ Ensure that the Java executables are added to the system path.
 
 To be done: setup download of release and snapshot via GitHub packages.
 
-### Running from Source
-
-#### Prerequisites
-
-To build SAPL Server CE from source, first ensure that [OpenJDK 17](https://openjdk.org/projects/jdk/17/) or newer is installed. There are several distributions available, such as [Eclipse Temurin](https://adoptium.net/de/temurin/releases/) supplying binaries for different platforms.
-
-SAPL uses Apache Maven as its build system, which must be installed and can be downloaded from the [Apache Maven Download Page](https://maven.apache.org/download.cgi).
-
-Ensure the Java and Maven executables are on the system path.
-
-#### Download
-
-The source of the policy engine is found on the public [GitHub](https://github.com/) repository: <https://github.com/heutelbeck/sapl-server>.
-
-You can either download the source as a ZIP file and unzip the archive, or clone the repository using git:
-
-```
-git clone https://github.com/heutelbeck/sapl-server.git
-```
-
-#### Build the Engine and Server locally
-
-To build the server application go to the `sapl-server-ce` folder and execute the following command:
-
-```
-mvn install
-```
-
-After a few minutes the complete engine and server should be built. There are two options to run the server after the build concluded.
-
 ## Configuration
 
 A basic configuration is required to operate the SAPL Server CE securely. This includes configuring client application authentication and TLS. SAPL Server CE is implemented using [Spring Boot](https://spring.io/projects/spring-boot/), which offers flexible tools for application configuration. The Spring Boot documentation for [Externalized Configuration](https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.external-config) provides helpful guidelines to follow. It is important to note the order in which configurations are loaded and can overwrite each other.
@@ -122,7 +92,7 @@ When using an H2 database, this can be configured and created by the setup wizar
 When using a MariaDB, the url, username and password must be known for successful configuration in the setup wizard.
 
 #### How to start the wizard
-
+The options for starting the application are described below in the chapter `Running the Server CE`.
 When the application is started, the parameters in application.yml are checked. If the entry
 ```
 spring.datasource.url
@@ -188,7 +158,43 @@ Where       : true
 
 If you need to write the logs to a file, refer to the [Spring documentation](https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.logging.file-output) for the procedure.
 
-### Deploy via Docker Image 
+## Running the Server CE
+
+### JAVA OpenJDK
+
+**Note:** Failure to configure the server will prevent it from starting. This may seem inconvenient, but it is necessary for security reasons. The default configuration does not include any well-known public secrets that could compromise the deployment's security. Please refer to the [Configuration](#configuration) section for proper server setup instructions.
+
+Once configured, start the server using the following command:
+
+```shell
+java -jar sapl-server-ce-3.0.0-SNAPSHOT.jar
+```
+
+### Running from Source
+
+**Note:** Running from source is not intended for production environments. If doing so, **you accept the risk** of running with publicly known credentials and TLS certificates if you accidentally use the development configuration of the server.
+
+It is likely that you only need to run the server from the source if you are a contributor to the policy engine project.
+
+The source code includes a small development configuration of the server which contains some pre-configured credentials and a self-signed certificate for setting up TLS.
+
+#### Running the Server using Maven
+
+Change the current directory to `sapl-server-ce/` and execute the following command:
+
+```shell
+mvn spring-boot:run
+```
+
+If started from this folder, the application will start with a demonstration configuration located in  `sapl-server-ce/config` which sets up TLS with a self-signed certificate.
+
+#### Running the Server as a JAR
+
+After the build concludes an executable JAR will be available in the folder `sapl-server-ce/target`. This JAR can be used in the same way as a downloaded SAPL Server CE binary, as described under [Java OpenJDK](#java-openjdk).
+
+**Note:** If the JAR is executed from within the folder `sapl-server-ce/` using the command `java -jar target/sapl-server-ce-3.0.0-SNAPSHOT.jar` the server will pick up the same demonstration configuration as described above.
+
+## Deploy via Docker Image
 
 This Docker Image uses a mounted directory to store access the configuration files as well as the Database if it is used as a standalone. In this Example a Windows directory 'C:\devkit\data\docker-sapl'. Copy the application.yml from sapl-server-ce\target\classes to the mounted directory. 
 
@@ -196,46 +202,7 @@ This Docker Image uses a mounted directory to store access the configuration fil
 docker run "-p80:8080" "-v/c/devkit/data/docker-sapl:/sapl:rw" ghcr.io/heutelbeck/sapl-server-ce:3.0.0-snapshot
 ```
 
-Open a browser and visit http://localhost/ . The username and password are both demo, but can be changed in the application.yml. Use https://bcrypt-generator.com/ to create a bcrypt encoded password. 
-
-### Running the Server from Source
-
-Clone the git Repository. Prerequisits: JDK 17 and Maven 3.9
-
-open a commandline tool / Windows power shell. Change the directory to \path\to\repository\sapl-server-ce. Build and run the Project with
-
-```shell
-mvn
-```
-
-Open a browser and visit https://localhost:8443/ . The credentials are demo/demo and can be changed in \path\to\repository\sapl-server-ce\config\application.yml . The Database will be created in C:\users\username\sapl
-
-### Certificate 
-
-Generate a Certificate using Certbot (Let's Encrypt client). Prerequisites: Server with Internetaccess, DNS Entry with Domain pointing to the IP addess of the Server, installed openssl (Example using Ubuntu 20)  
-
-Pull Certbot https://github.com/certbot/certbot
-
-Generate a certificate for your domain (e.g. example.com)
-
-```shell
-./certbot-auto certonly -a standalone -d example.com -d www.example.com
-cd /etc/letsencrypt/live/example.com
-openssl pkcs12 -export -in fullchain.pem -inkey privkey.pem -out keystore.p12 -name tomcat -CAfile chain.pem -caname root
-```
-The file keystore.p12 must then be copied to the directory with the config files. Add the following entry to the application.yml or replace the previous Entry:
-
-```shell
-server:
-  port: ${PORT:8443}
-  ssl:
-    enabled: true
-    key-store-type: PKCS12
-    key-store: file:config/keystore.p12
-    key-store-password: <your-password>
-    key-alias: tomcat
-```
-Then restart the application.
+Open a browser and visit http://localhost/ . The username and password are both demo, but can be changed in the application.yml. Use https://bcrypt-generator.com/ to create a bcrypt encoded password.
 
 ## Kubernetes
 
