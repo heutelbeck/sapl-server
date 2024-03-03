@@ -155,7 +155,7 @@ public class EndpointConfig {
     }
 
     public boolean isValidConfig() {
-        return isValidURI() && isValidPort() && isValidProtocolConfig();
+        return isValidPort() && isValidProtocolConfig();
     }
 
     public boolean isValidURI() {

@@ -53,6 +53,7 @@ public abstract class EndpointSetupView extends VerticalLayout {
 
     public static final String  ROUTE         = "/setup/rsocket";
     private static final String SUCCESS_COLOR = "var(--lumo-success-color)";
+    private static final String WARNING_COLOR = "#e7c200";
     private static final String ERROR_COLOR   = "var(--lumo-error-color)";
 
     transient ApplicationConfigService applicationConfigService;
@@ -106,11 +107,6 @@ public abstract class EndpointSetupView extends VerticalLayout {
         addressInputValid.add(new Text("Input is "), addressInputValidText);
         adr.setHelperComponent(addressInputValid);
         adr.addValueChangeListener(e -> updateEndpointConfig());
-        adr.addBlurListener(event -> {
-            if (!endpointConfig.isValidURI()) {
-                ConfirmUtils.inform("Address Input-Error", "The entry in the address field is no valid ip address!");
-            }
-        });
         updateAddressHint();
 
         port.setRequiredIndicatorVisible(true);
@@ -201,8 +197,8 @@ public abstract class EndpointSetupView extends VerticalLayout {
             addressInputValidText.setText("valid");
             addressInputValidText.getStyle().setColor(SUCCESS_COLOR);
         } else {
-            addressInputValidText.setText("invalid");
-            addressInputValidText.getStyle().setColor(ERROR_COLOR);
+            addressInputValidText.setText("not a valid IP address. Please correct it or make sure to enter a valid hostname.");
+            addressInputValidText.getStyle().setColor(WARNING_COLOR);
         }
     }
 
