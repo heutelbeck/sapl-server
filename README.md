@@ -90,7 +90,7 @@ To start the SAPL Server CE for development, there is a minimal basic configurat
 
 **Note:** This example configuration is not intended for production. It contains secrets and certificates which are publicly known. Whenever you run a SAPL Server CE with this configuration **you** **accept the resulting risks** making the API publicly accessible via the provided credentials and that the server and its decisions cannot be properly authenticated by client applications because of the use of a publicly known self-signed TLS certificate.
 
-To create a configuration for productive, we recommend using the setup wizard to create a basic configuration for the admin user, database and network endpoint setup.
+To create a configuration for productive, we recommend using the setup wizard to create a basic configuration for the admin user, database, network endpoints and API authentication.
 From this point, the user can customize further settings in the application.yml.
 
 **Note:** The Setup Wizard is designed to work with yml-Files. .properties-files are not supported. 

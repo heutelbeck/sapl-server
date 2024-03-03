@@ -61,7 +61,7 @@ public class FinishSetupView extends VerticalLayout {
         add(getLayout());
     }
 
-    public Component getLayout() {
+    private Component getLayout() {
         Button restart = new Button("Restart Server CE");
 
         restart.addClickListener(e -> SaplServerCeApplication.restart());
@@ -70,7 +70,7 @@ public class FinishSetupView extends VerticalLayout {
                 && applicationConfigService.getHttpEndpoint().isSaved()
                 && applicationConfigService.getRsocketEndpoint().isSaved());
 
-        Div  adminStateView = new Div();
+        var  adminStateView = new Div();
         Icon adminStateIcon;
         if (applicationConfigService.getAdminUserConfig().isSaved()) {
             adminStateIcon = VaadinIcon.CHECK_CIRCLE.create();
@@ -83,7 +83,7 @@ public class FinishSetupView extends VerticalLayout {
         }
         adminStateView.add(new Text("Admin user setup finished "), adminStateIcon);
 
-        Div  dbmsStateView = new Div();
+        var  dbmsStateView = new Div();
         Icon dbmsStateIcon;
         if (applicationConfigService.getDbmsConfig().isSaved()) {
             dbmsStateIcon = VaadinIcon.CHECK_CIRCLE.create();
@@ -96,7 +96,7 @@ public class FinishSetupView extends VerticalLayout {
         }
         dbmsStateView.add(new Text("Database setup finished "), dbmsStateIcon);
 
-        Div  httpStateView = new Div();
+        var  httpStateView = new Div();
         Icon httpStateIcon;
         if (applicationConfigService.getHttpEndpoint().isSaved()) {
             httpStateIcon = VaadinIcon.CHECK_CIRCLE.create();
@@ -109,7 +109,7 @@ public class FinishSetupView extends VerticalLayout {
         }
         httpStateView.add(new Text("HTTP endpoint setup finished "), httpStateIcon);
 
-        Div  rsocketStateView = new Div();
+        var  rsocketStateView = new Div();
         Icon rsocketStateIcon;
         if (applicationConfigService.getRsocketEndpoint().isSaved()) {
             rsocketStateIcon = VaadinIcon.CHECK_CIRCLE.create();
@@ -122,6 +122,19 @@ public class FinishSetupView extends VerticalLayout {
         }
         rsocketStateView.add(new Text("RSocket endpoint setup finished "), rsocketStateIcon);
 
+        var  apiAuthenticationView = new Div();
+        Icon apiAuthenticationIconState;
+        if (applicationConfigService.getApiAuthenticationConfig().isSaved()) {
+            apiAuthenticationIconState = VaadinIcon.CHECK_CIRCLE.create();
+            apiAuthenticationIconState.getElement().getThemeList().add(THEME_BADGESUCCESSPILL);
+            apiAuthenticationIconState.getStyle().setPadding(PADDING_XS);
+        } else {
+            apiAuthenticationIconState = VaadinIcon.CLOSE.create();
+            apiAuthenticationIconState.getElement().getThemeList().add(THEME_BADGEERRORPILL);
+            apiAuthenticationIconState.getStyle().setPadding(PADDING_XS);
+        }
+        apiAuthenticationView.add(new Text("API Access Control setup finished "), apiAuthenticationIconState);
+
         VerticalLayout stateLayout = new VerticalLayout();
         stateLayout.setSpacing(false);
         stateLayout.getThemeList().add("spacing-l");
@@ -129,9 +142,11 @@ public class FinishSetupView extends VerticalLayout {
         stateLayout.add(dbmsStateView);
         stateLayout.add(adminStateView);
         stateLayout.add(httpStateView);
-        stateLayout.add(getTlsDisabledWarning("Http", !getTlsEnableState("server.ssl.enabled")));
+        stateLayout.add(getTlsDisabledWarning("Http", !applicationConfigService.getHttpEndpoint().getSslEnabled()));
         stateLayout.add(rsocketStateView);
-        stateLayout.add(getTlsDisabledWarning("RSocket", !getTlsEnableState("spring.rsocket.server.ssl.enabled")));
+        stateLayout
+                .add(getTlsDisabledWarning("RSocket", !applicationConfigService.getRsocketEndpoint().getSslEnabled()));
+        stateLayout.add(apiAuthenticationView);
 
         var hInfo = new H2(
                 "The following settings must be adjusted and saved before the application can be restarted and used.");
@@ -159,14 +174,4 @@ public class FinishSetupView extends VerticalLayout {
         return tlsDisabledWarning;
     }
 
-    private boolean getTlsEnableState(String path) {
-        var result = applicationConfigService.getAt(path, false);
-        if (result == null)
-            return false;
-
-        if (!(result instanceof Boolean))
-            return false;
-
-        return (Boolean) result;
-    }
 }

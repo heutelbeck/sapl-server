@@ -80,7 +80,7 @@ public abstract class EndpointSetupView extends VerticalLayout {
         add(getLayout());
     }
 
-    public Component getLayout() {
+    private Component getLayout() {
         selectedSslProtocols.setItems(EndpointConfig.TLS_V1_3_PROTOCOL, EndpointConfig.TLS_V1_2_PROTOCOL);
         selectedSslProtocols.setValue(endpointConfig.getEnabledSslProtocols());
         selectedSslProtocols.addSelectionListener(e -> updateEndpointConfig());

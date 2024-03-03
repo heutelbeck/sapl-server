@@ -76,7 +76,7 @@ public class DbmsSetupView extends VerticalLayout {
         add(getLayout());
     }
 
-    public Component getLayout() {
+    private Component getLayout() {
         dbms.setItems(dbmsDisplayNames);
         dbms.setValue(dbmsDisplayNames.get(applicationConfigService.getDbmsConfig().getDbms().ordinal()));
         dbms.addValueChangeListener(e -> {

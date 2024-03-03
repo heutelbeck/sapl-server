@@ -73,7 +73,7 @@ public class AdminUserSetupView extends VerticalLayout {
 
     }
 
-    public Component getLayout() {
+    private Component getLayout() {
         pwdSaveConfig.setEnabled(applicationConfigService.getAdminUserConfig().isValidConfig());
         pwdSaveConfig.addClickListener(e -> {
             try {
