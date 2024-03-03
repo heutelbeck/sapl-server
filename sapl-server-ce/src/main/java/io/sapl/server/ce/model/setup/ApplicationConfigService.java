@@ -251,17 +251,7 @@ public class ApplicationConfigService {
             this.setAt(httpEndpoint.sslCiphersPath, this.httpEndpoint.getCiphers());
             this.setAt(httpEndpoint.sslEnabledProtocolsPath, this.httpEndpoint.getEnabledSslProtocols());
             this.setAt(httpEndpoint.sslProtocolPath, httpEndpoint.getPrimarySslProtocol());
-        } else {
-            this.setAt(httpEndpoint.sslKeyStoreTypePath, null);
-            this.setAt(httpEndpoint.sslKeyStorePath, null);
-            this.setAt(httpEndpoint.sslKeyStorePasswordPath, null);
-            this.setAt(httpEndpoint.sslKeyPasswordPath, null);
-            this.setAt(httpEndpoint.sslKeyAliasPath, null);
-            this.setAt(httpEndpoint.sslCiphersPath, null);
-            this.setAt(httpEndpoint.sslEnabledProtocolsPath, null);
-            this.setAt(httpEndpoint.sslProtocolPath, null);
         }
-
         this.persistYmlFiles();
     }
 
@@ -282,17 +272,7 @@ public class ApplicationConfigService {
             this.setAt(rsocketEndpoint.sslCiphersPath, this.rsocketEndpoint.getCiphers());
             this.setAt(rsocketEndpoint.sslEnabledProtocolsPath, this.rsocketEndpoint.getEnabledSslProtocols());
             this.setAt(rsocketEndpoint.sslProtocolPath, rsocketEndpoint.getPrimarySslProtocol());
-        } else {
-            this.setAt(rsocketEndpoint.sslKeyStoreTypePath, null);
-            this.setAt(rsocketEndpoint.sslKeyStorePath, null);
-            this.setAt(rsocketEndpoint.sslKeyStorePasswordPath, null);
-            this.setAt(rsocketEndpoint.sslKeyPasswordPath, null);
-            this.setAt(rsocketEndpoint.sslKeyAliasPath, null);
-            this.setAt(rsocketEndpoint.sslCiphersPath, null);
-            this.setAt(rsocketEndpoint.sslEnabledProtocolsPath, null);
-            this.setAt(rsocketEndpoint.sslProtocolPath, null);
         }
-
         this.persistYmlFiles();
     }
 
