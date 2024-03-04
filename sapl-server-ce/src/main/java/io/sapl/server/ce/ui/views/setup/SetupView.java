@@ -30,10 +30,8 @@ import io.sapl.server.ce.model.setup.condition.SetupNotFinishedCondition;
 import io.sapl.server.ce.ui.views.SetupLayout;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Conditional;
 
-@Slf4j
 @AnonymousAllowed
 @RequiredArgsConstructor
 @PageTitle("Setup Wizard")
