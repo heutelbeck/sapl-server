@@ -37,12 +37,10 @@ import io.sapl.server.ce.model.setup.condition.SetupNotFinishedCondition;
 import io.sapl.server.ce.model.setup.ApplicationConfigService;
 import io.sapl.server.ce.ui.views.SetupLayout;
 import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Conditional;
 
 @AnonymousAllowed
-@RequiredArgsConstructor
 @PageTitle("Finish Setup")
 @Route(value = FinishSetupView.ROUTE, layout = SetupLayout.class)
 @Conditional(SetupNotFinishedCondition.class)
@@ -53,9 +51,10 @@ public class FinishSetupView extends VerticalLayout {
     private static final String THEME_BADGESUCCESSPILL = "badge success pill";
     private static final String PADDING_XS             = "var(--lumo-space-xs";
 
-    @Autowired
     private transient ApplicationConfigService applicationConfigService;
-
+    public FinishSetupView(@Autowired ApplicationConfigService applicationConfigService){
+        this.applicationConfigService = applicationConfigService;
+    }
     @PostConstruct
     private void init() {
         add(getLayout());

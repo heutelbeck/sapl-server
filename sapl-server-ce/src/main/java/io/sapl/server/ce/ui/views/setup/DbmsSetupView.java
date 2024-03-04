@@ -39,7 +39,6 @@ import io.sapl.server.ce.ui.utils.ConfirmUtils;
 import io.sapl.server.ce.ui.utils.ErrorNotificationUtils;
 import io.sapl.server.ce.ui.views.SetupLayout;
 import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Conditional;
 
@@ -49,15 +48,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 @AnonymousAllowed
-@RequiredArgsConstructor
 @PageTitle("DBMS Setup")
 @Route(value = DbmsSetupView.ROUTE, layout = SetupLayout.class)
 @Conditional(SetupNotFinishedCondition.class)
 public class DbmsSetupView extends VerticalLayout {
 
-    public static final String ROUTE = "/setup/dbms";
-
-    @Autowired
+    public static final String                       ROUTE = "/setup/dbms";
     private transient ApplicationConfigService applicationConfigService;
 
     private final RadioButtonGroup<String> dbms           = new RadioButtonGroup<>("DBMS");
@@ -68,6 +64,10 @@ public class DbmsSetupView extends VerticalLayout {
     private final Button                   dbmsSaveConfig = new Button("Save DBMS-Configuration");
 
     private final List<String> dbmsDisplayNames = new ArrayList<>();
+
+    public DbmsSetupView(@Autowired ApplicationConfigService applicationConfigService){
+        this.applicationConfigService = applicationConfigService;
+    }
 
     @PostConstruct
     private void init() {
@@ -120,7 +120,6 @@ public class DbmsSetupView extends VerticalLayout {
     private void writeDbmsConfigToApplicationYml() {
         try {
             applicationConfigService.persistDbmsConfig();
-            applicationConfigService.getDbmsConfig().setSaved(true);
             ConfirmUtils.inform("saved", "DBMS setup successfully saved");
         } catch (IOException ioe) {
             ConfirmUtils.inform("IO-Error",

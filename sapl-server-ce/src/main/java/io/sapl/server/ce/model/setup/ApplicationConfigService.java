@@ -44,26 +44,26 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ApplicationConfigService {
 
-    private static final String           PORT_PREFIX            = "${PORT:";
-    private final List<ApplicationYml>    appYmls                = new ArrayList<>();
+    private static final String           PORT_PREFIX             = "${PORT:";
+    private final ApplicationYml[]        appYmls;
     private final ConfigurableEnvironment env;
     @Getter
-    private final DBMSConfig              dbmsConfig             = new DBMSConfig();
+    private final DBMSConfig              dbmsConfig              = new DBMSConfig();
     @Getter
-    private final AdminUserConfig         adminUserConfig        = new AdminUserConfig();
+    private final AdminUserConfig         adminUserConfig         = new AdminUserConfig();
     @Getter
-    private final EndpointConfig          httpEndpoint           = new EndpointConfig("server.", 8443);
+    private final EndpointConfig          httpEndpoint            = new EndpointConfig("server.", 8443);
     @Getter
-    private final EndpointConfig          rsocketEndpoint        = new EndpointConfig("spring.rsocket.server.", 7000);
+    private final EndpointConfig          rsocketEndpoint         = new EndpointConfig("spring.rsocket.server.", 7000);
     @Getter
     private final ApiAuthenticationConfig apiAuthenticationConfig = new ApiAuthenticationConfig();
 
     public ApplicationConfigService(ConfigurableEnvironment env) throws IOException {
         this.env = env;
-        for (File f : this.getAppYmlsFromProperties()) {
-            var ay = new ApplicationYml(f);
-            ay.initMap();
-            appYmls.add(ay);
+
+        appYmls = this.getAppYmlsFromProperties().stream().map(ApplicationYml::new).toArray(ApplicationYml[]::new);
+        for (ApplicationYml applicationYml : appYmls) {
+            applicationYml.initMap();
         }
         this.initDbmsConfig();
         this.initAdminUserConfig();
@@ -123,7 +123,7 @@ public class ApplicationConfigService {
             }
         }
         // If value was not found in any file, set it in primary file
-        appYmls.get(0).setAt(path, value);
+        appYmls[0].setAt(path, value);
     }
 
     public void persistYmlFiles() throws IOException {
@@ -150,6 +150,8 @@ public class ApplicationConfigService {
         this.setAt(DBMSConfig.USERNAME_PATH, dbmsConfig.getUsername());
         this.setAt(DBMSConfig.PASSWORD_PATH, dbmsConfig.getPassword());
         this.persistYmlFiles();
+        this.dbmsConfig.setSaved(true);
+
     }
 
     private void initAdminUserConfig() {
@@ -160,6 +162,8 @@ public class ApplicationConfigService {
         this.setAt(AdminUserConfig.USERNAME_PATH, this.adminUserConfig.getUsername());
         this.setAt(AdminUserConfig.ENCODEDPASSWORD_PATH, this.adminUserConfig.getEncodedPassword());
         this.persistYmlFiles();
+        this.adminUserConfig.setSaved(true);
+
     }
 
     @SuppressWarnings("unchecked")
@@ -171,7 +175,7 @@ public class ApplicationConfigService {
             this.httpEndpoint.setPort(getPortNumber(port));
         }
 
-        if (Boolean.parseBoolean(this.getAt(httpEndpoint.sslEnabledPath, "false").toString())) {
+        if (this.getAtAsBoolean(httpEndpoint.sslEnabledPath)) {
             if (this.getAt(httpEndpoint.sslEnabledProtocolsPath) != null) {
                 if (this.getAt(httpEndpoint.sslEnabledProtocolsPath) instanceof List) {
                     this.httpEndpoint.setEnabledSslProtocols(
@@ -204,7 +208,7 @@ public class ApplicationConfigService {
         this.setAt(httpEndpoint.portPath, PORT_PREFIX + this.httpEndpoint.getPort() + "}");
         this.setAt(httpEndpoint.addressPath, httpEndpoint.getAddress());
 
-        boolean tlsEnabled = this.httpEndpoint.getSslEnabled();
+        var tlsEnabled = this.httpEndpoint.getSslEnabled();
         this.setAt(httpEndpoint.sslEnabledPath, tlsEnabled);
 
         if (tlsEnabled) {
@@ -218,6 +222,8 @@ public class ApplicationConfigService {
             this.setAt(httpEndpoint.sslProtocolPath, httpEndpoint.getPrimarySslProtocol());
         }
         this.persistYmlFiles();
+        this.httpEndpoint.setSaved(true);
+
     }
 
     @SuppressWarnings("unchecked")
@@ -229,7 +235,7 @@ public class ApplicationConfigService {
             this.rsocketEndpoint.setPort(getPortNumber(port));
         }
 
-        if (Boolean.parseBoolean(this.getAt(rsocketEndpoint.sslEnabledPath, "false").toString())) {
+        if (this.getAtAsBoolean(rsocketEndpoint.sslEnabledPath)) {
             if (this.getAt(rsocketEndpoint.sslEnabledProtocolsPath) != null) {
                 if (this.getAt(rsocketEndpoint.sslEnabledProtocolsPath) instanceof List) {
                     this.rsocketEndpoint.setEnabledSslProtocols(
@@ -263,7 +269,7 @@ public class ApplicationConfigService {
         this.setAt(rsocketEndpoint.addressPath, rsocketEndpoint.getAddress());
         this.setAt(rsocketEndpoint.transportPath, "tcp");
 
-        boolean tlsEnabled = this.rsocketEndpoint.getSslEnabled();
+        var tlsEnabled = this.rsocketEndpoint.getSslEnabled();
         this.setAt(rsocketEndpoint.sslEnabledPath, tlsEnabled);
 
         if (tlsEnabled) {
@@ -277,17 +283,18 @@ public class ApplicationConfigService {
             this.setAt(rsocketEndpoint.sslProtocolPath, rsocketEndpoint.getPrimarySslProtocol());
         }
         this.persistYmlFiles();
+        this.rsocketEndpoint.setSaved(true);
     }
 
     private void initApiAuthenticationConfig() {
-        this.apiAuthenticationConfig.setBasicAuthEnabled(
-                Boolean.parseBoolean(this.getAt(ApiAuthenticationConfig.BASICAUTH_PATH, false).toString()));
-        this.apiAuthenticationConfig.setApiKeyAuthEnabled(
-                Boolean.parseBoolean(this.getAt(ApiAuthenticationConfig.APIKEYAUTH_PATH, false).toString()));
+        this.apiAuthenticationConfig
+                .setBasicAuthEnabled(this.getAtAsBoolean(ApiAuthenticationConfig.BASICAUTH_PATH));
+        this.apiAuthenticationConfig
+                .setApiKeyAuthEnabled(this.getAtAsBoolean(ApiAuthenticationConfig.APIKEYAUTH_PATH));
         this.apiAuthenticationConfig
                 .setApiKeyHeaderName(this.getAt(ApiAuthenticationConfig.APIKEYHEADERNAME_PATH, "").toString());
         this.apiAuthenticationConfig.setApiKeyCachingEnabled(
-                Boolean.parseBoolean(this.getAt(ApiAuthenticationConfig.APIKEYCACHINGENABLED_PATH, false).toString()));
+                this.getAtAsBoolean(ApiAuthenticationConfig.APIKEYCACHINGENABLED_PATH));
         this.apiAuthenticationConfig.setApiKeyCachingExpires(
                 Integer.parseInt(this.getAt(ApiAuthenticationConfig.APIKEYCACHINGEXPIRE_PATH, 0).toString()));
         this.apiAuthenticationConfig.setApiKeyCachingMaxSize(
@@ -305,6 +312,8 @@ public class ApplicationConfigService {
         this.setAt(ApiAuthenticationConfig.APIKEYCACHINGMAXSIZE_PATH,
                 this.apiAuthenticationConfig.getApiKeyCachingMaxSize());
         this.persistYmlFiles();
+        this.apiAuthenticationConfig.setSaved(true);
+
     }
 
     private int getPortNumber(String s) {
@@ -316,5 +325,13 @@ public class ApplicationConfigService {
         } else {
             return 0;
         }
+    }
+
+    private boolean getAtAsBoolean(String path){
+        Object obj = this.getAt(path);
+        if(obj instanceof Boolean){
+            return (boolean) obj;
+        }
+        return false;
     }
 }

@@ -74,14 +74,12 @@ public class DBMSConfig {
 
     public void setToDbmsDefaults(SupportedDatasourceTypes dbms) {
         this.setDbms(dbms);
-        switch (dbms) {
-        case H2:
+        if (this.dbms == SupportedDatasourceTypes.H2) {
             this.url = "jdbc:h2:file:~/sapl/db";
-            break;
-        case MARIADB:
-            this.url = "jdbc:mariadb://127.17.0.2:3306/saplserver";
-            break;
+        } else if (this.dbms == SupportedDatasourceTypes.MARIADB) {
+            this.url = "jdbc:mariadb://127.0.0.1:3306/saplserver";
         }
+
     }
 
     public void testConnection(boolean createDbFileForSupportedDbms) throws SQLException {

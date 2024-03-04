@@ -22,8 +22,11 @@ import com.google.common.net.InetAddresses;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -36,6 +39,8 @@ public class EndpointConfig {
     public static final String KEY_STORE_TYPE_PKCS12 = "PKCS12";
     public static final String KEY_STORE_TYPE_JCEKS  = "JCEKS";
     public static final String KEY_STORE_TYPE_JKS    = "JKS";
+
+    private static final String FILEPATH_PREFIX = "file:";
 
     final String portPath;
     final String addressPath;
@@ -159,7 +164,7 @@ public class EndpointConfig {
     }
 
     public boolean isValidURI() {
-        return InetAddresses.isUriInetAddress(this.address) || this.address.equals("localhost");
+        return InetAddresses.isUriInetAddress(this.address) || "localhost".equals(this.address);
     }
 
     public boolean isValidPort() {
@@ -178,11 +183,20 @@ public class EndpointConfig {
                 || (this.enabledSslProtocols.isEmpty() && this.port != 443 && this.port != 8443);
     }
 
+    private Path getKeyStorePath() {
+        if (keyStore.startsWith(FILEPATH_PREFIX)) {
+            return Paths.get(keyStore.replaceFirst(FILEPATH_PREFIX, ""));
+        }
+        return Paths.get(keyStore);
+    }
+
     public boolean testKeystore()
             throws CertificateException, KeyStoreException, NoSuchAlgorithmException, IOException {
         char[]   pwdArray = keyStorePassword.toCharArray();
         KeyStore ks       = KeyStore.getInstance(keyStoreType);
-        ks.load(new FileInputStream(keyStore.substring(5)), pwdArray);
+        try (InputStream is = Files.newInputStream(getKeyStorePath())) {
+            ks.load(is, pwdArray);
+        }
         this.validKeystoreConfig = ks.containsAlias(keyAlias);
         return this.validKeystoreConfig;
     }

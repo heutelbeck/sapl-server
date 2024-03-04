@@ -25,9 +25,9 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -48,7 +48,7 @@ class ApplicationYml {
     void initMap() throws IOException {
 
         if (file.exists()) {
-            InputStream                                  inputStream   = new FileInputStream(file);
+            InputStream                                  inputStream   = Files.newInputStream(file.toPath());
             ObjectMapper                                 objectMapper  = new ObjectMapper(new YAMLFactory());
             TypeReference<LinkedHashMap<String, Object>> typeReference = new TypeReference<>() {
                                                                        };
@@ -75,6 +75,7 @@ class ApplicationYml {
         }
         ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory());
         objectMapper.writeValue(file, map);
+        hasBeenChanged = false;
     }
 
     /**
@@ -100,15 +101,11 @@ class ApplicationYml {
         String[]            p          = splitPathPattern.split(path);
         Map<String, Object> currentMap = this.map;
         for (String key : p) {
-            if (currentMap.containsKey(key)) {
-                Object obj = currentMap.get(key);
-                if (obj instanceof Map) {
-                    currentMap = (Map<String, Object>) obj;
-                } else {
-                    return obj;
-                }
+            Object obj = currentMap.get(key);
+            if (obj instanceof Map) {
+                currentMap = (Map<String, Object>) obj;
             } else {
-                return null;
+                return obj;
             }
         }
         return null;
@@ -116,7 +113,7 @@ class ApplicationYml {
 
     @SuppressWarnings("unchecked")
     public void setAt(String path, Object value) {
-        if (getAt(path) == null || !getAt(path).equals(value)) {
+        if (!existsAt(path) || !getAt(path).equals(value)) {
             hasBeenChanged = true;
         }
         String[]            p          = splitPathPattern.split(path);
@@ -124,10 +121,8 @@ class ApplicationYml {
         for (int i = 0; i < p.length; i++) {
             String key = p[i];
             if (i == p.length - 1) {
-                // Reached the end of the path, set the value
                 currentMap.put(key, value);
             } else {
-                // Traverse to the next level in the map
                 currentMap.computeIfAbsent(key, k -> new HashMap<>());
                 currentMap = (Map<String, Object>) currentMap.get(key);
             }
@@ -139,15 +134,15 @@ class ApplicationYml {
         String[]            p          = splitPathPattern.split(path);
         Map<String, Object> currentMap = this.map;
         for (String key : p) {
-            if (currentMap.containsKey(key)) {
-                Object obj = currentMap.get(key);
+            Object obj = currentMap.get(key);
+            if (obj != null) {
                 if (obj instanceof Map) {
                     currentMap = (Map<String, Object>) obj;
                 } else {
                     return true;
                 }
             } else {
-                return false;
+                return currentMap.containsKey(key);
             }
         }
         return false;

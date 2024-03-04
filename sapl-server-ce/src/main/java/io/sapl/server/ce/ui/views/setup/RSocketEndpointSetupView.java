@@ -24,6 +24,7 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 import io.sapl.server.ce.model.setup.ApplicationConfigService;
 import io.sapl.server.ce.model.setup.condition.SetupNotFinishedCondition;
 import io.sapl.server.ce.ui.views.SetupLayout;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Conditional;
 
 import java.io.IOException;
@@ -35,14 +36,12 @@ import java.io.IOException;
 public class RSocketEndpointSetupView extends EndpointSetupView {
     public static final String ROUTE = "/setup/rsocket";
 
-    public RSocketEndpointSetupView(ApplicationConfigService applicationConfigService) {
-        this.applicationConfigService = applicationConfigService;
-        this.endpointConfig           = applicationConfigService.getRsocketEndpoint();
+    public RSocketEndpointSetupView(@Autowired ApplicationConfigService applicationConfigService) {
+        super(applicationConfigService, applicationConfigService.getRsocketEndpoint());
     }
 
     @Override
     void persistConfig() throws IOException {
         applicationConfigService.persistRsocketEndpointConfig();
-        applicationConfigService.getRsocketEndpoint().setSaved(true);
     }
 }

@@ -38,14 +38,12 @@ import io.sapl.server.ce.model.setup.condition.SetupNotFinishedCondition;
 import io.sapl.server.ce.ui.utils.ConfirmUtils;
 import io.sapl.server.ce.ui.views.SetupLayout;
 import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Conditional;
 
 import java.io.IOException;
 
 @AnonymousAllowed
-@RequiredArgsConstructor
 @PageTitle("Admin User Setup")
 @Route(value = AdminUserSetupView.ROUTE, layout = SetupLayout.class)
 @Conditional(SetupNotFinishedCondition.class)
@@ -57,15 +55,18 @@ public class AdminUserSetupView extends VerticalLayout {
     private static final String MODERATE_COLOR = "#e7c200";
     private static final String ERROR_COLOR    = "var(--lumo-error-color)";
 
-    @Autowired
     private transient ApplicationConfigService applicationConfigService;
-    private final TextField                    username             = new TextField("Username");
-    private final PasswordField                password             = new PasswordField("Password");
-    private final PasswordField                passwordRepeat       = new PasswordField("Repeat Password");
-    private final Button                       pwdSaveConfig        = new Button("Save Admin-User Settings");
-    private final Icon                         pwdEqualCheckIcon    = VaadinIcon.CHECK.create();
-    private final Span                         passwordStrengthText = new Span();
-    private final Span                         passwordEqualText    = new Span();
+    private final TextField                          username             = new TextField("Username");
+    private final PasswordField                      password             = new PasswordField("Password");
+    private final PasswordField                      passwordRepeat       = new PasswordField("Repeat Password");
+    private final Button                             pwdSaveConfig        = new Button("Save Admin-User Settings");
+    private final Icon                               pwdEqualCheckIcon    = VaadinIcon.CHECK.create();
+    private final Span                               passwordStrengthText = new Span();
+    private final Span                               passwordEqualText    = new Span();
+
+    public AdminUserSetupView(@Autowired ApplicationConfigService applicationConfigService){
+        this.applicationConfigService = applicationConfigService;
+    }
 
     @PostConstruct
     private void init() {
@@ -78,7 +79,6 @@ public class AdminUserSetupView extends VerticalLayout {
         pwdSaveConfig.addClickListener(e -> {
             try {
                 applicationConfigService.persistAdminUserConfig();
-                applicationConfigService.getAdminUserConfig().setSaved(true);
                 ConfirmUtils.inform("saved", "Username and password successfully saved");
             } catch (IOException ioe) {
                 ConfirmUtils.inform("IO-Error",

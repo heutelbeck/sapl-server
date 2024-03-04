@@ -37,13 +37,11 @@ public class HttpEndpointSetupView extends EndpointSetupView {
     public static final String ROUTE = "/setup/http";
 
     public HttpEndpointSetupView(@Autowired ApplicationConfigService applicationConfigService) {
-        this.applicationConfigService = applicationConfigService;
-        this.endpointConfig           = applicationConfigService.getHttpEndpoint();
+        super(applicationConfigService, applicationConfigService.getHttpEndpoint());
     }
 
     @Override
     void persistConfig() throws IOException {
         applicationConfigService.persistHttpEndpointConfig();
-        applicationConfigService.getHttpEndpoint().setSaved(true);
     }
 }

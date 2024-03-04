@@ -35,21 +35,18 @@ import io.sapl.server.ce.model.setup.condition.SetupNotFinishedCondition;
 import io.sapl.server.ce.ui.utils.ConfirmUtils;
 import io.sapl.server.ce.ui.views.SetupLayout;
 import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Conditional;
 
 import java.io.IOException;
 
 @AnonymousAllowed
-@RequiredArgsConstructor
-@PageTitle("API Access Control Setup")
+@PageTitle("API Authentication Setup")
 @Route(value = ApiAuthenticationSetupView.ROUTE, layout = SetupLayout.class)
 @Conditional(SetupNotFinishedCondition.class)
 public class ApiAuthenticationSetupView extends VerticalLayout {
     public static final String ROUTE = "/setup/apiauthentication";
 
-    @Autowired
     private transient ApplicationConfigService applicationConfigService;
 
     private final Checkbox     allowBasicAuth     = new Checkbox("Basic Auth");
@@ -59,8 +56,11 @@ public class ApiAuthenticationSetupView extends VerticalLayout {
     private final IntegerField apiKeyCacheExpires = new IntegerField("Cache expires (seconds)");
     private final IntegerField apiKeyCacheMaxSize = new IntegerField("Max Size");
 
-    private final Button saveConfig = new Button("Save Access Control Settings");
+    private final Button saveConfig = new Button("Save API Authentication Settings");
 
+    public ApiAuthenticationSetupView(@Autowired ApplicationConfigService applicationConfigService){
+        this.applicationConfigService = applicationConfigService;
+    }
     @PostConstruct
     private void init() {
         add(getLayout());
@@ -132,8 +132,7 @@ public class ApiAuthenticationSetupView extends VerticalLayout {
     private void persistApiAuthenticationConfig() {
         try {
             applicationConfigService.persistApiAuthenticationConfig();
-            applicationConfigService.getApiAuthenticationConfig().setSaved(true);
-            ConfirmUtils.inform("saved", "API Access Control setup successfully saved");
+            ConfirmUtils.inform("saved", "API Authentication setup successfully saved");
         } catch (IOException ioe) {
             ConfirmUtils.inform("IO-Error",
                     "Error while writing application.yml-File. Please make sure that the file is not in use and can be written. Otherwise configure the application.yml-file manually. Error: "
@@ -149,12 +148,14 @@ public class ApiAuthenticationSetupView extends VerticalLayout {
         if (apiKeyCacheExpires.getValue() == null) {
             applicationConfigService.getApiAuthenticationConfig().setApiKeyCachingExpires(0);
         } else {
-            applicationConfigService.getApiAuthenticationConfig().setApiKeyCachingExpires(apiKeyCacheExpires.getValue());
+            applicationConfigService.getApiAuthenticationConfig()
+                    .setApiKeyCachingExpires(apiKeyCacheExpires.getValue());
         }
         if (apiKeyCacheMaxSize.getValue() == null) {
             applicationConfigService.getApiAuthenticationConfig().setApiKeyCachingMaxSize(0);
         } else {
-            applicationConfigService.getApiAuthenticationConfig().setApiKeyCachingMaxSize(apiKeyCacheMaxSize.getValue());
+            applicationConfigService.getApiAuthenticationConfig()
+                    .setApiKeyCachingMaxSize(apiKeyCacheMaxSize.getValue());
         }
 
         setVisibility();

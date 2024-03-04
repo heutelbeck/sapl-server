@@ -39,6 +39,7 @@ import io.sapl.server.ce.model.setup.SupportedCiphers;
 import io.sapl.server.ce.ui.utils.ConfirmUtils;
 import io.sapl.server.ce.ui.utils.ErrorNotificationUtils;
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -49,6 +50,7 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 
+@RequiredArgsConstructor
 public abstract class EndpointSetupView extends VerticalLayout {
 
     public static final String  ROUTE         = "/setup/rsocket";
@@ -73,6 +75,11 @@ public abstract class EndpointSetupView extends VerticalLayout {
     private final Span                            tlsDisabledWarning     = new Span();
     private Span                                  addressInputValidText;
     private Span                                  portInputValidText;
+
+    protected EndpointSetupView(ApplicationConfigService applicationConfigService, EndpointConfig endpointConfig) {
+        this.applicationConfigService = applicationConfigService;
+        this.endpointConfig = endpointConfig;
+    }
 
     abstract void persistConfig() throws IOException;
 
@@ -197,7 +204,8 @@ public abstract class EndpointSetupView extends VerticalLayout {
             addressInputValidText.setText("valid");
             addressInputValidText.getStyle().setColor(SUCCESS_COLOR);
         } else {
-            addressInputValidText.setText("not a valid IP address. Please correct it or make sure to enter a valid hostname.");
+            addressInputValidText
+                    .setText("not a valid IP address. Please correct it or make sure to enter a valid hostname.");
             addressInputValidText.getStyle().setColor(WARNING_COLOR);
         }
     }
