@@ -87,6 +87,7 @@ public class SetupLayout extends AppLayout {
 
     private SideNav createNavigation() {
         var nav = new SideNav();
+        addItem(nav, "Welcome", SetupView.class, LineAwesomeIcon.FILE_SOLID);
         addItem(nav, "DBMS Setup", DbmsSetupView.class, LineAwesomeIcon.DATABASE_SOLID);
         addItem(nav, "Admin User Setup", AdminUserSetupView.class, LineAwesomeIcon.USER_SOLID);
         addItem(nav, "HTTP Endpoint Setup", HttpEndpointSetupView.class, LineAwesomeIcon.SERVER_SOLID);
