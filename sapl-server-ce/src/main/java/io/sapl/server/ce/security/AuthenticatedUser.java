@@ -47,6 +47,8 @@ public class AuthenticatedUser {
 
     public Optional<UserDetails> get() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        // Check if the user need an OAuth2 implementation
         if (authentication.getPrincipal() instanceof OAuth2User oauth2User) {
             isOauth2User = true;
             return Optional.of(new OAuth2UserDetailsAdapter(oauth2User));
@@ -63,8 +65,7 @@ public class AuthenticatedUser {
             OidcUser             user               = ((OidcUser) authentication.getPrincipal());
             String               endSessionEndpoint = "http://localhost:9000/realms/SAPL/protocol/openid-connect/logout";
             UriComponentsBuilder builder            = UriComponentsBuilder.fromUriString(endSessionEndpoint)
-                    .queryParam("id_token_hint", user.getIdToken().getTokenValue())
-                    .queryParam("post_logout_redirect_uri", "https://localhost:8443/oauth2");
+                    .queryParam("id_token_hint", user.getIdToken().getTokenValue());
 
             RestTemplate restTemplate = new RestTemplate();
             // ResponseEntity<String> response =
