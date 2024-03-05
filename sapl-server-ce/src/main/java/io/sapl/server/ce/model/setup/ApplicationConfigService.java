@@ -287,14 +287,12 @@ public class ApplicationConfigService {
     }
 
     private void initApiAuthenticationConfig() {
-        this.apiAuthenticationConfig
-                .setBasicAuthEnabled(this.getAtAsBoolean(ApiAuthenticationConfig.BASICAUTH_PATH));
-        this.apiAuthenticationConfig
-                .setApiKeyAuthEnabled(this.getAtAsBoolean(ApiAuthenticationConfig.APIKEYAUTH_PATH));
+        this.apiAuthenticationConfig.setBasicAuthEnabled(this.getAtAsBoolean(ApiAuthenticationConfig.BASICAUTH_PATH));
+        this.apiAuthenticationConfig.setApiKeyAuthEnabled(this.getAtAsBoolean(ApiAuthenticationConfig.APIKEYAUTH_PATH));
         this.apiAuthenticationConfig
                 .setApiKeyHeaderName(this.getAt(ApiAuthenticationConfig.APIKEYHEADERNAME_PATH, "").toString());
-        this.apiAuthenticationConfig.setApiKeyCachingEnabled(
-                this.getAtAsBoolean(ApiAuthenticationConfig.APIKEYCACHINGENABLED_PATH));
+        this.apiAuthenticationConfig
+                .setApiKeyCachingEnabled(this.getAtAsBoolean(ApiAuthenticationConfig.APIKEYCACHINGENABLED_PATH));
         this.apiAuthenticationConfig.setApiKeyCachingExpires(
                 Integer.parseInt(this.getAt(ApiAuthenticationConfig.APIKEYCACHINGEXPIRE_PATH, 0).toString()));
         this.apiAuthenticationConfig.setApiKeyCachingMaxSize(
@@ -327,9 +325,9 @@ public class ApplicationConfigService {
         }
     }
 
-    private boolean getAtAsBoolean(String path){
+    private boolean getAtAsBoolean(String path) {
         Object obj = this.getAt(path);
-        if(obj instanceof Boolean){
+        if (obj instanceof Boolean) {
             return (boolean) obj;
         }
         return false;

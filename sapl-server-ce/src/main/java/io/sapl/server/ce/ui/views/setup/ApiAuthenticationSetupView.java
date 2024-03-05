@@ -58,9 +58,10 @@ public class ApiAuthenticationSetupView extends VerticalLayout {
 
     private final Button saveConfig = new Button("Save API Authentication Settings");
 
-    public ApiAuthenticationSetupView(@Autowired ApplicationConfigService applicationConfigService){
+    public ApiAuthenticationSetupView(@Autowired ApplicationConfigService applicationConfigService) {
         this.applicationConfigService = applicationConfigService;
     }
+
     @PostConstruct
     private void init() {
         add(getLayout());

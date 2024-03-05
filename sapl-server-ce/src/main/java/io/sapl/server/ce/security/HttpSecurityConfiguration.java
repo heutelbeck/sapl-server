@@ -19,7 +19,8 @@ package io.sapl.server.ce.security;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import io.sapl.server.ce.model.setup.condition.SetupFinishedCondition;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,11 +35,22 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
+import org.springframework.security.core.session.SessionRegistryImpl;
+import org.springframework.security.oauth2.client.InMemoryOAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.web.AuthenticatedPrincipalOAuth2AuthorizedClientRepository;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
+import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
+import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtDecoders;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy;
+import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.header.HeaderWriterFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
@@ -67,7 +79,14 @@ public class HttpSecurityConfiguration extends VaadinWebSecurity {
     @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri:#{null}}")
     private String jwtIssuerURI;
 
+    @Value("${io.sapl.server.allowKeycloakLogin:#{true}}")
+    private boolean allowKeycloakLogin;
+
     private final ApiKeaderHeaderAuthFilterService apiKeyAuthenticationFilterService;
+
+    private static final String GROUPS             = "groups";
+    private static final String REALM_ACCESS_CLAIM = "realm_access";
+    private static final String ROLES_CLAIM        = "roles";
 
     /**
      * Decodes JSON Web Token (JWT) according to the configuration that was
@@ -133,6 +152,15 @@ public class HttpSecurityConfiguration extends VaadinWebSecurity {
             http.httpBasic(withDefaults()); // offer basic authentication
         }
 
+        // Enable OAuth2 Login with default setting and change the session creation policy to always for a proper login handling
+        if (allowKeycloakLogin){
+            http
+                    .oauth2Login(withDefaults())
+                    .logout(logout -> logout.logoutSuccessUrl("/oauth2"))
+                    .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.ALWAYS))
+                    .authorizeHttpRequests(authorize -> authorize.requestMatchers("/unauthenticated", "/oauth2/**", "/login/**", "/VAADIN/push/**").permitAll());
+        }
+
         // all requests to this end point require the CLIENT role
         http.authorizeHttpRequests(authz -> authz.anyRequest().hasAnyAuthority(ClientDetailsService.CLIENT));
 
@@ -154,7 +182,78 @@ public class HttpSecurityConfiguration extends VaadinWebSecurity {
 
         super.configure(http);
 
-        setLoginView(http, LoginView.class);
+        // Set another LoginPage if OAuth2 is enabled
+        if (allowKeycloakLogin) {
+            setOAuth2LoginPage(http, "/oauth2");
+        } else {
+            setLoginView(http, LoginView.class);
+        }
     }
 
+    // Bean for the administration of OAuth2 clients. Needed if OAuth2 is activated
+    @Bean
+    public OAuth2AuthorizedClientService authorizedClientService(
+            ClientRegistrationRepository clientRegistrationRepository) {
+        return new InMemoryOAuth2AuthorizedClientService(clientRegistrationRepository);
+    }
+
+    @Bean
+    public OAuth2AuthorizedClientRepository authorizedClientRepository(
+            OAuth2AuthorizedClientService authorizedClientService) {
+        return new AuthenticatedPrincipalOAuth2AuthorizedClientRepository(authorizedClientService);
+    }
+
+    @Bean
+    protected SessionAuthenticationStrategy sessionAuthenticationStrategy() {
+        return new RegisterSessionAuthenticationStrategy(new SessionRegistryImpl());
+    }
+
+    // Important to extract the OAuth2 roles so that the Role admin is identified
+    // right by SpringBoot
+    @Bean
+    public GrantedAuthoritiesMapper userAuthoritiesMapperForKeycloak() {
+        return authorities -> {
+            Set     mappedAuthorities = new HashSet<>();
+            var     authority         = authorities.iterator().next();
+            boolean isOidc            = authority instanceof OidcUserAuthority;
+
+            if (isOidc) {
+                var oidcUserAuthority = (OidcUserAuthority) authority;
+                var userInfo          = oidcUserAuthority.getUserInfo();
+
+                // Check if the roles are contained in the REALM_ACCESS_CLAIM or the GROUPS
+                // claim
+                if (userInfo.hasClaim(REALM_ACCESS_CLAIM)) {
+                    // Get the role from the REALM_ACCESS_CLAIM
+                    var realmAccess = userInfo.getClaimAsMap(REALM_ACCESS_CLAIM);
+                    var roles       = (Collection) realmAccess.get(ROLES_CLAIM);
+
+                    // Add the roles to SpringSecurity
+                    mappedAuthorities.addAll(generateAuthoritiesFromClaim(roles));
+
+                } else if (userInfo.hasClaim(GROUPS)) {
+                    // Get the role from the GROUPS claim
+                    Collection roles = (Collection) userInfo.getClaim(GROUPS);
+
+                    // Add the roles to SpringSecurity
+                    mappedAuthorities.addAll(generateAuthoritiesFromClaim(roles));
+                }
+            } else {
+                var                 oauth2UserAuthority = (OAuth2UserAuthority) authority;
+                Map<String, Object> userAttributes      = oauth2UserAuthority.getAttributes();
+
+                if (userAttributes.containsKey(REALM_ACCESS_CLAIM)) {
+                    Map<String, Object> realmAccess = (Map<String, Object>) userAttributes.get(REALM_ACCESS_CLAIM);
+                    Collection          roles       = (Collection) realmAccess.get(ROLES_CLAIM);
+                    mappedAuthorities.addAll(generateAuthoritiesFromClaim(roles));
+                }
+            }
+            return mappedAuthorities;
+        };
+    }
+
+    Collection<SimpleGrantedAuthority> generateAuthoritiesFromClaim(Collection<String> roles) {
+        // Returns the roles from OAuth2 and add the prefix ROLE_
+        return roles.stream().map(role -> new SimpleGrantedAuthority("ROLE_" + role)).collect(Collectors.toList());
+    }
 }
