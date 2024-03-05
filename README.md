@@ -1,4 +1,4 @@
-# SAPL Server CE - Lightweight Authorization Server
+# SAPL Server CE - Lightweight Authorization Server  
 
 This server is a lightweight Policy Decision Point (PDP) that uses the Streaming Attribute Policy Language (SAPL) and provides authorization services through an HTTP and RSocket API. SAPL is further explained on the [SAPL home page](https://sapl.io/).
 
