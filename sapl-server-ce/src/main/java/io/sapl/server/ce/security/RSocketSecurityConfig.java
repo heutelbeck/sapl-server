@@ -19,6 +19,7 @@ package io.sapl.server.ce.security;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UserDetailsRepositoryReactiveAuthenticationManager;
@@ -38,6 +39,7 @@ import org.springframework.security.rsocket.core.PayloadSocketAcceptorIntercepto
 
 import io.sapl.server.ce.security.apikey.ApiKeyPayloadExchangeAuthenticationConverterService;
 import io.sapl.server.ce.security.apikey.ApiKeyReactiveAuthenticationManager;
+import io.sapl.server.ce.model.setup.condition.SetupFinishedCondition;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -47,6 +49,7 @@ import reactor.core.publisher.Mono;
 @EnableRSocketSecurity
 @RequiredArgsConstructor
 @EnableReactiveMethodSecurity
+@Conditional(SetupFinishedCondition.class)
 public class RSocketSecurityConfig {
 
     @Value("${io.sapl.server.allowBasicAuth:#{true}}")

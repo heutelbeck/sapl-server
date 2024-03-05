@@ -21,6 +21,8 @@ import java.util.Comparator;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import io.sapl.server.ce.model.setup.condition.SetupFinishedCondition;
+import org.springframework.context.annotation.Conditional;
 import org.vaadin.lineawesome.LineAwesomeIcon;
 
 import com.vaadin.flow.component.button.Button;
@@ -53,6 +55,7 @@ import reactor.util.function.Tuple2;
 @RequiredArgsConstructor
 @PageTitle("Client Credentials")
 @Route(value = ClientCredentialsView.ROUTE, layout = MainLayout.class)
+@Conditional(SetupFinishedCondition.class)
 public class ClientCredentialsView extends VerticalLayout {
 
     public static final String ROUTE = "clients";

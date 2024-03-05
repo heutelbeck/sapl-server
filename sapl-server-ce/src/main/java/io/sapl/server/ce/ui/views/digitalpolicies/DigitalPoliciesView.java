@@ -27,12 +27,14 @@ import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
+import io.sapl.server.ce.model.setup.condition.SetupFinishedCondition;
 import io.sapl.server.ce.model.sapldocument.SaplDocument;
 import io.sapl.server.ce.model.sapldocument.SaplDocumentService;
 import io.sapl.server.ce.ui.views.MainLayout;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Conditional;
 
 /**
  * View for listening and managing SAPL documents. A Designer generated
@@ -42,6 +44,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @PageTitle("Digital Policies")
 @Route(value = DigitalPoliciesView.ROUTE, layout = MainLayout.class)
+@Conditional(SetupFinishedCondition.class)
 public class DigitalPoliciesView extends VerticalLayout {
 
     public static final String ROUTE = "";

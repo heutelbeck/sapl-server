@@ -20,6 +20,8 @@ package io.sapl.server.ce.model.pdpconfiguration;
 import java.util.Collection;
 import java.util.Optional;
 
+import io.sapl.server.ce.model.setup.condition.SetupFinishedCondition;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -35,6 +37,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Conditional(SetupFinishedCondition.class)
 public class VariablesService {
     public static final int    MIN_NAME_LENGTH    = 1;
     public static final int    MAX_NAME_LENGTH    = 100;

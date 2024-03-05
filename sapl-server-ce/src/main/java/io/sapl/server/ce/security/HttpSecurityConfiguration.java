@@ -21,8 +21,10 @@ import static org.springframework.security.config.Customizer.withDefaults;
 
 import java.util.List;
 
+import io.sapl.server.ce.model.setup.condition.SetupFinishedCondition;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -51,6 +53,7 @@ import lombok.extern.slf4j.Slf4j;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
+@Conditional(SetupFinishedCondition.class)
 public class HttpSecurityConfiguration extends VaadinWebSecurity {
     @Value("${io.sapl.server.allowBasicAuth:#{false}}")
     private boolean allowBasicAuth;

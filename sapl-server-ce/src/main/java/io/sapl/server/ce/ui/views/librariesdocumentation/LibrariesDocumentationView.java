@@ -37,17 +37,20 @@ import com.vaadin.flow.router.Route;
 
 import io.sapl.interpreter.functions.LibraryDocumentation;
 import io.sapl.interpreter.pip.PolicyInformationPointDocumentation;
+import io.sapl.server.ce.model.setup.condition.SetupFinishedCondition;
 import io.sapl.server.ce.ui.views.MainLayout;
 import io.sapl.spring.pdp.embedded.FunctionLibrariesDocumentation;
 import io.sapl.spring.pdp.embedded.PolicyInformationPointsDocumentation;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Conditional;
 
 @RolesAllowed("ADMIN")
 @RequiredArgsConstructor
 @PageTitle("Libraries Documentation")
 @Route(value = LibrariesDocumentationView.ROUTE, layout = MainLayout.class)
+@Conditional(SetupFinishedCondition.class)
 public class LibrariesDocumentationView extends VerticalLayout {
 
     public static final String ROUTE = "libraries";

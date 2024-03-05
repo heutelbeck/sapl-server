@@ -15,25 +15,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.sapl.server.ce.ui.views;
 
-import io.sapl.server.ce.model.setup.condition.SetupFinishedCondition;
-import org.springframework.context.annotation.Conditional;
-import org.vaadin.lineawesome.LineAwesomeIcon;
+package io.sapl.server.ce.ui.views;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
-import com.vaadin.flow.component.avatar.Avatar;
-import com.vaadin.flow.component.html.Anchor;
-import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Footer;
-import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.html.Header;
-import com.vaadin.flow.component.html.Image;
-import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.menubar.MenuBar;
+import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.Scroller;
@@ -42,33 +30,31 @@ import com.vaadin.flow.component.sidenav.SideNavItem;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.server.auth.AccessAnnotationChecker;
 import com.vaadin.flow.theme.lumo.LumoUtility;
-
-import io.sapl.server.ce.security.AuthenticatedUser;
-import io.sapl.server.ce.ui.views.clientcredentials.ClientCredentialsView;
-import io.sapl.server.ce.ui.views.digitalpolicies.DigitalPoliciesView;
-import io.sapl.server.ce.ui.views.digitalpolicies.PublishedPoliciesView;
-import io.sapl.server.ce.ui.views.librariesdocumentation.LibrariesDocumentationView;
-import io.sapl.server.ce.ui.views.pdpconfig.PDPConfigView;
+import io.sapl.server.ce.model.setup.condition.SetupNotFinishedCondition;
+import io.sapl.server.ce.ui.views.setup.*;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Conditional;
+import org.vaadin.lineawesome.LineAwesomeIcon;
 
 /**
- * The main view is a top-level placeholder for other views.
+ * The main view is a top-level placeholder for other views for the setup
+ * wizard.
  */
 @RequiredArgsConstructor
-@Conditional(SetupFinishedCondition.class)
-public class MainLayout extends AppLayout {
+@Conditional(SetupNotFinishedCondition.class)
+public class SetupLayout extends AppLayout {
 
-    private H2 viewTitle;
-
-    private final transient AuthenticatedUser authenticatedUser;
-    private final AccessAnnotationChecker     accessChecker;
+    private H2                            viewTitle;
+    private final AccessAnnotationChecker accessChecker;
 
     @PostConstruct
     public void init() {
+
         setPrimarySection(Section.DRAWER);
         addDrawerContent();
         addHeaderContent();
+
     }
 
     private void addHeaderContent() {
@@ -89,7 +75,7 @@ public class MainLayout extends AppLayout {
         logoLayout.setPadding(true);
         var logo = new Image("images/SAPL-Logo.png", "SAPL Logo");
         logo.setHeight("50px");
-        var appName = new H1("SAPL Server CE");
+        var appName = new H1("SAPL Server CE Setup");
         appName.addClassNames(LumoUtility.FontSize.XLARGE, LumoUtility.Margin.NONE);
         logoLayout.add(logo, appName);
 
@@ -101,11 +87,13 @@ public class MainLayout extends AppLayout {
 
     private SideNav createNavigation() {
         var nav = new SideNav();
-        addItem(nav, "Digital Policies", DigitalPoliciesView.class, LineAwesomeIcon.FILE_SOLID);
-        addItem(nav, "Published Policies", PublishedPoliciesView.class, LineAwesomeIcon.FILE_ALT);
-        addItem(nav, "PDP Config", PDPConfigView.class, LineAwesomeIcon.COG_SOLID);
-        addItem(nav, "Libraries Documentation", LibrariesDocumentationView.class, LineAwesomeIcon.BOOK_SOLID);
-        addItem(nav, "Client Credentials", ClientCredentialsView.class, LineAwesomeIcon.KEY_SOLID);
+        addItem(nav, "Welcome", SetupView.class, LineAwesomeIcon.FILE_SOLID);
+        addItem(nav, "DBMS Setup", DbmsSetupView.class, LineAwesomeIcon.DATABASE_SOLID);
+        addItem(nav, "Admin User Setup", AdminUserSetupView.class, LineAwesomeIcon.USER_SOLID);
+        addItem(nav, "HTTP Endpoint Setup", HttpEndpointSetupView.class, LineAwesomeIcon.SERVER_SOLID);
+        addItem(nav, "RSocket Endpoint Setup", RSocketEndpointSetupView.class, LineAwesomeIcon.SERVER_SOLID);
+        addItem(nav, "API Authentication Setup", ApiAuthenticationSetupView.class, LineAwesomeIcon.NETWORK_WIRED_SOLID);
+        addItem(nav, "Finish Setup", FinishSetupView.class, LineAwesomeIcon.CHECK_SQUARE_SOLID);
         return nav;
     }
 
@@ -116,34 +104,11 @@ public class MainLayout extends AppLayout {
     }
 
     private Footer createFooter() {
-        var layout    = new Footer();
-        var maybeUser = authenticatedUser.get();
-        if (maybeUser.isPresent()) {
-            var user = maybeUser.get();
+        var layout = new Footer();
 
-            var avatar = new Avatar(user.getUsername());
-            avatar.setThemeName("xsmall");
-            avatar.getElement().setAttribute("tabindex", "-1");
-
-            var userMenu = new MenuBar();
-            userMenu.setThemeName("tertiary-inline contrast");
-
-            var userName = userMenu.addItem("");
-            var div      = new Div();
-            div.add(avatar);
-            div.add(user.getUsername());
-            div.add(new Icon("lumo", "dropdown"));
-            div.getElement().getStyle().set("display", "flex");
-            div.getElement().getStyle().set("align-items", "center");
-            div.getElement().getStyle().set("gap", "var(--lumo-space-s)");
-            userName.add(div);
-            userName.getSubMenu().addItem("Sign out", e -> authenticatedUser.logout());
-
-            layout.add(userMenu);
-        } else {
-            var loginLink = new Anchor("login", "Sign in");
-            layout.add(loginLink);
-        }
+        Anchor help = new Anchor("https://github.com/heutelbeck/sapl-server");
+        help.getElement().setProperty("innerHTML", "You need help? <br />Have a look at the documentation");
+        layout.add(help);
 
         return layout;
     }
@@ -158,4 +123,5 @@ public class MainLayout extends AppLayout {
         var title = getContent().getClass().getAnnotation(PageTitle.class);
         return title == null ? "" : title.value();
     }
+
 }

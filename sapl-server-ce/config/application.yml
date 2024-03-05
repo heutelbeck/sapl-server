@@ -16,7 +16,7 @@
 # limitations under the License.
 #
 
-# Security (BCrypt encoded client-secret (raw secret: demo))
+# Security (Argon2 encoded client-secret (raw secret: demo))
 io.sapl:
   server:
     accesscontrol:
@@ -68,6 +68,7 @@ spring.security.oauth2.resourceserver.jwt:
 spring:
   datasource:
     url: jdbc:h2:file:~/sapl/db
+    driverClassName: org.h2.Driver
     username: sa
     password: password
 

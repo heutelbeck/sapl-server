@@ -17,17 +17,38 @@
  */
 package io.sapl.server;
 
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.page.AppShellConfigurator;
+import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
+import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.context.ConfigurableApplicationContext;
 
-@SpringBootApplication
+@SpringBootApplication(exclude = { DataSourceAutoConfiguration.class })
 @Theme(value = "sapl", variant = Lumo.DARK)
 public class SaplServerCeApplication implements AppShellConfigurator {
 
     public static void main(String[] args) {
-        SpringApplication.run(SaplServerCeApplication.class, args);
+        context = SpringApplication.run(SaplServerCeApplication.class, args);
+    }
+
+    private static ConfigurableApplicationContext context;
+
+    public static void restart() {
+        UI.getCurrent().getPage().setLocation("/");
+        VaadinSession.getCurrent().getSession().invalidate();
+        ApplicationArguments args   = context.getBean(ApplicationArguments.class);
+        Thread               thread = new Thread(() -> {
+                                        context.close();
+                                        context = SpringApplication.run(SaplServerCeApplication.class,
+                                                args.getSourceArgs());
+                                    });
+
+        thread.setDaemon(false);
+        thread.start();
     }
 }

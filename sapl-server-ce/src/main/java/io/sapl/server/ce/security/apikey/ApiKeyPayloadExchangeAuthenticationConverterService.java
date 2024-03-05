@@ -19,6 +19,8 @@ package io.sapl.server.ce.security.apikey;
 
 import java.nio.charset.StandardCharsets;
 
+import io.sapl.server.ce.model.setup.condition.SetupFinishedCondition;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.rsocket.api.PayloadExchange;
 import org.springframework.security.rsocket.authentication.PayloadExchangeAuthenticationConverter;
@@ -32,6 +34,7 @@ import reactor.core.publisher.Mono;
 
 @Component
 @RequiredArgsConstructor
+@Conditional(SetupFinishedCondition.class)
 public class ApiKeyPayloadExchangeAuthenticationConverterService implements PayloadExchangeAuthenticationConverter {
     private final ApiKeyService apiKeyService;
 

@@ -60,4 +60,13 @@ public class ConfirmUtils {
         dialog.addConfirmListener(event -> confirmedHandler.run());
         dialog.open();
     }
+
+    public static void inform(@NonNull String header, @NonNull String message) {
+        var dialog = new ConfirmDialog();
+        dialog.setHeader(header);
+        dialog.setText(message);
+        dialog.setCancelable(false);
+        dialog.setConfirmText("Ok");
+        dialog.open();
+    }
 }
