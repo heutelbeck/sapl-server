@@ -21,7 +21,6 @@ import static org.springframework.security.config.Customizer.withDefaults;
 
 import java.util.*;
 import java.util.stream.Collectors;
-
 import io.sapl.server.ce.model.setup.condition.SetupFinishedCondition;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -36,12 +35,6 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
-import org.springframework.security.core.session.SessionRegistryImpl;
-import org.springframework.security.oauth2.client.InMemoryOAuth2AuthorizedClientService;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
-import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.oauth2.client.web.AuthenticatedPrincipalOAuth2AuthorizedClientRepository;
-import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
@@ -49,13 +42,9 @@ import org.springframework.security.oauth2.jwt.JwtDecoders;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy;
-import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.header.HeaderWriterFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-
 import com.vaadin.flow.spring.security.VaadinWebSecurity;
-
 import io.sapl.server.ce.security.apikey.ApiKeaderHeaderAuthFilterService;
 import io.sapl.server.ce.ui.views.login.LoginView;
 import lombok.RequiredArgsConstructor;
@@ -156,7 +145,11 @@ public class HttpSecurityConfiguration extends VaadinWebSecurity {
         if (allowKeycloakLogin){
             http
                     .oauth2Login(withDefaults())
-                    .logout(logout -> logout.logoutSuccessUrl("/oauth2?logout=true"))
+                    .logout(logout -> logout
+                            .logoutUrl("/logout")
+                            .invalidateHttpSession(true)
+                            .deleteCookies("JSESSIONID")
+                            .logoutSuccessUrl("/oauth2"))
                     .authorizeHttpRequests(authorize -> authorize.requestMatchers("/unauthenticated", "/oauth2/**", "/login/**", "/VAADIN/push/**").permitAll());
         }
 
@@ -183,23 +176,11 @@ public class HttpSecurityConfiguration extends VaadinWebSecurity {
 
         // Set another LoginPage if OAuth2 is enabled
         if (allowKeycloakLogin) {
-            setOAuth2LoginPage(http, "/oauth2");
+            setOAuth2LoginPage(http, "/oauth2 ");
         } else {
             setLoginView(http, LoginView.class);
         }
     }
-
-    // Bean for the administration of OAuth2 clients. Needed if OAuth2 is activated
-    /*
-     * @Bean public OAuth2AuthorizedClientService authorizedClientService(
-     * ClientRegistrationRepository clientRegistrationRepository) { return new
-     * InMemoryOAuth2AuthorizedClientService(clientRegistrationRepository); }
-     *
-     * @Bean public OAuth2AuthorizedClientRepository authorizedClientRepository(
-     * OAuth2AuthorizedClientService authorizedClientService) { return new
-     * AuthenticatedPrincipalOAuth2AuthorizedClientRepository(
-     * authorizedClientService); }
-     */
 
     // Important to extract the OAuth2 roles so that the Role admin is identified
     // right by SpringBoot

@@ -112,6 +112,9 @@ logging.level:
   #"root": DEBUG
   "[io.sapl]": DEBUG
   "[io.sapl.server.ce]": DEBUG
+  #"org.springframework": DEBUG
+  #"org.springframework.security": DEBUG
+  #"com.vaadin": DEBUG
 
 # If Keycloak Login is enabled, then configure the following settings
 spring.security.oauth2.client:
