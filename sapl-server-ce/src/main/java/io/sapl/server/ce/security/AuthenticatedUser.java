@@ -23,6 +23,8 @@ import com.vaadin.flow.component.UI;
 import io.sapl.server.ce.model.setup.condition.SetupFinishedCondition;
 import io.sapl.server.ce.security.OAuth2.OAuth2UserDetailsAdapter;
 import org.springframework.context.annotation.Conditional;
+import org.springframework.http.RequestEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -67,9 +69,9 @@ public class AuthenticatedUser {
             UriComponentsBuilder builder            = UriComponentsBuilder.fromUriString(endSessionEndpoint)
                     .queryParam("id_token_hint", user.getIdToken().getTokenValue());
 
-            RestTemplate restTemplate = new RestTemplate();
-            // ResponseEntity<String> response =
-            // restTemplate.getForEntity(builder.toUriString(), String.class);
+            RestTemplate        restTemplate  = new RestTemplate();
+            RequestEntity<Void> requestEntity = RequestEntity.get(builder.build().toUri()).build();
+            restTemplate.exchange(requestEntity, Void.class);
         }
         authenticationContext.logout();
         UI.getCurrent().getSession().close();

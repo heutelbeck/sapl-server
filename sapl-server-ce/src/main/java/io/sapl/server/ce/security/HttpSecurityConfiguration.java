@@ -156,8 +156,7 @@ public class HttpSecurityConfiguration extends VaadinWebSecurity {
         if (allowKeycloakLogin){
             http
                     .oauth2Login(withDefaults())
-                    .logout(logout -> logout.logoutSuccessUrl("/oauth2"))
-                    .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.ALWAYS))
+                    .logout(logout -> logout.logoutSuccessUrl("/oauth2?logout=true"))
                     .authorizeHttpRequests(authorize -> authorize.requestMatchers("/unauthenticated", "/oauth2/**", "/login/**", "/VAADIN/push/**").permitAll());
         }
 
@@ -191,22 +190,16 @@ public class HttpSecurityConfiguration extends VaadinWebSecurity {
     }
 
     // Bean for the administration of OAuth2 clients. Needed if OAuth2 is activated
-    @Bean
-    public OAuth2AuthorizedClientService authorizedClientService(
-            ClientRegistrationRepository clientRegistrationRepository) {
-        return new InMemoryOAuth2AuthorizedClientService(clientRegistrationRepository);
-    }
-
-    @Bean
-    public OAuth2AuthorizedClientRepository authorizedClientRepository(
-            OAuth2AuthorizedClientService authorizedClientService) {
-        return new AuthenticatedPrincipalOAuth2AuthorizedClientRepository(authorizedClientService);
-    }
-
-    @Bean
-    protected SessionAuthenticationStrategy sessionAuthenticationStrategy() {
-        return new RegisterSessionAuthenticationStrategy(new SessionRegistryImpl());
-    }
+    /*
+     * @Bean public OAuth2AuthorizedClientService authorizedClientService(
+     * ClientRegistrationRepository clientRegistrationRepository) { return new
+     * InMemoryOAuth2AuthorizedClientService(clientRegistrationRepository); }
+     *
+     * @Bean public OAuth2AuthorizedClientRepository authorizedClientRepository(
+     * OAuth2AuthorizedClientService authorizedClientService) { return new
+     * AuthenticatedPrincipalOAuth2AuthorizedClientRepository(
+     * authorizedClientService); }
+     */
 
     // Important to extract the OAuth2 roles so that the Role admin is identified
     // right by SpringBoot
