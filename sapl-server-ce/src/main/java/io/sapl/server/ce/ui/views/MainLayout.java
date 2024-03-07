@@ -17,18 +17,9 @@
  */
 package io.sapl.server.ce.ui.views;
 
-import com.vaadin.flow.component.UI;
 import io.sapl.server.ce.model.setup.condition.SetupFinishedCondition;
 import org.springframework.context.annotation.Conditional;
-import org.springframework.http.RequestEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.core.oidc.user.OidcUser;
-import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 import org.vaadin.lineawesome.LineAwesomeIcon;
-
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
@@ -50,7 +41,6 @@ import com.vaadin.flow.component.sidenav.SideNavItem;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.server.auth.AccessAnnotationChecker;
 import com.vaadin.flow.theme.lumo.LumoUtility;
-
 import io.sapl.server.ce.security.AuthenticatedUser;
 import io.sapl.server.ce.ui.views.clientcredentials.ClientCredentialsView;
 import io.sapl.server.ce.ui.views.digitalpolicies.DigitalPoliciesView;

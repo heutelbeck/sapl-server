@@ -55,7 +55,6 @@ public class AuthenticatedUser {
 
     public void logout() {
         // If OAuth2 is enabled, perform also a logout at the OAuth2 endpoint
-
         if (isOauth2User) {
             Authentication authentication     = SecurityContextHolder.getContext().getAuthentication();
             OidcUser       user               = ((OidcUser) authentication.getPrincipal());
