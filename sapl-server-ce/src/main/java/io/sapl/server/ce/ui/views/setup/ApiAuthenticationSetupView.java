@@ -22,6 +22,8 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
@@ -30,11 +32,14 @@ import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
+import com.vaadin.flow.theme.lumo.LumoUtility;
 import io.sapl.server.ce.model.setup.ApplicationConfigService;
 import io.sapl.server.ce.model.setup.condition.SetupNotFinishedCondition;
 import io.sapl.server.ce.ui.utils.ConfirmUtils;
+import io.sapl.server.ce.ui.utils.ErrorComponentUtils;
 import io.sapl.server.ce.ui.views.SetupLayout;
 import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Conditional;
 
@@ -48,23 +53,33 @@ public class ApiAuthenticationSetupView extends VerticalLayout {
     public static final String ROUTE = "/setup/apiauthentication";
 
     private transient ApplicationConfigService applicationConfigService;
+    private transient HttpServletRequest       httpServletRequest;
 
-    private final Checkbox     allowBasicAuth     = new Checkbox("Basic Auth");
-    private final Checkbox     allowApiKeyAuth    = new Checkbox("API Key Auth");
-    private final TextField    apiKeyHeader       = new TextField("API Key Header");
-    private final Checkbox     allowApiKeyCaching = new Checkbox("API Key Caching");
-    private final IntegerField apiKeyCacheExpires = new IntegerField("Cache expires (seconds)");
-    private final IntegerField apiKeyCacheMaxSize = new IntegerField("Max Size");
+    private final Checkbox     allowBasicAuth        = new Checkbox("Basic Auth");
+    private final Checkbox     allowApiKeyAuth       = new Checkbox("API Key Auth");
+    private final TextField    apiKeyHeader          = new TextField("API Key Header");
+    private final Checkbox     allowApiKeyCaching    = new Checkbox("API Key Caching");
+    private final IntegerField apiKeyCacheExpires    = new IntegerField("Cache expires (seconds)");
+    private final IntegerField apiKeyCacheMaxSize    = new IntegerField("Max Size");
+    private final Checkbox     allowOAuth2Auth       = new Checkbox("OAuth2");
+    private final TextField    oAuth2RessourceServer = new TextField("OAuth2 Ressource Server URI");
+    private Span               oAuth2RessourceServerInputValidText;
 
     private final Button saveConfig = new Button("Save API Authentication Settings");
 
-    public ApiAuthenticationSetupView(@Autowired ApplicationConfigService applicationConfigService) {
+    public ApiAuthenticationSetupView(@Autowired ApplicationConfigService applicationConfigService,
+            @Autowired HttpServletRequest httpServletRequest) {
         this.applicationConfigService = applicationConfigService;
+        this.httpServletRequest       = httpServletRequest;
     }
 
     @PostConstruct
     private void init() {
+        if (!httpServletRequest.isSecure()) {
+            add(ErrorComponentUtils.getErrorDiv(SetupLayout.INSECURE_CONNECTION_MESSAGE));
+        }
         add(getLayout());
+        setVisibility();
     }
 
     private Component getLayout() {
@@ -98,24 +113,42 @@ public class ApiAuthenticationSetupView extends VerticalLayout {
         apiKeyCacheMaxSize.setHelperText("Larger than 0");
         apiKeyCacheMaxSize.setValue(applicationConfigService.getApiAuthenticationConfig().getApiKeyCachingMaxSize());
 
+        var apiKeyLayout = new VerticalLayout();
+        apiKeyLayout.setAlignItems(FlexComponent.Alignment.STRETCH);
+        apiKeyLayout.setPadding(false);
+        apiKeyLayout.add(allowApiKeyAuth, apiKeyHeader, allowApiKeyCaching, apiKeyCacheExpires, apiKeyCacheMaxSize);
+
+        allowOAuth2Auth.setValue(applicationConfigService.getApiAuthenticationConfig().isOAuth2AuthEnabled());
+
+        oAuth2RessourceServer.setRequiredIndicatorVisible(true);
+        oAuth2RessourceServer.setValueChangeMode(ValueChangeMode.EAGER);
+        oAuth2RessourceServer
+                .setValue(applicationConfigService.getApiAuthenticationConfig().getOAuth2RessourceServer());
+        oAuth2RessourceServerInputValidText = new Span("Not a valid URL");
+        oAuth2RessourceServerInputValidText.addClassNames(LumoUtility.TextColor.ERROR);
+        oAuth2RessourceServer.setHelperComponent(oAuth2RessourceServerInputValidText);
+
+        var oAuth2Layout = new VerticalLayout();
+        oAuth2Layout.setAlignItems(FlexComponent.Alignment.STRETCH);
+        oAuth2Layout.setPadding(false);
+        oAuth2Layout.add(allowOAuth2Auth, oAuth2RessourceServer);
+
         allowBasicAuth.addValueChangeListener(e -> updateApiAuthenticationConfig());
         allowApiKeyAuth.addValueChangeListener(e -> updateApiAuthenticationConfig());
         apiKeyHeader.addValueChangeListener(e -> updateApiAuthenticationConfig());
         allowApiKeyCaching.addValueChangeListener(e -> updateApiAuthenticationConfig());
         apiKeyCacheExpires.addValueChangeListener(e -> updateApiAuthenticationConfig());
         apiKeyCacheMaxSize.addValueChangeListener(e -> updateApiAuthenticationConfig());
+        allowOAuth2Auth.addValueChangeListener(e -> updateApiAuthenticationConfig());
+        oAuth2RessourceServer.addValueChangeListener(e -> updateApiAuthenticationConfig());
 
-        var apiAuthenticationLayout = new FormLayout(allowBasicAuth, allowApiKeyAuth, apiKeyHeader, allowApiKeyCaching,
-                apiKeyCacheExpires, apiKeyCacheMaxSize, saveConfig);
+        var apiAuthenticationLayout = new FormLayout(allowBasicAuth, apiKeyLayout, oAuth2Layout, saveConfig);
 
         apiAuthenticationLayout.setResponsiveSteps(
                 new FormLayout.ResponsiveStep("0", 1, FormLayout.ResponsiveStep.LabelsPosition.TOP),
                 new FormLayout.ResponsiveStep("490px", 2, FormLayout.ResponsiveStep.LabelsPosition.TOP));
         apiAuthenticationLayout.setColspan(allowBasicAuth, 2);
-        apiAuthenticationLayout.setColspan(apiKeyHeader, 2);
-        apiAuthenticationLayout.setColspan(allowApiKeyCaching, 2);
         apiAuthenticationLayout.setColspan(saveConfig, 2);
-        setVisibility();
 
         return apiAuthenticationLayout;
 
@@ -128,6 +161,9 @@ public class ApiAuthenticationSetupView extends VerticalLayout {
                 && applicationConfigService.getApiAuthenticationConfig().isApiKeyCachingEnabled());
         apiKeyCacheMaxSize.setVisible(applicationConfigService.getApiAuthenticationConfig().isApiKeyAuthEnabled()
                 && applicationConfigService.getApiAuthenticationConfig().isApiKeyCachingEnabled());
+        oAuth2RessourceServer.setVisible(applicationConfigService.getApiAuthenticationConfig().isOAuth2AuthEnabled());
+        oAuth2RessourceServerInputValidText
+                .setVisible(!applicationConfigService.getApiAuthenticationConfig().isValidOAuth2RessourceServerUrl());
     }
 
     private void persistApiAuthenticationConfig() {
@@ -158,6 +194,9 @@ public class ApiAuthenticationSetupView extends VerticalLayout {
             applicationConfigService.getApiAuthenticationConfig()
                     .setApiKeyCachingMaxSize(apiKeyCacheMaxSize.getValue());
         }
+        applicationConfigService.getApiAuthenticationConfig().setOAuth2AuthEnabled(allowOAuth2Auth.getValue());
+        applicationConfigService.getApiAuthenticationConfig()
+                .setOAuth2RessourceServer(oAuth2RessourceServer.getValue());
 
         setVisibility();
         saveConfig.setEnabled(applicationConfigService.getApiAuthenticationConfig().isValidConfig());

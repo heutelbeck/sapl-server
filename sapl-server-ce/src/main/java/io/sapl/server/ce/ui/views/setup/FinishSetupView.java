@@ -24,7 +24,6 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -35,8 +34,10 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 import io.sapl.server.SaplServerCeApplication;
 import io.sapl.server.ce.model.setup.condition.SetupNotFinishedCondition;
 import io.sapl.server.ce.model.setup.ApplicationConfigService;
+import io.sapl.server.ce.ui.utils.ErrorComponentUtils;
 import io.sapl.server.ce.ui.views.SetupLayout;
 import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Conditional;
 
@@ -52,13 +53,19 @@ public class FinishSetupView extends VerticalLayout {
     private static final String PADDING_XS             = "var(--lumo-space-xs";
 
     private transient ApplicationConfigService applicationConfigService;
+    private transient HttpServletRequest       httpServletRequest;
 
-    public FinishSetupView(@Autowired ApplicationConfigService applicationConfigService) {
+    public FinishSetupView(@Autowired ApplicationConfigService applicationConfigService,
+            @Autowired HttpServletRequest httpServletRequest) {
         this.applicationConfigService = applicationConfigService;
+        this.httpServletRequest       = httpServletRequest;
     }
 
     @PostConstruct
     private void init() {
+        if (!httpServletRequest.isSecure()) {
+            add(ErrorComponentUtils.getErrorDiv(SetupLayout.INSECURE_CONNECTION_MESSAGE));
+        }
         add(getLayout());
     }
 
@@ -163,16 +170,15 @@ public class FinishSetupView extends VerticalLayout {
         return adminUserLayout;
     }
 
-    private Span getTlsDisabledWarning(String protocol, boolean visible) {
-        String warning            = "Note: Do not use the option \"Disable TLS\" for " + protocol + " in production.\n"
+    private Div getTlsDisabledWarning(String protocol, boolean visible) {
+        var warning = "Warning: You have not selected any TLS-protocol for  " + protocol
+                + ". Please do not use this configuration in production.\n"
                 + "This option may open the server to malicious probing and exfiltration attempts through "
                 + "the authorization endpoints, potentially resulting in unauthorized access to your "
                 + "organization's data, depending on your policies.";
-        Span   tlsDisabledWarning = new Span(warning);
-        tlsDisabledWarning.getStyle().set("color", "var(--lumo-error-text-color)");
-        tlsDisabledWarning.setVisible(visible);
-
-        return tlsDisabledWarning;
+        var div     = ErrorComponentUtils.getErrorDiv(warning);
+        div.setVisible(visible);
+        return div;
     }
 
 }

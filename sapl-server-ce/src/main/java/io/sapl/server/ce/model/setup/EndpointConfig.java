@@ -34,13 +34,12 @@ import java.security.cert.CertificateException;
 import java.util.*;
 
 public class EndpointConfig {
-    public static final String TLS_V1_3_PROTOCOL     = "TLSv1.3";
-    public static final String TLS_V1_2_PROTOCOL     = "TLSv1.2";
-    public static final String KEY_STORE_TYPE_PKCS12 = "PKCS12";
-    public static final String KEY_STORE_TYPE_JCEKS  = "JCEKS";
-    public static final String KEY_STORE_TYPE_JKS    = "JKS";
-
-    private static final String FILEPATH_PREFIX = "file:";
+    public static final String  TLS_V1_3_PROTOCOL     = "TLSv1.3";
+    public static final String  TLS_V1_2_PROTOCOL     = "TLSv1.2";
+    public static final String  KEY_STORE_TYPE_PKCS12 = "PKCS12";
+    public static final String  KEY_STORE_TYPE_JCEKS  = "JCEKS";
+    public static final String  KEY_STORE_TYPE_JKS    = "JKS";
+    private static final String FILEPATH_PREFIX       = "file:";
 
     final String portPath;
     final String addressPath;
@@ -64,17 +63,12 @@ public class EndpointConfig {
     @Setter
     @Getter
     private int                   port;
-    @Getter
-    @Setter
-    private boolean               tls12Enabled        = false;
-    @Getter
-    @Setter
-    private boolean               tls13Enabled        = false;
     @Setter
     @Getter
-    private Set<String>           enabledSslProtocols = new HashSet<>();
+    private Set<String>           enabledSslProtocols = Set.of(EndpointConfig.TLS_V1_3_PROTOCOL,
+            EndpointConfig.TLS_V1_2_PROTOCOL);
     @Getter
-    private String                keyStoreType        = "";
+    private String                keyStoreType        = KEY_STORE_TYPE_PKCS12;
     @Getter
     private String                keyStore            = "";
     @Getter
@@ -85,8 +79,7 @@ public class EndpointConfig {
     private String                keyAlias            = "";
     @Setter
     @Getter
-    private Set<SupportedCiphers> ciphers             = new HashSet<>(
-            Set.of(SupportedCiphers.TLS_AES_128_GCM_SHA256, SupportedCiphers.TLS_AES_256_GCM_SHA384));
+    private Set<SupportedCiphers> ciphers             = EnumSet.allOf(SupportedCiphers.class);
     private boolean               validKeystoreConfig = false;
 
     public EndpointConfig(String prefix, int port) {

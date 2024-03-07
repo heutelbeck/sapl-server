@@ -37,8 +37,11 @@ import io.sapl.server.ce.model.setup.ApplicationConfigService;
 import io.sapl.server.ce.model.setup.EndpointConfig;
 import io.sapl.server.ce.model.setup.SupportedCiphers;
 import io.sapl.server.ce.ui.utils.ConfirmUtils;
+import io.sapl.server.ce.ui.utils.ErrorComponentUtils;
 import io.sapl.server.ce.ui.utils.ErrorNotificationUtils;
+import io.sapl.server.ce.ui.views.SetupLayout;
 import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
 import java.io.FileNotFoundException;
@@ -60,6 +63,7 @@ public abstract class EndpointSetupView extends VerticalLayout {
 
     transient ApplicationConfigService applicationConfigService;
     transient EndpointConfig           endpointConfig;
+    transient HttpServletRequest       httpServletRequest;
 
     private final TextField                       adr                    = new TextField("Address");
     private final IntegerField                    port                   = new IntegerField("Port");
@@ -72,19 +76,28 @@ public abstract class EndpointSetupView extends VerticalLayout {
     private final CheckboxGroup<SupportedCiphers> ciphers                = new CheckboxGroup<>("TLS ciphers");
     private final Button                          validateKeyStoreSecret = new Button("Validate keystore settings");
     private final Button                          endpointSaveConfig     = new Button("Save Configuration");
-    private final Span                            tlsDisabledWarning     = new Span();
+    private Div                                   tlsDisabledWarning     = ErrorComponentUtils
+            .getErrorDiv("Warning: Do not use the option non-TLS setups in production.\n"
+                    + "This option may open the server to malicious probing and exfiltration attempts through "
+                    + "the authorization endpoints, potentially resulting in unauthorized access to your "
+                    + "organization's data, depending on your policies.");
     private Span                                  addressInputValidText;
     private Span                                  portInputValidText;
 
-    protected EndpointSetupView(ApplicationConfigService applicationConfigService, EndpointConfig endpointConfig) {
+    protected EndpointSetupView(ApplicationConfigService applicationConfigService, EndpointConfig endpointConfig,
+            HttpServletRequest httpServletRequest) {
         this.applicationConfigService = applicationConfigService;
         this.endpointConfig           = endpointConfig;
+        this.httpServletRequest       = httpServletRequest;
     }
 
     abstract void persistConfig() throws IOException;
 
     @PostConstruct
     private void init() {
+        if (!httpServletRequest.isSecure()) {
+            add(ErrorComponentUtils.getErrorDiv(SetupLayout.INSECURE_CONNECTION_MESSAGE));
+        }
         add(getLayout());
     }
 
@@ -175,12 +188,6 @@ public abstract class EndpointSetupView extends VerticalLayout {
         keyLayout.add(keyPassword);
         keyLayout.add(keyAlias);
         keyLayout.add(validateKeyStoreSecret);
-
-        tlsDisabledWarning.setText("Note: Do not use the option \"Disable TLS\" in production.\n"
-                + "This option may open the server to malicious probing and exfiltration attempts through "
-                + "the authorization endpoints, potentially resulting in unauthorized access to your "
-                + "organization's data, depending on your policies.");
-        tlsDisabledWarning.getStyle().set("color", "var(--lumo-error-text-color)");
 
         FormLayout tlsLayout = new FormLayout(adr, port, selectedSslProtocols, keyStoreType, ciphers, keyLayout,
                 tlsDisabledWarning, endpointSaveConfig);

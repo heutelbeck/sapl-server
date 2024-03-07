@@ -286,21 +286,28 @@ public class ApplicationConfigService {
     }
 
     private void initApiAuthenticationConfig() {
-        this.apiAuthenticationConfig.setBasicAuthEnabled(this.getAtAsBoolean(ApiAuthenticationConfig.BASICAUTH_PATH));
-        this.apiAuthenticationConfig.setApiKeyAuthEnabled(this.getAtAsBoolean(ApiAuthenticationConfig.APIKEYAUTH_PATH));
         this.apiAuthenticationConfig
-                .setApiKeyHeaderName(this.getAt(ApiAuthenticationConfig.APIKEYHEADERNAME_PATH, "").toString());
+                .setBasicAuthEnabled(this.getAtAsBoolean(ApiAuthenticationConfig.BASICAUTHENABLED_PATH));
+        this.apiAuthenticationConfig
+                .setApiKeyAuthEnabled(this.getAtAsBoolean(ApiAuthenticationConfig.APIKEYAUTHENABLED_PATH));
+        this.apiAuthenticationConfig
+                .setApiKeyHeaderName(this.getAt(ApiAuthenticationConfig.APIKEYHEADERNAME_PATH, "API_KEY").toString());
         this.apiAuthenticationConfig
                 .setApiKeyCachingEnabled(this.getAtAsBoolean(ApiAuthenticationConfig.APIKEYCACHINGENABLED_PATH));
         this.apiAuthenticationConfig.setApiKeyCachingExpires(
-                Integer.parseInt(this.getAt(ApiAuthenticationConfig.APIKEYCACHINGEXPIRE_PATH, 0).toString()));
+                Integer.parseInt(this.getAt(ApiAuthenticationConfig.APIKEYCACHINGEXPIRE_PATH, 300).toString()));
         this.apiAuthenticationConfig.setApiKeyCachingMaxSize(
-                Integer.parseInt(this.getAt(ApiAuthenticationConfig.APIKEYCACHINGMAXSIZE_PATH, 0).toString()));
+                Integer.parseInt(this.getAt(ApiAuthenticationConfig.APIKEYCACHINGMAXSIZE_PATH, 10000).toString()));
+        this.apiAuthenticationConfig
+                .setOAuth2AuthEnabled(this.getAtAsBoolean(ApiAuthenticationConfig.OUATH2ENABLED_PATH));
+        this.apiAuthenticationConfig.setOAuth2RessourceServer(
+                this.getAt(ApiAuthenticationConfig.OAUTH2RESOURCESERVER_PATH, "http://auth-server:8080/default")
+                        .toString());
     }
 
     public void persistApiAuthenticationConfig() throws IOException {
-        this.setAt(ApiAuthenticationConfig.BASICAUTH_PATH, this.apiAuthenticationConfig.isBasicAuthEnabled());
-        this.setAt(ApiAuthenticationConfig.APIKEYAUTH_PATH, this.apiAuthenticationConfig.isApiKeyAuthEnabled());
+        this.setAt(ApiAuthenticationConfig.BASICAUTHENABLED_PATH, this.apiAuthenticationConfig.isBasicAuthEnabled());
+        this.setAt(ApiAuthenticationConfig.APIKEYAUTHENABLED_PATH, this.apiAuthenticationConfig.isApiKeyAuthEnabled());
         this.setAt(ApiAuthenticationConfig.APIKEYHEADERNAME_PATH, this.apiAuthenticationConfig.getApiKeyHeaderName());
         this.setAt(ApiAuthenticationConfig.APIKEYCACHINGENABLED_PATH,
                 this.apiAuthenticationConfig.isApiKeyCachingEnabled());
@@ -308,6 +315,9 @@ public class ApplicationConfigService {
                 this.apiAuthenticationConfig.getApiKeyCachingExpires());
         this.setAt(ApiAuthenticationConfig.APIKEYCACHINGMAXSIZE_PATH,
                 this.apiAuthenticationConfig.getApiKeyCachingMaxSize());
+        this.setAt(ApiAuthenticationConfig.OUATH2ENABLED_PATH, this.apiAuthenticationConfig.isOAuth2AuthEnabled());
+        this.setAt(ApiAuthenticationConfig.OAUTH2RESOURCESERVER_PATH,
+                this.apiAuthenticationConfig.getOAuth2RessourceServer());
         this.persistYmlFiles();
         this.apiAuthenticationConfig.setSaved(true);
 

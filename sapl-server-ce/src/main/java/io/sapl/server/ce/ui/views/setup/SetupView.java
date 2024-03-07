@@ -27,22 +27,32 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import io.sapl.server.ce.model.setup.condition.SetupNotFinishedCondition;
+import io.sapl.server.ce.ui.utils.ErrorComponentUtils;
 import io.sapl.server.ce.ui.views.SetupLayout;
 import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Conditional;
 
 @AnonymousAllowed
-@RequiredArgsConstructor
 @PageTitle("Setup Wizard")
 @Route(value = SetupView.ROUTE, layout = SetupLayout.class)
 @Conditional(SetupNotFinishedCondition.class)
 public class SetupView extends VerticalLayout {
 
-    public static final String ROUTE = "";
+    public static final String           ROUTE = "";
+    private transient HttpServletRequest httpServletRequest;
+
+    public SetupView(@Autowired HttpServletRequest httpServletRequest) {
+        this.httpServletRequest = httpServletRequest;
+    }
 
     @PostConstruct
     private void init() {
+        if (!httpServletRequest.isSecure()) {
+            add(ErrorComponentUtils.getErrorDiv(SetupLayout.INSECURE_CONNECTION_MESSAGE));
+        }
+
         var hWelcome = new H1("Welcome to SAPL Server CE Setup Wizard");
 
         var hDesc = new H2("Description");

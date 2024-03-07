@@ -36,8 +36,10 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 import io.sapl.server.ce.model.setup.ApplicationConfigService;
 import io.sapl.server.ce.model.setup.condition.SetupNotFinishedCondition;
 import io.sapl.server.ce.ui.utils.ConfirmUtils;
+import io.sapl.server.ce.ui.utils.ErrorComponentUtils;
 import io.sapl.server.ce.ui.views.SetupLayout;
 import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Conditional;
 
@@ -56,6 +58,8 @@ public class AdminUserSetupView extends VerticalLayout {
     private static final String ERROR_COLOR    = "var(--lumo-error-color)";
 
     private transient ApplicationConfigService applicationConfigService;
+    private transient HttpServletRequest       httpServletRequest;
+
     private final TextField                    username             = new TextField("Username");
     private final PasswordField                password             = new PasswordField("Password");
     private final PasswordField                passwordRepeat       = new PasswordField("Repeat Password");
@@ -64,12 +68,17 @@ public class AdminUserSetupView extends VerticalLayout {
     private final Span                         passwordStrengthText = new Span();
     private final Span                         passwordEqualText    = new Span();
 
-    public AdminUserSetupView(@Autowired ApplicationConfigService applicationConfigService) {
+    public AdminUserSetupView(@Autowired ApplicationConfigService applicationConfigService,
+            @Autowired HttpServletRequest httpServletRequest) {
         this.applicationConfigService = applicationConfigService;
+        this.httpServletRequest       = httpServletRequest;
     }
 
     @PostConstruct
     private void init() {
+        if (!httpServletRequest.isSecure()) {
+            add(ErrorComponentUtils.getErrorDiv(SetupLayout.INSECURE_CONNECTION_MESSAGE));
+        }
         add(getLayout());
 
     }

@@ -36,9 +36,11 @@ import io.sapl.server.ce.model.setup.ApplicationConfigService;
 import io.sapl.server.ce.model.setup.SupportedDatasourceTypes;
 import io.sapl.server.ce.model.setup.condition.SetupNotFinishedCondition;
 import io.sapl.server.ce.ui.utils.ConfirmUtils;
+import io.sapl.server.ce.ui.utils.ErrorComponentUtils;
 import io.sapl.server.ce.ui.utils.ErrorNotificationUtils;
 import io.sapl.server.ce.ui.views.SetupLayout;
 import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Conditional;
 
@@ -55,6 +57,7 @@ public class DbmsSetupView extends VerticalLayout {
 
     public static final String                 ROUTE = "/setup/dbms";
     private transient ApplicationConfigService applicationConfigService;
+    private transient HttpServletRequest       httpServletRequest;
 
     private final RadioButtonGroup<String> dbms           = new RadioButtonGroup<>("DBMS");
     private final TextField                dbmsURL        = new TextField("DBMS URL");
@@ -65,14 +68,20 @@ public class DbmsSetupView extends VerticalLayout {
 
     private final List<String> dbmsDisplayNames = new ArrayList<>();
 
-    public DbmsSetupView(@Autowired ApplicationConfigService applicationConfigService) {
+    public DbmsSetupView(@Autowired ApplicationConfigService applicationConfigService,
+            @Autowired HttpServletRequest httpServletRequest) {
         this.applicationConfigService = applicationConfigService;
+        this.httpServletRequest       = httpServletRequest;
     }
 
     @PostConstruct
     private void init() {
         dbmsDisplayNames.add(SupportedDatasourceTypes.H2.ordinal(), "H2");
         dbmsDisplayNames.add(SupportedDatasourceTypes.MARIADB.ordinal(), "MariaDB");
+        if (!httpServletRequest.isSecure()) {
+            add(ErrorComponentUtils.getErrorDiv(SetupLayout.INSECURE_CONNECTION_MESSAGE));
+        }
+
         add(getLayout());
     }
 
