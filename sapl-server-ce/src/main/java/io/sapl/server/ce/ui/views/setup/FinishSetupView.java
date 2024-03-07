@@ -76,7 +76,9 @@ public class FinishSetupView extends VerticalLayout {
         restart.setEnabled(applicationConfigService.getDbmsConfig().isSaved()
                 && applicationConfigService.getAdminUserConfig().isSaved()
                 && applicationConfigService.getHttpEndpoint().isSaved()
-                && applicationConfigService.getRsocketEndpoint().isSaved());
+                && applicationConfigService.getRsocketEndpoint().isSaved()
+                && applicationConfigService.getApiAuthenticationConfig().isSaved()
+                && applicationConfigService.getLoggingConfig().isSaved());
 
         var  adminStateView = new Div();
         Icon adminStateIcon;
@@ -143,6 +145,19 @@ public class FinishSetupView extends VerticalLayout {
         }
         apiAuthenticationView.add(new Text("API Authentication setup finished "), apiAuthenticationIconState);
 
+        var  loggingView = new Div();
+        Icon loggingIconState;
+        if (applicationConfigService.getLoggingConfig().isSaved()) {
+            loggingIconState = VaadinIcon.CHECK_CIRCLE.create();
+            loggingIconState.getElement().getThemeList().add(THEME_BADGESUCCESSPILL);
+            loggingIconState.getStyle().setPadding(PADDING_XS);
+        } else {
+            loggingIconState = VaadinIcon.CLOSE.create();
+            loggingIconState.getElement().getThemeList().add(THEME_BADGEERRORPILL);
+            loggingIconState.getStyle().setPadding(PADDING_XS);
+        }
+        loggingView.add(new Text("Logging setup finished "), loggingIconState);
+
         VerticalLayout stateLayout = new VerticalLayout();
         stateLayout.setSpacing(false);
         stateLayout.getThemeList().add("spacing-l");
@@ -155,6 +170,7 @@ public class FinishSetupView extends VerticalLayout {
         stateLayout
                 .add(getTlsDisabledWarning("RSocket", !applicationConfigService.getRsocketEndpoint().getSslEnabled()));
         stateLayout.add(apiAuthenticationView);
+        stateLayout.add(loggingView);
 
         var hInfo = new H2(
                 "The following settings must be adjusted and saved before the application can be restarted and used.");

@@ -56,6 +56,8 @@ public class ApplicationConfigService {
     private final EndpointConfig          rsocketEndpoint         = new EndpointConfig("spring.rsocket.server.", 7000);
     @Getter
     private final ApiAuthenticationConfig apiAuthenticationConfig = new ApiAuthenticationConfig();
+    @Getter
+    private final LoggingConfig           loggingConfig           = new LoggingConfig();
 
     public ApplicationConfigService(ConfigurableEnvironment env) throws IOException {
         this.env = env;
@@ -65,6 +67,7 @@ public class ApplicationConfigService {
             applicationYml.initMap();
         }
         this.initDbmsConfig();
+        this.initLoggingConfig();
         this.initAdminUserConfig();
         this.initHttpEndpointConfig();
         this.initRsocketEndpointConfig();
@@ -110,11 +113,19 @@ public class ApplicationConfigService {
         return null;
     }
 
-    public Object getAt(String path, Object defaultValue) {
+    private Object getAt(String path, Object defaultValue) {
         return ObjectUtils.firstNonNull(this.getAt(path), defaultValue);
     }
 
-    public void setAt(String path, Object value) {
+    private boolean getAtAsBoolean(String path, boolean defaultValue) {
+        Object obj = this.getAt(path);
+        if (obj instanceof Boolean) {
+            return (boolean) obj;
+        }
+        return defaultValue;
+    }
+
+    private void setAt(String path, Object value) {
         for (ApplicationYml f : appYmls) {
             if (f.existsAt(path)) {
                 f.setAt(path, value);
@@ -125,7 +136,7 @@ public class ApplicationConfigService {
         appYmls[0].setAt(path, value);
     }
 
-    public void persistYmlFiles() throws IOException {
+    private void persistYmlFiles() throws IOException {
         for (ApplicationYml f : appYmls) {
             f.persistYmlFile();
         }
@@ -174,7 +185,7 @@ public class ApplicationConfigService {
             this.httpEndpoint.setPort(getPortNumber(port));
         }
 
-        if (this.getAtAsBoolean(httpEndpoint.sslEnabledPath)) {
+        if (this.getAtAsBoolean(httpEndpoint.sslEnabledPath, false)) {
             if (this.getAt(httpEndpoint.sslEnabledProtocolsPath) != null) {
                 if (this.getAt(httpEndpoint.sslEnabledProtocolsPath) instanceof List) {
                     this.httpEndpoint.setEnabledSslProtocols(
@@ -234,7 +245,7 @@ public class ApplicationConfigService {
             this.rsocketEndpoint.setPort(getPortNumber(port));
         }
 
-        if (this.getAtAsBoolean(rsocketEndpoint.sslEnabledPath)) {
+        if (this.getAtAsBoolean(rsocketEndpoint.sslEnabledPath, false)) {
             if (this.getAt(rsocketEndpoint.sslEnabledProtocolsPath) != null) {
                 if (this.getAt(rsocketEndpoint.sslEnabledProtocolsPath) instanceof List) {
                     this.rsocketEndpoint.setEnabledSslProtocols(
@@ -287,19 +298,19 @@ public class ApplicationConfigService {
 
     private void initApiAuthenticationConfig() {
         this.apiAuthenticationConfig
-                .setBasicAuthEnabled(this.getAtAsBoolean(ApiAuthenticationConfig.BASICAUTHENABLED_PATH));
+                .setBasicAuthEnabled(this.getAtAsBoolean(ApiAuthenticationConfig.BASICAUTHENABLED_PATH, false));
         this.apiAuthenticationConfig
-                .setApiKeyAuthEnabled(this.getAtAsBoolean(ApiAuthenticationConfig.APIKEYAUTHENABLED_PATH));
+                .setApiKeyAuthEnabled(this.getAtAsBoolean(ApiAuthenticationConfig.APIKEYAUTHENABLED_PATH, false));
         this.apiAuthenticationConfig
                 .setApiKeyHeaderName(this.getAt(ApiAuthenticationConfig.APIKEYHEADERNAME_PATH, "API_KEY").toString());
         this.apiAuthenticationConfig
-                .setApiKeyCachingEnabled(this.getAtAsBoolean(ApiAuthenticationConfig.APIKEYCACHINGENABLED_PATH));
+                .setApiKeyCachingEnabled(this.getAtAsBoolean(ApiAuthenticationConfig.APIKEYCACHINGENABLED_PATH, false));
         this.apiAuthenticationConfig.setApiKeyCachingExpires(
                 Integer.parseInt(this.getAt(ApiAuthenticationConfig.APIKEYCACHINGEXPIRE_PATH, 300).toString()));
         this.apiAuthenticationConfig.setApiKeyCachingMaxSize(
                 Integer.parseInt(this.getAt(ApiAuthenticationConfig.APIKEYCACHINGMAXSIZE_PATH, 10000).toString()));
         this.apiAuthenticationConfig
-                .setOAuth2AuthEnabled(this.getAtAsBoolean(ApiAuthenticationConfig.OUATH2ENABLED_PATH));
+                .setOAuth2AuthEnabled(this.getAtAsBoolean(ApiAuthenticationConfig.OUATH2ENABLED_PATH, false));
         this.apiAuthenticationConfig.setOAuth2RessourceServer(
                 this.getAt(ApiAuthenticationConfig.OAUTH2RESOURCESERVER_PATH, "http://auth-server:8080/default")
                         .toString());
@@ -320,7 +331,34 @@ public class ApplicationConfigService {
                 this.apiAuthenticationConfig.getOAuth2RessourceServer());
         this.persistYmlFiles();
         this.apiAuthenticationConfig.setSaved(true);
+    }
 
+    private void initLoggingConfig() {
+        this.loggingConfig.setSaplLoggingLevel(
+                LoggingLevel.getByName(this.getAt(LoggingConfig.SAPL_LOGGING_PATH), LoggingLevel.WARN));
+        this.loggingConfig.setSpringLoggingLevel(
+                LoggingLevel.getByName(this.getAt(LoggingConfig.SPRING_LOGGING_PATH), LoggingLevel.WARN));
+        this.loggingConfig.setSaplServerLoggingLevel(
+                LoggingLevel.getByName(this.getAt(LoggingConfig.SAPL_SERVER_LOGGING_PATH), LoggingLevel.WARN));
+
+        this.loggingConfig.setPrintTrace(this.getAtAsBoolean(LoggingConfig.PRINT_TRACE_PATH, true));
+        this.loggingConfig.setPrintJsonReport(this.getAtAsBoolean(LoggingConfig.PRINT_JSON_REPORT_PATH, true));
+        this.loggingConfig.setPrintTextReport(this.getAtAsBoolean(LoggingConfig.PRINT_TEXT_REPORT_PATH, true));
+        this.loggingConfig.setPrettyPrintReports(this.getAtAsBoolean(LoggingConfig.PRETTY_PRINT_REPORTS_PATH, false));
+    }
+
+    public void persistLoggingConfig() throws IOException {
+        this.setAt(LoggingConfig.SAPL_LOGGING_PATH, this.loggingConfig.getSaplLoggingLevel());
+        this.setAt(LoggingConfig.SPRING_LOGGING_PATH, this.loggingConfig.getSpringLoggingLevel());
+        this.setAt(LoggingConfig.SAPL_SERVER_LOGGING_PATH, this.loggingConfig.getSaplServerLoggingLevel());
+
+        this.setAt(LoggingConfig.PRINT_TRACE_PATH, this.loggingConfig.isPrintTrace());
+        this.setAt(LoggingConfig.PRINT_JSON_REPORT_PATH, this.loggingConfig.isPrintJsonReport());
+        this.setAt(LoggingConfig.PRINT_TEXT_REPORT_PATH, this.loggingConfig.isPrintTextReport());
+        this.setAt(LoggingConfig.PRETTY_PRINT_REPORTS_PATH, this.loggingConfig.isPrettyPrintReports());
+
+        this.persistYmlFiles();
+        this.loggingConfig.setSaved(true);
     }
 
     private int getPortNumber(String s) {
@@ -334,11 +372,4 @@ public class ApplicationConfigService {
         }
     }
 
-    private boolean getAtAsBoolean(String path) {
-        Object obj = this.getAt(path);
-        if (obj instanceof Boolean) {
-            return (boolean) obj;
-        }
-        return false;
-    }
 }
