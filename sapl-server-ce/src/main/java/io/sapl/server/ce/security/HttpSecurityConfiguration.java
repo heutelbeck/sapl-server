@@ -20,6 +20,7 @@ package io.sapl.server.ce.security;
 import static org.springframework.security.config.Customizer.withDefaults;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import io.sapl.server.ce.model.setup.condition.SetupFinishedCondition;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -33,6 +34,9 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
+import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
+import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtDecoders;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
@@ -68,6 +72,10 @@ public class HttpSecurityConfiguration extends VaadinWebSecurity {
     private boolean allowKeycloakLogin;
 
     private final ApiKeaderHeaderAuthFilterService apiKeyAuthenticationFilterService;
+
+    private static final String GROUPS             = "groups";
+    private static final String REALM_ACCESS_CLAIM = "realm_access";
+    private static final String ROLES_CLAIM        = "roles";
 
     /**
      * Decodes JSON Web Token (JWT) according to the configuration that was
@@ -172,5 +180,54 @@ public class HttpSecurityConfiguration extends VaadinWebSecurity {
         } else {
             setLoginView(http, LoginView.class);
         }
+    }
+
+    // Important to extract the OAuth2 roles so that the Role admin is identified
+    // right by SpringBoot
+    @Bean
+    public GrantedAuthoritiesMapper userAuthoritiesMapperForKeycloak() {
+        return authorities -> {
+            Set     mappedAuthorities = new HashSet<>();
+            var     authority         = authorities.iterator().next();
+            boolean isOidc            = authority instanceof OidcUserAuthority;
+
+            if (isOidc) {
+                var oidcUserAuthority = (OidcUserAuthority) authority;
+                var userInfo          = oidcUserAuthority.getUserInfo();
+
+                // Check if the roles are contained in the REALM_ACCESS_CLAIM or the GROUPS
+                // claim
+                if (userInfo.hasClaim(REALM_ACCESS_CLAIM)) {
+                    // Get the role from the REALM_ACCESS_CLAIM
+                    var realmAccess = userInfo.getClaimAsMap(REALM_ACCESS_CLAIM);
+                    var roles       = (Collection) realmAccess.get(ROLES_CLAIM);
+
+                    // Add the roles to SpringSecurity
+                    mappedAuthorities.addAll(generateAuthoritiesFromClaim(roles));
+
+                } else if (userInfo.hasClaim(GROUPS)) {
+                    // Get the role from the GROUPS claim
+                    Collection roles = (Collection) userInfo.getClaim(GROUPS);
+
+                    // Add the roles to SpringSecurity
+                    mappedAuthorities.addAll(generateAuthoritiesFromClaim(roles));
+                }
+            } else {
+                var                 oauth2UserAuthority = (OAuth2UserAuthority) authority;
+                Map<String, Object> userAttributes      = oauth2UserAuthority.getAttributes();
+
+                if (userAttributes.containsKey(REALM_ACCESS_CLAIM)) {
+                    Map<String, Object> realmAccess = (Map<String, Object>) userAttributes.get(REALM_ACCESS_CLAIM);
+                    Collection          roles       = (Collection) realmAccess.get(ROLES_CLAIM);
+                    mappedAuthorities.addAll(generateAuthoritiesFromClaim(roles));
+                }
+            }
+            return mappedAuthorities;
+        };
+    }
+
+    Collection<SimpleGrantedAuthority> generateAuthoritiesFromClaim(Collection<String> roles) {
+        // Returns the roles from OAuth2 and add the prefix ROLE_
+        return roles.stream().map(role -> new SimpleGrantedAuthority("ROLE_" + role)).collect(Collectors.toList());
     }
 }
