@@ -67,11 +67,8 @@ public class AuthenticatedUser {
             RestTemplate        restTemplate  = new RestTemplate();
             RequestEntity<Void> requestEntity = RequestEntity.get(builder.build().toUri()).build();
             restTemplate.exchange(requestEntity, Void.class);
-
-            // Invalidate the Vaadin session so the Logout performs right
-            VaadinServletRequest.getCurrent().getHttpServletRequest().getSession().invalidate();
-        } else {
-            authenticationContext.logout();
         }
+        // Invalidate the Vaadin session so the Logout performs right
+        VaadinServletRequest.getCurrent().getHttpServletRequest().getSession().invalidate();
     }
 }
