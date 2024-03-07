@@ -20,6 +20,7 @@ package io.sapl.server.ce.security;
 import java.util.Optional;
 import com.vaadin.flow.server.VaadinServletRequest;
 import io.sapl.server.ce.security.OAuth2.OAuth2UserDetailsAdapter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.RequestEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -36,6 +37,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 @RequiredArgsConstructor
 public class AuthenticatedUser {
     private AuthenticationContext authenticationContext;
+
+    @Value("${spring.security.oauth2.client.provider.keycloak.issuer-uri}")
+    private String keycloakIssuerUri;
 
     // If a user is from an OAuth2 provider then set it to true
     private boolean isOauth2User = false;
@@ -54,21 +58,25 @@ public class AuthenticatedUser {
     }
 
     public void logout() {
-        // If OAuth2 is enabled, perform also a logout at the OAuth2 endpoint
         if (isOauth2User) {
-            Authentication authentication     = SecurityContextHolder.getContext().getAuthentication();
-            OidcUser       user               = ((OidcUser) authentication.getPrincipal());
-            String         endSessionEndpoint = "http://localhost:9000/realms/SAPL/protocol/openid-connect/logout";
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication.getPrincipal() instanceof OidcUser) {
+                OidcUser user               = (OidcUser) authentication.getPrincipal();
+                String   endSessionEndpoint = keycloakIssuerUri + "/protocol/openid-connect/logout";
 
-            // Use the id_token_hint to find the right user for the logout
-            UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(endSessionEndpoint)
-                    .queryParam("id_token_hint", user.getIdToken().getTokenValue());
+                UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(endSessionEndpoint)
+                        .queryParam("id_token_hint", user.getIdToken().getTokenValue());
 
-            RestTemplate        restTemplate  = new RestTemplate();
-            RequestEntity<Void> requestEntity = RequestEntity.get(builder.build().toUri()).build();
-            restTemplate.exchange(requestEntity, Void.class);
+                RestTemplate restTemplate = new RestTemplate();
+                try {
+                    RequestEntity<Void> requestEntity = RequestEntity.get(builder.build().toUri()).build();
+                    restTemplate.exchange(requestEntity, Void.class);
+                } catch (Exception e) {
+                    System.err.println("Fehler beim Abmelden am Endsession-Endpunkt: " + e.getMessage());
+                }
+            }
         }
-        // Invalidate the Vaadin session so the Logout performs right
+        // Invalidate the session in Vaadin
         VaadinServletRequest.getCurrent().getHttpServletRequest().getSession().invalidate();
     }
 }
