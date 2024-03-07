@@ -36,7 +36,7 @@ io.sapl:
       maxSize: 10000
 
     # Optional: configure Oauth2 (jwt) authentication
-    allowOauth2Auth: False
+    allowOauth2Auth: True
 
     # Optional: configure Oauth2 Login with Keycloak
     allowKeycloakLogin: True
