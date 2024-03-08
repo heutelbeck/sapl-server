@@ -60,13 +60,13 @@ public class AdminUserSetupView extends VerticalLayout {
     private transient ApplicationConfigService applicationConfigService;
     private transient HttpServletRequest       httpServletRequest;
 
-    private final TextField                    username             = new TextField("Username");
-    private final PasswordField                password             = new PasswordField("Password");
-    private final PasswordField                passwordRepeat       = new PasswordField("Repeat Password");
-    private final Button                       pwdSaveConfig        = new Button("Save Admin-User Settings");
-    private final Icon                         pwdEqualCheckIcon    = VaadinIcon.CHECK.create();
-    private final Span                         passwordStrengthText = new Span();
-    private final Span                         passwordEqualText    = new Span();
+    private final TextField     username             = new TextField("Username");
+    private final PasswordField password             = new PasswordField("Password");
+    private final PasswordField passwordRepeat       = new PasswordField("Repeat Password");
+    private final Button        pwdSaveConfig        = new Button("Save Admin-User Settings");
+    private final Icon          pwdEqualCheckIcon    = VaadinIcon.CHECK.create();
+    private final Span          passwordStrengthText = new Span();
+    private final Span          passwordEqualText    = new Span();
 
     public AdminUserSetupView(@Autowired ApplicationConfigService applicationConfigService,
             @Autowired HttpServletRequest httpServletRequest) {

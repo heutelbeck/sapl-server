@@ -23,8 +23,8 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -143,11 +143,11 @@ public class ApplicationConfigService {
     }
 
     private void initDbmsConfig() {
-        this.dbmsConfig.setDbms(DBMSConfig.getDatasourceTypeFromDriverClassName(
-                this.getAt(DBMSConfig.DRIVERCLASSNAME_PATH, DBMSConfig.DRIVERCLASSNAME_H2).toString()));
+        this.dbmsConfig.setDbms(SupportedDatasourceTypes.getByDriverClassName(this
+                .getAt(DBMSConfig.DRIVERCLASSNAME_PATH, SupportedDatasourceTypes.H2.getDriverClassName()).toString()));
         this.dbmsConfig.setUrl(this.getAt(DBMSConfig.URL_PATH, "").toString());
         if (this.dbmsConfig.getUrl().isEmpty()) {
-            dbmsConfig.setToDbmsDefaults(dbmsConfig.getDbms());
+            dbmsConfig.setUrl(dbmsConfig.getDbms().getDefaultUrl());
         }
         this.dbmsConfig.setUsername(this.getAt(DBMSConfig.USERNAME_PATH, "").toString());
         this.dbmsConfig.setPassword(this.getAt(DBMSConfig.PASSWORD_PATH, "").toString());
@@ -155,7 +155,7 @@ public class ApplicationConfigService {
     }
 
     public void persistDbmsConfig() throws IOException {
-        this.setAt(DBMSConfig.DRIVERCLASSNAME_PATH, dbmsConfig.getDriverClassName());
+        this.setAt(DBMSConfig.DRIVERCLASSNAME_PATH, dbmsConfig.getDbms().getDriverClassName());
         this.setAt(DBMSConfig.URL_PATH, dbmsConfig.getUrl());
         this.setAt(DBMSConfig.USERNAME_PATH, dbmsConfig.getUsername());
         this.setAt(DBMSConfig.PASSWORD_PATH, dbmsConfig.getPassword());
@@ -188,14 +188,19 @@ public class ApplicationConfigService {
         if (this.getAtAsBoolean(httpEndpoint.sslEnabledPath, false)) {
             if (this.getAt(httpEndpoint.sslEnabledProtocolsPath) != null) {
                 if (this.getAt(httpEndpoint.sslEnabledProtocolsPath) instanceof List) {
-                    this.httpEndpoint.setEnabledSslProtocols(
-                            new HashSet<>(((List<String>) this.getAt(httpEndpoint.sslEnabledProtocolsPath))));
-                } else if (this.getAt(httpEndpoint.sslEnabledProtocolsPath) instanceof String string) {
                     this.httpEndpoint
-                            .setEnabledSslProtocols(Arrays.stream(string.split(",")).collect(Collectors.toSet()));
+                            .setEnabledSslProtocols(((List<String>) this.getAt(httpEndpoint.sslEnabledProtocolsPath))
+                                    .stream().map(SupportedSslVersions::getByDisplayName).filter(Objects::nonNull)
+                                    .collect(Collectors.toSet()));
+                } else if (this.getAt(httpEndpoint.sslEnabledProtocolsPath) instanceof String string) {
+                    this.httpEndpoint.setEnabledSslProtocols(
+                            Arrays.stream(string.split(",")).map(SupportedSslVersions::getByDisplayName)
+                                    .filter(Objects::nonNull).collect(Collectors.toSet()));
                 }
             }
-            this.httpEndpoint.setKeyStoreType(this.getAt(httpEndpoint.sslKeyStoreTypePath, "").toString());
+            this.httpEndpoint.setKeyStoreType(ObjectUtils.firstNonNull(
+                    SupportedKeystoreTypes.getByName(this.getAt(httpEndpoint.sslKeyStoreTypePath, "").toString()),
+                    SupportedKeystoreTypes.PKCS12));
             this.httpEndpoint
                     .setKeyStore(this.getAt(httpEndpoint.sslKeyStorePath, "file:config/keystore.p12").toString());
             this.httpEndpoint.setKeyPassword(this.getAt(httpEndpoint.sslKeyPasswordPath, "").toString());
@@ -205,10 +210,10 @@ public class ApplicationConfigService {
             if (this.getAt(httpEndpoint.sslCiphersPath) != null) {
                 if (this.getAt(httpEndpoint.sslCiphersPath) instanceof List) {
                     this.httpEndpoint.setCiphers(((List<String>) this.getAt(httpEndpoint.sslCiphersPath)).stream()
-                            .map(SupportedCiphers::valueOf).collect(Collectors.toSet()));
+                            .map(SupportedCiphers::getByName).filter(Objects::nonNull).collect(Collectors.toSet()));
                 } else if (this.getAt(httpEndpoint.sslCiphersPath) instanceof String string) {
-                    this.httpEndpoint.setCiphers(Arrays.stream(string.split(",")).map(SupportedCiphers::valueOf)
-                            .collect(Collectors.toSet()));
+                    this.httpEndpoint.setCiphers(Arrays.stream(string.split(",")).map(SupportedCiphers::getByName)
+                            .filter(Objects::nonNull).collect(Collectors.toSet()));
                 }
             }
         }
@@ -228,8 +233,9 @@ public class ApplicationConfigService {
             this.setAt(httpEndpoint.sslKeyPasswordPath, this.httpEndpoint.getKeyPassword());
             this.setAt(httpEndpoint.sslKeyAliasPath, this.httpEndpoint.getKeyAlias());
             this.setAt(httpEndpoint.sslCiphersPath, this.httpEndpoint.getCiphers());
-            this.setAt(httpEndpoint.sslEnabledProtocolsPath, this.httpEndpoint.getEnabledSslProtocols());
-            this.setAt(httpEndpoint.sslProtocolPath, httpEndpoint.getPrimarySslProtocol());
+            this.setAt(httpEndpoint.sslEnabledProtocolsPath, this.httpEndpoint.getEnabledSslProtocols().stream()
+                    .map(SupportedSslVersions::getDisplayName).collect(Collectors.toSet()));
+            this.setAt(httpEndpoint.sslProtocolPath, httpEndpoint.getPrimarySslProtocol().getDisplayName());
         }
         this.persistYmlFiles();
         this.httpEndpoint.setSaved(true);
@@ -248,14 +254,20 @@ public class ApplicationConfigService {
         if (this.getAtAsBoolean(rsocketEndpoint.sslEnabledPath, false)) {
             if (this.getAt(rsocketEndpoint.sslEnabledProtocolsPath) != null) {
                 if (this.getAt(rsocketEndpoint.sslEnabledProtocolsPath) instanceof List) {
-                    this.rsocketEndpoint.setEnabledSslProtocols(
-                            new HashSet<>(((List<String>) this.getAt(rsocketEndpoint.sslEnabledProtocolsPath))));
-                } else if (this.getAt(rsocketEndpoint.sslEnabledProtocolsPath) instanceof String string) {
                     this.rsocketEndpoint
-                            .setEnabledSslProtocols(Arrays.stream(string.split(",")).collect(Collectors.toSet()));
+                            .setEnabledSslProtocols(((List<String>) this.getAt(rsocketEndpoint.sslEnabledProtocolsPath))
+                                    .stream().map(SupportedSslVersions::getByDisplayName).filter(Objects::nonNull)
+                                    .collect(Collectors.toSet()));
+                } else if (this.getAt(rsocketEndpoint.sslEnabledProtocolsPath) instanceof String string) {
+                    this.rsocketEndpoint.setEnabledSslProtocols(
+                            Arrays.stream(string.split(",")).map(SupportedSslVersions::getByDisplayName)
+                                    .filter(Objects::nonNull).collect(Collectors.toSet()));
                 }
             }
-            this.rsocketEndpoint.setKeyStoreType(this.getAt(rsocketEndpoint.sslKeyStoreTypePath, "").toString());
+
+            this.rsocketEndpoint.setKeyStoreType(ObjectUtils.firstNonNull(
+                    SupportedKeystoreTypes.getByName(this.getAt(rsocketEndpoint.sslKeyStoreTypePath, "").toString()),
+                    SupportedKeystoreTypes.PKCS12));
             this.rsocketEndpoint
                     .setKeyStore(this.getAt(rsocketEndpoint.sslKeyStorePath, "file:config/keystore.p12").toString());
             this.rsocketEndpoint.setKeyPassword(this.getAt(rsocketEndpoint.sslKeyPasswordPath, "").toString());
@@ -265,10 +277,10 @@ public class ApplicationConfigService {
             if (this.getAt(rsocketEndpoint.sslCiphersPath) != null) {
                 if (this.getAt(rsocketEndpoint.sslCiphersPath) instanceof List) {
                     this.rsocketEndpoint.setCiphers(((List<String>) this.getAt(rsocketEndpoint.sslCiphersPath)).stream()
-                            .map(SupportedCiphers::valueOf).collect(Collectors.toSet()));
+                            .map(SupportedCiphers::getByName).filter(Objects::nonNull).collect(Collectors.toSet()));
                 } else if (this.getAt(rsocketEndpoint.sslCiphersPath) instanceof String string) {
-                    this.rsocketEndpoint.setCiphers(Arrays.stream(string.split(",")).map(SupportedCiphers::valueOf)
-                            .collect(Collectors.toSet()));
+                    this.rsocketEndpoint.setCiphers(Arrays.stream(string.split(",")).map(SupportedCiphers::getByName)
+                            .filter(Objects::nonNull).collect(Collectors.toSet()));
                 }
             }
         }
@@ -289,8 +301,9 @@ public class ApplicationConfigService {
             this.setAt(rsocketEndpoint.sslKeyPasswordPath, this.rsocketEndpoint.getKeyPassword());
             this.setAt(rsocketEndpoint.sslKeyAliasPath, this.rsocketEndpoint.getKeyAlias());
             this.setAt(rsocketEndpoint.sslCiphersPath, this.rsocketEndpoint.getCiphers());
-            this.setAt(rsocketEndpoint.sslEnabledProtocolsPath, this.rsocketEndpoint.getEnabledSslProtocols());
-            this.setAt(rsocketEndpoint.sslProtocolPath, rsocketEndpoint.getPrimarySslProtocol());
+            this.setAt(rsocketEndpoint.sslEnabledProtocolsPath, this.rsocketEndpoint.getEnabledSslProtocols().stream()
+                    .map(SupportedSslVersions::getDisplayName).collect(Collectors.toSet()));
+            this.setAt(rsocketEndpoint.sslProtocolPath, rsocketEndpoint.getPrimarySslProtocol().getDisplayName());
         }
         this.persistYmlFiles();
         this.rsocketEndpoint.setSaved(true);

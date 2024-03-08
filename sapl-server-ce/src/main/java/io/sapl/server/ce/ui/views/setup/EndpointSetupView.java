@@ -33,9 +33,7 @@ import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
-import io.sapl.server.ce.model.setup.ApplicationConfigService;
-import io.sapl.server.ce.model.setup.EndpointConfig;
-import io.sapl.server.ce.model.setup.SupportedCiphers;
+import io.sapl.server.ce.model.setup.*;
 import io.sapl.server.ce.ui.utils.ConfirmUtils;
 import io.sapl.server.ce.ui.utils.ErrorComponentUtils;
 import io.sapl.server.ce.ui.utils.ErrorNotificationUtils;
@@ -49,9 +47,9 @@ import java.io.IOException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumSet;
-import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 public abstract class EndpointSetupView extends VerticalLayout {
@@ -65,24 +63,28 @@ public abstract class EndpointSetupView extends VerticalLayout {
     transient EndpointConfig           endpointConfig;
     transient HttpServletRequest       httpServletRequest;
 
-    private final TextField                       adr                    = new TextField("Address");
-    private final IntegerField                    port                   = new IntegerField("Port");
-    private final TextField                       keyStore               = new TextField("Key store path");
-    private final TextField                       keyAlias               = new TextField("Key alias");
-    private final PasswordField                   keyStorePassword       = new PasswordField("Key store password");
-    private final PasswordField                   keyPassword            = new PasswordField("Key password");
-    private final CheckboxGroup<String>           selectedSslProtocols   = new CheckboxGroup<>("Enabled tls Protocols");
-    private final RadioButtonGroup<String>        keyStoreType           = new RadioButtonGroup<>("Key Store Type");
-    private final CheckboxGroup<SupportedCiphers> ciphers                = new CheckboxGroup<>("TLS ciphers");
-    private final Button                          validateKeyStoreSecret = new Button("Validate keystore settings");
-    private final Button                          endpointSaveConfig     = new Button("Save Configuration");
-    private Div                                   tlsDisabledWarning     = ErrorComponentUtils
+    private final TextField                                adr                    = new TextField("Address");
+    private final IntegerField                             port                   = new IntegerField("Port");
+    private final TextField                                keyStore               = new TextField("Key store path");
+    private final TextField                                keyAlias               = new TextField("Key alias");
+    private final PasswordField                            keyStorePassword       = new PasswordField(
+            "Key store password");
+    private final PasswordField                            keyPassword            = new PasswordField("Key password");
+    private final CheckboxGroup<String>                    selectedSslProtocols   = new CheckboxGroup<>(
+            "Enabled tls Protocols");
+    private final RadioButtonGroup<SupportedKeystoreTypes> keyStoreType           = new RadioButtonGroup<>(
+            "Key Store Type");
+    private final CheckboxGroup<SupportedCiphers>          ciphers                = new CheckboxGroup<>("TLS ciphers");
+    private final Button                                   validateKeyStoreSecret = new Button(
+            "Validate keystore settings");
+    private final Button                                   endpointSaveConfig     = new Button("Save Configuration");
+    private Div                                            tlsDisabledWarning     = ErrorComponentUtils
             .getErrorDiv("Warning: Do not use the option non-TLS setups in production.\n"
                     + "This option may open the server to malicious probing and exfiltration attempts through "
                     + "the authorization endpoints, potentially resulting in unauthorized access to your "
                     + "organization's data, depending on your policies.");
-    private Span                                  addressInputValidText;
-    private Span                                  portInputValidText;
+    private Span                                           addressInputValidText;
+    private Span                                           portInputValidText;
 
     protected EndpointSetupView(ApplicationConfigService applicationConfigService, EndpointConfig endpointConfig,
             HttpServletRequest httpServletRequest) {
@@ -102,8 +104,11 @@ public abstract class EndpointSetupView extends VerticalLayout {
     }
 
     private Component getLayout() {
-        selectedSslProtocols.setItems(EndpointConfig.TLS_V1_3_PROTOCOL, EndpointConfig.TLS_V1_2_PROTOCOL);
-        selectedSslProtocols.setValue(endpointConfig.getEnabledSslProtocols());
+        selectedSslProtocols.setItems(Arrays.stream(SupportedSslVersions.values())
+                .map(SupportedSslVersions::getDisplayName).toArray(String[]::new));
+
+        selectedSslProtocols.setValue(endpointConfig.getEnabledSslProtocols().stream()
+                .map(SupportedSslVersions::getDisplayName).collect(Collectors.toSet()));
         selectedSslProtocols.addSelectionListener(e -> updateEndpointConfig());
 
         setTlsFieldsVisible(endpointConfig.getSslEnabled());
@@ -157,7 +162,7 @@ public abstract class EndpointSetupView extends VerticalLayout {
         keyAlias.setValue(endpointConfig.getKeyAlias());
         keyAlias.addValueChangeListener(e -> updateEndpointConfig());
 
-        keyStoreType.setItems(getKeyStoreTypes());
+        keyStoreType.setItems(EnumSet.allOf(SupportedKeystoreTypes.class));
         keyStoreType.setRequiredIndicatorVisible(true);
         keyStoreType.setValue(endpointConfig.getKeyStoreType());
         keyStoreType.addValueChangeListener(e -> updateEndpointConfig());
@@ -195,15 +200,6 @@ public abstract class EndpointSetupView extends VerticalLayout {
         tlsLayout.setColspan(endpointSaveConfig, 2);
 
         return tlsLayout;
-    }
-
-    private static List<String> getKeyStoreTypes() {
-        List<String> keyTypes = new ArrayList<>();
-        keyTypes.add(EndpointConfig.KEY_STORE_TYPE_PKCS12);
-        keyTypes.add(EndpointConfig.KEY_STORE_TYPE_JCEKS);
-        keyTypes.add(EndpointConfig.KEY_STORE_TYPE_JKS);
-
-        return keyTypes;
     }
 
     private void updateAddressHint() {
@@ -265,7 +261,8 @@ public abstract class EndpointSetupView extends VerticalLayout {
         } else {
             endpointConfig.setPort(-1);
         }
-        endpointConfig.setEnabledSslProtocols(selectedSslProtocols.getValue());
+        endpointConfig.setEnabledSslProtocols(selectedSslProtocols.getValue().stream()
+                .map(SupportedSslVersions::getByDisplayName).collect(Collectors.toSet()));
         endpointConfig.setCiphers(ciphers.getValue());
         endpointConfig.setKeyStore(keyStore.getValue());
         endpointConfig.setKeyAlias(keyAlias.getValue());
@@ -277,5 +274,7 @@ public abstract class EndpointSetupView extends VerticalLayout {
         updateAddressHint();
         portInputValidText.setVisible(!endpointConfig.portAndProtocolsMatch());
         endpointSaveConfig.setEnabled(endpointConfig.isValidConfig());
+
     }
+
 }

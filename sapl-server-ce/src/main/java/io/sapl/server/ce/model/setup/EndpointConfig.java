@@ -34,12 +34,8 @@ import java.security.cert.CertificateException;
 import java.util.*;
 
 public class EndpointConfig {
-    public static final String  TLS_V1_3_PROTOCOL     = "TLSv1.3";
-    public static final String  TLS_V1_2_PROTOCOL     = "TLSv1.2";
-    public static final String  KEY_STORE_TYPE_PKCS12 = "PKCS12";
-    public static final String  KEY_STORE_TYPE_JCEKS  = "JCEKS";
-    public static final String  KEY_STORE_TYPE_JKS    = "JKS";
-    private static final String FILEPATH_PREFIX       = "file:";
+
+    private static final String FILEPATH_PREFIX = "file:";
 
     final String portPath;
     final String addressPath;
@@ -56,31 +52,30 @@ public class EndpointConfig {
 
     @Getter
     @Setter
-    private boolean               saved               = false;
+    private boolean                   saved               = false;
     @Setter
     @Getter
-    private String                address             = "";
+    private String                    address             = "";
     @Setter
     @Getter
-    private int                   port;
+    private int                       port;
     @Setter
     @Getter
-    private Set<String>           enabledSslProtocols = Set.of(EndpointConfig.TLS_V1_3_PROTOCOL,
-            EndpointConfig.TLS_V1_2_PROTOCOL);
+    private Set<SupportedSslVersions> enabledSslProtocols = EnumSet.allOf(SupportedSslVersions.class);
     @Getter
-    private String                keyStoreType        = KEY_STORE_TYPE_PKCS12;
+    private SupportedKeystoreTypes    keyStoreType        = SupportedKeystoreTypes.PKCS12;
     @Getter
-    private String                keyStore            = "";
+    private String                    keyStore            = "";
     @Getter
-    private String                keyPassword         = "";
+    private String                    keyPassword         = "";
     @Getter
-    private String                keyStorePassword    = "";
+    private String                    keyStorePassword    = "";
     @Getter
-    private String                keyAlias            = "";
+    private String                    keyAlias            = "";
     @Setter
     @Getter
-    private Set<SupportedCiphers> ciphers             = EnumSet.allOf(SupportedCiphers.class);
-    private boolean               validKeystoreConfig = false;
+    private Set<SupportedCiphers>     ciphers             = EnumSet.allOf(SupportedCiphers.class);
+    private boolean                   validKeystoreConfig = false;
 
     public EndpointConfig(String prefix, int port) {
 
@@ -101,13 +96,11 @@ public class EndpointConfig {
         this.port = port;
     }
 
-    public void setKeyStoreType(String keyStoreType) {
+    public void setKeyStoreType(SupportedKeystoreTypes keyStoreType) {
         if (!keyStoreType.equals(this.keyStoreType)) {
             this.validKeystoreConfig = false;
             this.keyStoreType        = keyStoreType;
         }
-        if (this.keyStoreType.isEmpty())
-            this.keyStoreType = KEY_STORE_TYPE_PKCS12;
     }
 
     public void setKeyStore(String keyStore) {
@@ -142,12 +135,12 @@ public class EndpointConfig {
         return !enabledSslProtocols.isEmpty();
     }
 
-    public String getPrimarySslProtocol() {
-        if (enabledSslProtocols.contains(TLS_V1_3_PROTOCOL)) {
-            return TLS_V1_3_PROTOCOL;
+    public SupportedSslVersions getPrimarySslProtocol() {
+        if (enabledSslProtocols.contains(SupportedSslVersions.TLSV1_3)) {
+            return SupportedSslVersions.TLSV1_3;
         }
-        if (enabledSslProtocols.contains(TLS_V1_2_PROTOCOL)) {
-            return TLS_V1_2_PROTOCOL;
+        if (enabledSslProtocols.contains(SupportedSslVersions.TLSV1_2)) {
+            return SupportedSslVersions.TLSV1_2;
         }
         return null;
     }
@@ -186,7 +179,7 @@ public class EndpointConfig {
     public boolean testKeystore()
             throws CertificateException, KeyStoreException, NoSuchAlgorithmException, IOException {
         char[]   pwdArray = keyStorePassword.toCharArray();
-        KeyStore ks       = KeyStore.getInstance(keyStoreType);
+        KeyStore ks       = KeyStore.getInstance(keyStoreType.name());
         try (InputStream is = Files.newInputStream(getKeyStorePath())) {
             ks.load(is, pwdArray);
         }
