@@ -38,7 +38,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 public class AuthenticatedUser {
     private AuthenticationContext authenticationContext;
 
-    @Value("${spring.security.oauth2.client.provider.keycloak.issuer-uri}")
+    @Value("${spring.security.oauth2.client.provider.keycloak.issuer-uri:}")
     private String keycloakIssuerUri;
 
     // If a user is from an OAuth2 provider then set it to true

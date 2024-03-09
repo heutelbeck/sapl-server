@@ -334,3 +334,78 @@ then apply the yaml file
 ```shell
 kubectl apply -f sapl-server-ce-ingress-sample.yml -n sapl-server-ce
 ```
+
+## Configuring Keycloak
+
+The SAPL Server CE can also be used with its own Keycloak realm. This means that existing users can be used for login.
+Keycloak still needs to be set up so that Keycloak can be used for the SAPL Server CE. The following steps show the necessary configurations for using OAuth2 with Keycloak.
+
+In most cases, a Keycloak realm in which the SAPL client is to be created will already exist. If not, then the realm must first be created in Keycloak via 'Create Realm'.
+
+The first step is to create the role 'ADMIN' so that the users have access to the server CE's pages. The following steps are necessary to create the role:
+
+1. Realm roles
+2. Create roles
+    1. **Role name**: ADMIN
+3. Save
+
+The next step is to create the OAuth2 client so that the SAPL Server CE can connect to Keycloak. For that you have to do the following steps:
+
+1. Clients
+2. Create client
+    1. **Client type**: OpenID Connect
+    2. **Client ID**: sapl-client
+    3. **Name**: sapl
+    4. **Always display in UI**: Off
+3. Next
+    1. **Client authentication**: On
+    2. **Authorization**: On
+    3. **Authentication flow**: Standard flow, Direct access grants
+4. Next
+    1. **Root URL**:
+    2. **Home URL**:
+    3. **Valid redirect URIs**: https://\<YOUR CE Server Domain>:8443/*
+    4. **Valid post logout redirect URIs**: https://\<YOUR CE Server Domain>:8443/*
+    5. **Web origins**: https://\<YOUR CE Server Domain>:8443
+5. Save
+6. Click on **Client scopes** inside the freshly created client and check if **microprofile-jwt** and **roles** are set to **Default**.
+7. Under **Credentials** the client secret can be found, which will be needed later.
+
+The last step is to assign the new role to the client scope **roles**. For that you have to do the following steps:
+
+1. Client scopes (side menu)
+2. Roles
+3. Scope
+4. Assign role
+    1. ADMIN
+5. Assign
+
+If you are not using LDAP or another user base, you can also simply create a user in Keycloak. Please note that the user requires a valid and non-temporary password and is assigned to the 'ADMIN' role.
+
+To configure the SAPL Server CE correctly, we recommend opening the following overview:
+
+1. Realm settings
+2. Endpoints **OpenID Endpoint Configuration**
+
+You should see an overview page in JSON format with various parameters. The next step is to configure the **application.yml**. The following configuration can be adopted here:
+
+```shell
+spring.security.oauth2.client:
+  registration.keycloak:
+    client-id: <Your SAPL client id e.g. sapl-client>
+    client-secret: <Your SAPL client secret>
+    client-authentication-method: client_secret_basic
+    authorization-grant-type: authorization_code
+    redirect-uri: "{baseUrl}/login/oauth2/code/keycloak"
+    scope: openid, profile, email, roles
+    provider: keycloak
+  provider.keycloak:
+    issuer-uri: <Issuer URI under issuer:>
+    user-name-attribute: preferred_username
+    jwk-set-uri: <JWK Set URI under jwks_uri:>
+    authorization-uri: <Authorization URI under authorization_endpoint:>
+    token-uri: <Token URI under token_endpoint:>
+    user-info-uri: <User Info URI under userinfo_endpoint:>
+```
+
+The last necessary step is to set the parameter `allowKeycloakLogin: True` in the application.yml. Now your SAPL Server CE will show an OAuth2 Login page.
