@@ -18,9 +18,12 @@
 package io.sapl.server.ce.security;
 
 import java.util.Optional;
+
 import com.vaadin.flow.server.VaadinServletRequest;
-import io.sapl.server.ce.security.OAuth2.OAuth2UserDetailsAdapter;
+import io.sapl.server.ce.model.setup.condition.SetupFinishedCondition;
 import org.springframework.beans.factory.annotation.Value;
+import io.sapl.server.ce.security.oauth2.OAuth2UserDetailsAdapter;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.http.RequestEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -28,15 +31,14 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Component;
-import com.vaadin.flow.spring.security.AuthenticationContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @Component
 @RequiredArgsConstructor
+@Conditional(SetupFinishedCondition.class)
 public class AuthenticatedUser {
-    private AuthenticationContext authenticationContext;
 
     @Value("${spring.security.oauth2.client.provider.keycloak.issuer-uri:}")
     private String keycloakIssuerUri;
@@ -60,9 +62,8 @@ public class AuthenticatedUser {
     public void logout() {
         if (isOauth2User) {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            if (authentication.getPrincipal() instanceof OidcUser) {
-                OidcUser user               = (OidcUser) authentication.getPrincipal();
-                String   endSessionEndpoint = keycloakIssuerUri + "/protocol/openid-connect/logout";
+            if (authentication.getPrincipal() instanceof OidcUser user) {
+                String endSessionEndpoint = keycloakIssuerUri + "/protocol/openid-connect/logout";
 
                 UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(endSessionEndpoint)
                         .queryParam("id_token_hint", user.getIdToken().getTokenValue());
@@ -79,4 +80,5 @@ public class AuthenticatedUser {
         // Invalidate the session in Vaadin
         VaadinServletRequest.getCurrent().getHttpServletRequest().getSession().invalidate();
     }
+
 }
