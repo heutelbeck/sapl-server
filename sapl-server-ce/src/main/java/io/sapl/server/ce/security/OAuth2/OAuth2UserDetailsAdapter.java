@@ -47,7 +47,7 @@ public class OAuth2UserDetailsAdapter implements OAuth2User, UserDetails {
 
     @Override
     public String getPassword() {
-        return null;
+        return "PASSWORD NOT NEEDED";
     }
 
     @Override
@@ -57,21 +57,37 @@ public class OAuth2UserDetailsAdapter implements OAuth2User, UserDetails {
 
     @Override
     public boolean isAccountNonExpired() {
-        return true;
+        boolean nonLocked = false;
+        if (oauth2User.getAuthorities() != null) {
+            nonLocked = true;
+        }
+        return nonLocked;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        boolean nonLocked = false;
+        if (oauth2User.getAuthorities() != null) {
+            nonLocked = true;
+        }
+        return nonLocked;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return true;
+        boolean nonLocked = false;
+        if (oauth2User.getAuthorities() != null) {
+            nonLocked = true;
+        }
+        return nonLocked;
     }
 
     @Override
     public boolean isEnabled() {
-        return true;
+        boolean nonLocked = false;
+        if (oauth2User.getAuthorities() != null) {
+            nonLocked = true;
+        }
+        return nonLocked;
     }
 }

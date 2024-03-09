@@ -29,14 +29,17 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
+import io.sapl.server.ce.model.setup.condition.SetupFinishedCondition;
 import io.sapl.server.ce.security.AuthenticatedUser;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Conditional;
 
 @Route("oauth2")
 @PageTitle("OAuth2 Login")
 @AnonymousAllowed
 @RequiredArgsConstructor
+@Conditional(SetupFinishedCondition.class)
 public class OAuth2 extends VerticalLayout implements BeforeEnterObserver {
     private final transient AuthenticatedUser authenticatedUser;
 
