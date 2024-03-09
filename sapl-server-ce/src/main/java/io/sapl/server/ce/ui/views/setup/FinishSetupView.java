@@ -52,9 +52,11 @@ public class FinishSetupView extends VerticalLayout {
     private static final String PADDING_XS             = "var(--lumo-space-xs";
 
     private transient ApplicationConfigService applicationConfigService;
-    public FinishSetupView(@Autowired ApplicationConfigService applicationConfigService){
+
+    public FinishSetupView(@Autowired ApplicationConfigService applicationConfigService) {
         this.applicationConfigService = applicationConfigService;
     }
+
     @PostConstruct
     private void init() {
         add(getLayout());

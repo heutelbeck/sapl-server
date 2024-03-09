@@ -53,7 +53,7 @@ import java.util.List;
 @Conditional(SetupNotFinishedCondition.class)
 public class DbmsSetupView extends VerticalLayout {
 
-    public static final String                       ROUTE = "/setup/dbms";
+    public static final String                 ROUTE = "/setup/dbms";
     private transient ApplicationConfigService applicationConfigService;
 
     private final RadioButtonGroup<String> dbms           = new RadioButtonGroup<>("DBMS");
@@ -65,7 +65,7 @@ public class DbmsSetupView extends VerticalLayout {
 
     private final List<String> dbmsDisplayNames = new ArrayList<>();
 
-    public DbmsSetupView(@Autowired ApplicationConfigService applicationConfigService){
+    public DbmsSetupView(@Autowired ApplicationConfigService applicationConfigService) {
         this.applicationConfigService = applicationConfigService;
     }
 

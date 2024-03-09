@@ -78,7 +78,7 @@ public abstract class EndpointSetupView extends VerticalLayout {
 
     protected EndpointSetupView(ApplicationConfigService applicationConfigService, EndpointConfig endpointConfig) {
         this.applicationConfigService = applicationConfigService;
-        this.endpointConfig = endpointConfig;
+        this.endpointConfig           = endpointConfig;
     }
 
     abstract void persistConfig() throws IOException;

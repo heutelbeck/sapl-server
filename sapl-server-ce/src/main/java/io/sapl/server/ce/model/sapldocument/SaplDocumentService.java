@@ -27,20 +27,19 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
-import io.sapl.server.ce.model.setup.condition.SetupFinishedCondition;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.util.Streamable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import io.sapl.grammar.sapl.SAPL;
-import io.sapl.interpreter.DocumentAnalysisResult;
 import io.sapl.interpreter.DocumentType;
 import io.sapl.interpreter.SAPLInterpreter;
+import io.sapl.prp.Document;
 import io.sapl.prp.PrpUpdateEvent;
 import io.sapl.prp.PrpUpdateEvent.Update;
 import io.sapl.prp.PrpUpdateEventSource;
+import io.sapl.server.ce.model.setup.condition.SetupFinishedCondition;
 import jakarta.annotation.PostConstruct;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -102,10 +101,10 @@ public class SaplDocumentService implements PrpUpdateEventSource {
     public SaplDocument createDefault() {
         String documentValue = DEFAULT_DOCUMENT_VALUE;
 
-        DocumentAnalysisResult documentAnalysisResult = saplInterpreter.analyze(documentValue);
+        Document documentAnalysisResult = saplInterpreter.parseDocument(documentValue);
 
-        DocumentType type = documentAnalysisResult.getType();
-        String       name = documentAnalysisResult.getName();
+        DocumentType type = documentAnalysisResult.type();
+        String       name = documentAnalysisResult.name();
 
         SaplDocument saplDocumentToCreate = new SaplDocument().setLastModified(getCurrentTimestampAsString())
                 .setName(name).setCurrentVersionNumber(1).setType(type);
@@ -121,14 +120,14 @@ public class SaplDocumentService implements PrpUpdateEventSource {
     public SaplDocumentVersion createVersion(long saplDocumentId, @NonNull String documentValue) {
         SaplDocument saplDocument = getExistingById(saplDocumentId);
 
-        DocumentAnalysisResult documentAnalysisResult = saplInterpreter.analyze(documentValue);
-        if (!documentAnalysisResult.isValid()) {
+        Document documentAnalysisResult = saplInterpreter.parseDocument(documentValue);
+        if (documentAnalysisResult.isInvalid()) {
             throw new IllegalArgumentException(String.format("document value is invalid (value: %s)", documentValue));
         }
 
         int          newVersionNumber = saplDocument.getCurrentVersionNumber() + 1;
-        DocumentType type             = documentAnalysisResult.getType();
-        String       newName          = documentAnalysisResult.getName();
+        DocumentType type             = documentAnalysisResult.type();
+        String       newName          = documentAnalysisResult.name();
 
         SaplDocumentVersion newSaplDocumentVersion = new SaplDocumentVersion().setSaplDocument(saplDocument)
                 .setVersionNumber(newVersionNumber).setDocumentContent(documentValue).setName(newName);
@@ -246,10 +245,8 @@ public class SaplDocumentService implements PrpUpdateEventSource {
 
     private PrpUpdateEvent.Update convertSaplDocumentToUpdateOfPrpUpdateEvent(
             PublishedSaplDocument publishedSaplDocument, PrpUpdateEvent.Type prpUpdateEventType) {
-        String document = publishedSaplDocument.getDocument();
-
-        SAPL sapl = saplInterpreter.parse(document);
-        return new Update(prpUpdateEventType, sapl, document);
+        Document document = saplInterpreter.parseDocument(publishedSaplDocument.getDocument());
+        return new Update(prpUpdateEventType, document);
     }
 
     private Iterable<PublishedSaplDocument> deletePersistedPublishedSaplDocumentsByName(String name) {

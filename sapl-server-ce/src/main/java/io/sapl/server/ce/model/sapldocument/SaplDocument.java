@@ -149,6 +149,7 @@ public class SaplDocument implements Serializable {
         return switch (type) {
         case POLICY -> "Policy";
         case POLICY_SET -> "Policy Set";
+        case INVALID -> "Invalid Document";
         };
     }
 }

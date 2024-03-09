@@ -27,8 +27,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Maps;
 
 import io.sapl.api.interpreter.Val;
-import io.sapl.grammar.sapl.CombiningAlgorithm;
-import io.sapl.interpreter.combinators.CombiningAlgorithmFactory;
 import io.sapl.interpreter.combinators.PolicyDocumentCombiningAlgorithm;
 import io.sapl.pdp.config.VariablesAndCombinatorSource;
 import io.sapl.server.ce.model.pdpconfiguration.Variable;
@@ -55,8 +53,8 @@ public class CEVariablesAndCombinatorSource implements VariablesAndCombinatorSou
     }
 
     @Override
-    public Flux<Optional<CombiningAlgorithm>> getCombiningAlgorithm() {
-        return combiningAlgorithmSink.asFlux().map(CombiningAlgorithmFactory::getCombiningAlgorithm).map(Optional::of);
+    public Flux<Optional<PolicyDocumentCombiningAlgorithm>> getCombiningAlgorithm() {
+        return combiningAlgorithmSink.asFlux().map(Optional::of);
     }
 
     @Override
