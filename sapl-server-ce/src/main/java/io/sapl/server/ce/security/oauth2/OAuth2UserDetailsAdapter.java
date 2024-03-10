@@ -24,7 +24,7 @@ import java.util.Collection;
 import java.util.Map;
 
 public class OAuth2UserDetailsAdapter implements OAuth2User, UserDetails {
-    private final OAuth2User oauth2User;
+    private final transient OAuth2User oauth2User;
 
     public OAuth2UserDetailsAdapter(OAuth2User oauth2User) {
         this.oauth2User = oauth2User;
@@ -57,37 +57,21 @@ public class OAuth2UserDetailsAdapter implements OAuth2User, UserDetails {
 
     @Override
     public boolean isAccountNonExpired() {
-        boolean nonLocked = false;
-        if (oauth2User.getAuthorities() != null) {
-            nonLocked = true;
-        }
-        return nonLocked;
+        return oauth2User.getAuthorities() != null;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        boolean nonLocked = false;
-        if (oauth2User.getAuthorities() != null) {
-            nonLocked = true;
-        }
-        return nonLocked;
+        return true;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        boolean nonLocked = false;
-        if (oauth2User.getAuthorities() != null) {
-            nonLocked = true;
-        }
-        return nonLocked;
+        return true;
     }
 
     @Override
     public boolean isEnabled() {
-        boolean nonLocked = false;
-        if (oauth2User.getAuthorities() != null) {
-            nonLocked = true;
-        }
-        return nonLocked;
+        return true;
     }
 }

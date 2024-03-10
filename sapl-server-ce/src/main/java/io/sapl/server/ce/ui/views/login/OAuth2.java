@@ -41,7 +41,7 @@ import org.springframework.context.annotation.Conditional;
 @RequiredArgsConstructor
 @Conditional(SetupFinishedCondition.class)
 public class OAuth2 extends VerticalLayout implements BeforeEnterObserver {
-    private final transient AuthenticatedUser authenticatedUser;
+    private final AuthenticatedUser authenticatedUser;
 
     @PostConstruct
     void init() {

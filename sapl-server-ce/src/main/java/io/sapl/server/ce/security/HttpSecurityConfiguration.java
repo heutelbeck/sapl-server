@@ -33,8 +33,10 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
+import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
@@ -184,42 +186,49 @@ public class HttpSecurityConfiguration extends VaadinWebSecurity {
 
     // Important to extract the OAuth2 roles so that the Role admin is identified
     // right by SpringBoot
+
     @Bean
-    public GrantedAuthoritiesMapper userAuthoritiesMapperForKeycloak() {
+    public GrantedAuthoritiesMapper userAuthoritiesMapperForKeycloak2() {
         return authorities -> {
-            Set     mappedAuthorities = new HashSet<>();
-            var     authority         = authorities.iterator().next();
-            boolean isOidc            = authority instanceof OidcUserAuthority;
+            Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
+            GrantedAuthority      authority         = authorities.iterator().next();
+            boolean               isOidc            = authority instanceof OidcUserAuthority;
 
             if (isOidc) {
-                var oidcUserAuthority = (OidcUserAuthority) authority;
-                var userInfo          = oidcUserAuthority.getUserInfo();
+                OidcUserAuthority oidcUserAuthority = (OidcUserAuthority) authority;
+                OidcUserInfo      userInfo          = oidcUserAuthority.getUserInfo();
 
-                // Check if the roles are contained in the REALM_ACCESS_CLAIM or the GROUPS
-                // claim
+                // Check if the roles are contained in the REALM_ACCESS_CLAIM or the groups
+                // claim from Keycloak
                 if (userInfo.hasClaim(REALM_ACCESS_CLAIM)) {
-                    // Get the role from the REALM_ACCESS_CLAIM
-                    var realmAccess = userInfo.getClaimAsMap(REALM_ACCESS_CLAIM);
-                    var roles       = (Collection) realmAccess.get(ROLES_CLAIM);
+                    // Extract the roles from the REALM_ACCESS_CLAIM
+                    Map<String, Object> realmAccess = userInfo.getClaimAsMap(REALM_ACCESS_CLAIM);
+                    Collection<?>       rawRoles    = (Collection<?>) realmAccess.get(ROLES_CLAIM);
+                    Collection<String>  roles       = rawRoles.stream().filter(obj -> obj instanceof String)
+                            .map(obj -> (String) obj).toList();
 
-                    // Add the roles to SpringSecurity
                     mappedAuthorities.addAll(generateAuthoritiesFromClaim(roles));
-
                 } else if (userInfo.hasClaim(GROUPS)) {
-                    // Get the role from the GROUPS claim
-                    Collection roles = (Collection) userInfo.getClaim(GROUPS);
+                    // Get the roles from the GROUPS claim
+                    Collection<String> roles = userInfo.getClaimAsStringList(GROUPS);
 
                     // Add the roles to SpringSecurity
                     mappedAuthorities.addAll(generateAuthoritiesFromClaim(roles));
                 }
             } else {
-                var                 oauth2UserAuthority = (OAuth2UserAuthority) authority;
-                Map<String, Object> userAttributes      = oauth2UserAuthority.getAttributes();
+                OAuth2UserAuthority oAuth2UserAuthority = (OAuth2UserAuthority) authority;
+                Map<String, Object> userAttributes      = oAuth2UserAuthority.getAttributes();
 
                 if (userAttributes.containsKey(REALM_ACCESS_CLAIM)) {
                     Map<String, Object> realmAccess = (Map<String, Object>) userAttributes.get(REALM_ACCESS_CLAIM);
-                    Collection          roles       = (Collection) realmAccess.get(ROLES_CLAIM);
-                    mappedAuthorities.addAll(generateAuthoritiesFromClaim(roles));
+                    Object              rawRoles    = realmAccess.get(ROLES_CLAIM);
+
+                    if (rawRoles instanceof Collection<?> rawRolesCollection) {
+                        Collection<String> roles = rawRolesCollection.stream().filter(obj -> obj instanceof String)
+                                .map(obj -> (String) obj).collect(Collectors.toList());
+
+                        mappedAuthorities.addAll(generateAuthoritiesFromClaim(roles));
+                    }
                 }
             }
             return mappedAuthorities;

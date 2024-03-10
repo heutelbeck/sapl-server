@@ -21,6 +21,8 @@ import java.util.Optional;
 
 import com.vaadin.flow.server.VaadinServletRequest;
 import io.sapl.server.ce.model.setup.condition.SetupFinishedCondition;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import io.sapl.server.ce.security.oauth2.OAuth2UserDetailsAdapter;
 import org.springframework.context.annotation.Conditional;
@@ -40,8 +42,10 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Conditional(SetupFinishedCondition.class)
 public class AuthenticatedUser {
 
-    @Value("${spring.security.oauth2.client.provider.keycloak.issuer-uri:}")
+    @Value("${spring.security.oauth2.client.provider.keycloak.issuer-uri::#{}}")
     private String keycloakIssuerUri;
+
+    private static final Logger logger = LoggerFactory.getLogger(AuthenticatedUser.class);
 
     // If a user is from an OAuth2 provider then set it to true
     private boolean isOauth2User = false;
@@ -51,12 +55,17 @@ public class AuthenticatedUser {
 
         // Check if the user need an OAuth2 implementation
         if (authentication.getPrincipal() instanceof OAuth2User oauth2User) {
-            isOauth2User = true;
+            setIsOAuth2User(true);
             return Optional.of(new OAuth2UserDetailsAdapter(oauth2User));
-        } else if (authentication.getPrincipal() instanceof UserDetails) {
+        } else if (authentication.getPrincipal() instanceof UserDetails userdetails) {
             return Optional.of((UserDetails) authentication.getPrincipal());
         }
         return Optional.empty();
+    }
+
+    // Synchronized Version to set if the user instance is an OAuth2 user
+    public synchronized void setIsOAuth2User(boolean isOauth2User) {
+        this.isOauth2User = isOauth2User;
     }
 
     public void logout() {
@@ -73,7 +82,7 @@ public class AuthenticatedUser {
                     RequestEntity<Void> requestEntity = RequestEntity.get(builder.build().toUri()).build();
                     restTemplate.exchange(requestEntity, Void.class);
                 } catch (Exception e) {
-                    System.err.println("Fehler beim Abmelden am Endsession-Endpunkt: " + e.getMessage());
+                    logger.error("Fehler beim Abmelden der Keycloak-Session");
                 }
             }
         }
