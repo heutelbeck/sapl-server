@@ -38,8 +38,8 @@ public class SaplServerCeApplication implements AppShellConfigurator {
 
     private static ConfigurableApplicationContext context;
 
-    public static void restart() {
-        UI.getCurrent().getPage().setLocation("/");
+    public static void restart(String redirectUri) {
+        UI.getCurrent().getPage().setLocation(redirectUri);
         VaadinSession.getCurrent().getSession().invalidate();
         ApplicationArguments args   = context.getBean(ApplicationArguments.class);
         Thread               thread = new Thread(() -> {

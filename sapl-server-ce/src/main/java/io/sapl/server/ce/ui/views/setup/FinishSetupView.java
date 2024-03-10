@@ -72,7 +72,8 @@ public class FinishSetupView extends VerticalLayout {
     private Component getLayout() {
         Button restart = new Button("Restart Server CE");
 
-        restart.addClickListener(e -> SaplServerCeApplication.restart());
+        restart.addClickListener(
+                e -> SaplServerCeApplication.restart(applicationConfigService.getHttpEndpoint().getUri()));
         restart.setEnabled(applicationConfigService.getDbmsConfig().isSaved()
                 && applicationConfigService.getAdminUserConfig().isSaved()
                 && applicationConfigService.getHttpEndpoint().isSaved()

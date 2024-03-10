@@ -187,4 +187,9 @@ public class EndpointConfig {
         return this.validKeystoreConfig;
     }
 
+    public String getUri() {
+        String uri = this.address + ":" + this.port;
+        return (getSslEnabled()) ? "https://" + uri : "http://" + uri;
+    }
+
 }
