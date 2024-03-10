@@ -42,13 +42,13 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Conditional(SetupFinishedCondition.class)
 public class AuthenticatedUser {
 
-    @Value("${spring.security.oauth2.client.provider.keycloak.issuer-uri::#{}}")
+    @Value("${spring.security.oauth2.client.provider.keycloak.issuer-uri:}")
     private String keycloakIssuerUri;
 
     private static final Logger logger = LoggerFactory.getLogger(AuthenticatedUser.class);
 
     // If a user is from an OAuth2 provider then set it to true
-    private boolean isOauth2User = false;
+    private volatile boolean isOauth2User = false;
 
     public Optional<UserDetails> get() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -66,6 +66,10 @@ public class AuthenticatedUser {
     // Synchronized Version to set if the user instance is an OAuth2 user
     public synchronized void setIsOAuth2User(boolean isOauth2User) {
         this.isOauth2User = isOauth2User;
+    }
+
+    public synchronized boolean getIsOauth2User() {
+        return this.isOauth2User;
     }
 
     public void logout() {
