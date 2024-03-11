@@ -42,39 +42,26 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Conditional(SetupFinishedCondition.class)
 public class AuthenticatedUser {
 
-    @Value("${spring.security.oauth2.client.provider.keycloak.issuer-uri:}")
+    @Value("${spring.security.oauth2.client.provider.keycloak.issuer-uri:#{null}}")
     private String keycloakIssuerUri;
 
     private static final Logger logger = LoggerFactory.getLogger(AuthenticatedUser.class);
-
-    // If a user is from an OAuth2 provider then set it to true
-    private volatile boolean isOauth2User = false;
 
     public Optional<UserDetails> get() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         // Check if the user need an OAuth2 implementation
         if (authentication.getPrincipal() instanceof OAuth2User oauth2User) {
-            setIsOAuth2User(true);
             return Optional.of(new OAuth2UserDetailsAdapter(oauth2User));
-        } else if (authentication.getPrincipal() instanceof UserDetails userdetails) {
+        } else if (authentication.getPrincipal() instanceof UserDetails) {
             return Optional.of((UserDetails) authentication.getPrincipal());
         }
         return Optional.empty();
     }
 
-    // Synchronized Version to set if the user instance is an OAuth2 user
-    public synchronized void setIsOAuth2User(boolean isOauth2User) {
-        this.isOauth2User = isOauth2User;
-    }
-
-    public synchronized boolean getIsOauth2User() {
-        return this.isOauth2User;
-    }
-
     public void logout() {
-        if (isOauth2User) {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication.getPrincipal() instanceof OAuth2User oauth2User) {
             if (authentication.getPrincipal() instanceof OidcUser user) {
                 String endSessionEndpoint = keycloakIssuerUri + "/protocol/openid-connect/logout";
 

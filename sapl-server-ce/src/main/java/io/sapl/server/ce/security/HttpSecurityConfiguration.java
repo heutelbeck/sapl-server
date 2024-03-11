@@ -224,8 +224,8 @@ public class HttpSecurityConfiguration extends VaadinWebSecurity {
                     Object              rawRoles    = realmAccess.get(ROLES_CLAIM);
 
                     if (rawRoles instanceof Collection<?> rawRolesCollection) {
-                        Collection<String> roles = rawRolesCollection.stream().filter(obj -> obj instanceof String)
-                                .map(obj -> (String) obj).collect(Collectors.toList());
+                        Collection<String> roles = rawRolesCollection.stream().filter(String.class::isInstance)
+                                .map(String.class::cast).collect(Collectors.toList());
 
                         mappedAuthorities.addAll(generateAuthoritiesFromClaim(roles));
                     }
@@ -237,6 +237,6 @@ public class HttpSecurityConfiguration extends VaadinWebSecurity {
 
     Collection<SimpleGrantedAuthority> generateAuthoritiesFromClaim(Collection<String> roles) {
         // Returns the roles from OAuth2 and add the prefix ROLE_
-        return roles.stream().map(role -> new SimpleGrantedAuthority("ROLE_" + role)).collect(Collectors.toList());
+        return roles.stream().map(role -> new SimpleGrantedAuthority("ROLE_" + role)).toList();
     }
 }
