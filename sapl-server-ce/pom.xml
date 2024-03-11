@@ -41,7 +41,7 @@
 		<spotbugs.version>4.7.3.6</spotbugs.version>
 		<sbcontrib.version>7.6.0</sbcontrib.version>
 	</properties>
-	
+
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
@@ -110,7 +110,7 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-cache</artifactId>
 		</dependency>
-        <!-- Utilities -->
+		<!-- Utilities -->
 		<dependency>
 			<groupId>com.heutelbeck</groupId>
 			<artifactId>base64uuid</artifactId>
@@ -125,7 +125,8 @@
 			<groupId>com.github.ben-manes.caffeine</groupId>
 			<artifactId>caffeine</artifactId>
 		</dependency>
-		<!-- bouncycastle holds a full Java-based implementation of the Argon2 algorithm -->
+		<!-- bouncycastle holds a full Java-based implementation of the Argon2
+		algorithm -->
 		<dependency>
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcpkix-jdk15on</artifactId>
@@ -239,16 +240,6 @@
 					<layers>
 						<enabled>true</enabled>
 					</layers>
-					<image>
-						<name>ghcr.io/heutelbeck/${project.artifactId}:${project.version}</name>
-					</image>
-                    <docker>
-						<publishRegistry>
-						    <url>https://ghcr.io</url>
-							<username>${docker.credentials.username}</username>
-							<password>${docker.credentials.password}</password>
-						</publishRegistry>
-                    </docker>
 				</configuration>
 				<executions>
 					<execution>
@@ -341,12 +332,6 @@
 
 	<profiles>
 		<profile>
-			<id>docker</id>
-			<properties>
-				<spring.profile.from.maven>docker</spring.profile.from.maven>
-			</properties>
-		</profile>
-		<profile>
 			<!-- Production mode is activated using -Pproduction -->
 			<id>production</id>
 			<dependencies>
@@ -364,6 +349,52 @@
 			</dependencies>
 			<build>
 				<plugins>
+					<plugin>
+						<groupId>org.springframework.boot</groupId>
+						<artifactId>spring-boot-maven-plugin</artifactId>
+						<configuration>
+							<jvmArguments>
+								-Xdebug
+								-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5251</jvmArguments>
+							<wait>500</wait>
+							<maxAttempts>240</maxAttempts>
+							<mainClass>io.sapl.server.SaplServerCeApplication</mainClass>
+							<layout>JAR</layout>
+							<excludes>
+								<exclude>
+									<groupId>org.projectlombok</groupId>
+									<artifactId>lombok</artifactId>
+								</exclude>
+							</excludes>
+							<layers>
+								<enabled>true</enabled>
+							</layers>
+							<image>
+								<builder>paketobuildpacks/builder-jammy-tiny</builder>
+								<name>ghcr.io/heutelbeck/${project.artifactId}:${project.version}</name>
+								<createdDate>now</createdDate>
+								<tags>
+									<tag>ghcr.io/heutelbeck/${project.artifactId}:${project.version}</tag>
+								</tags>
+								<buildCache>
+									<volume>
+										<name>cache-${project.artifactId}.build</name>
+									</volume>
+								</buildCache>
+								<launchCache>
+									<volume>
+										<name>cache-${project.artifactId}.launch</name>
+									</volume>
+								</launchCache>
+								<applicationDirectory>/sapl</applicationDirectory>
+								<env>
+									<BPE_SPRING_PROFILES_ACTIVE>docker</BPE_SPRING_PROFILES_ACTIVE>
+									<BPE_SPRING_CONFIG_ADDITIONAL_LOCATION>file:/sapl/data/</BPE_SPRING_CONFIG_ADDITIONAL_LOCATION>
+									<BPE_JAVA_SECURITY_EGD>file:/dev/./urandom/</BPE_JAVA_SECURITY_EGD>
+								</env>
+							</image>
+						</configuration>
+					</plugin>
 					<plugin>
 						<groupId>com.vaadin</groupId>
 						<artifactId>vaadin-maven-plugin</artifactId>
