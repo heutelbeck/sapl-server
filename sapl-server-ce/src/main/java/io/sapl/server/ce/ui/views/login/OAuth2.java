@@ -35,15 +35,13 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Conditional;
 
-import java.io.Serializable;
-
 @Route("oauth2")
 @PageTitle("OAuth2 Login")
 @AnonymousAllowed
 @RequiredArgsConstructor
 @Conditional(SetupFinishedCondition.class)
 public class OAuth2 extends VerticalLayout implements BeforeEnterObserver {
-    private transient AuthenticatedUser authenticatedUser;
+    private final AuthenticatedUser authenticatedUser;
 
     @PostConstruct
     void init() {
@@ -68,11 +66,9 @@ public class OAuth2 extends VerticalLayout implements BeforeEnterObserver {
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
-        if (authenticatedUser != null) {
-            if (authenticatedUser.get().isPresent()) {
-                // Already logged in. Forward the user to the main page after login
-                event.forwardTo("/");
-            }
+        if (authenticatedUser.get().isPresent()) {
+            // Already logged in. Forward the user to the main page after login
+            event.forwardTo("/");
         }
     }
 }

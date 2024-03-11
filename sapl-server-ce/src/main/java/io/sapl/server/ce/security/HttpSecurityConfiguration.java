@@ -218,10 +218,10 @@ public class HttpSecurityConfiguration extends VaadinWebSecurity {
             } else {
                 OAuth2UserAuthority oAuth2UserAuthority = (OAuth2UserAuthority) authority;
                 Map<String, Object> userAttributes      = oAuth2UserAuthority.getAttributes();
+                Map<String, Object> realmAccess         = (Map<String, Object>) userAttributes.get(REALM_ACCESS_CLAIM);
 
-                if (userAttributes.containsKey(REALM_ACCESS_CLAIM)) {
-                    Map<String, Object> realmAccess = (Map<String, Object>) userAttributes.get(REALM_ACCESS_CLAIM);
-                    Object              rawRoles    = realmAccess.get(ROLES_CLAIM);
+                if (realmAccess != null) {
+                    Object rawRoles = realmAccess.get(ROLES_CLAIM);
 
                     if (rawRoles instanceof Collection<?> rawRolesCollection) {
                         Collection<String> roles = rawRolesCollection.stream().filter(String.class::isInstance)

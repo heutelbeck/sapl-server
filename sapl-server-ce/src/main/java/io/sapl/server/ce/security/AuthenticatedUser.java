@@ -53,7 +53,7 @@ public class AuthenticatedUser {
         // Check if the user need an OAuth2 implementation
         if (authentication.getPrincipal() instanceof OAuth2User oauth2User) {
             return Optional.of(new OAuth2UserDetailsAdapter(oauth2User));
-        } else if (authentication.getPrincipal() instanceof UserDetails) {
+        } else if (authentication.getPrincipal() instanceof UserDetails userDetails) {
             return Optional.of((UserDetails) authentication.getPrincipal());
         }
         return Optional.empty();
