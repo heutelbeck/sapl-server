@@ -70,8 +70,8 @@ public class HttpSecurityConfiguration extends VaadinWebSecurity {
     @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri:#{null}}")
     private String jwtIssuerURI;
 
-    @Value("${io.sapl.server.allowKeycloakLogin:#{true}}")
-    private boolean allowKeycloakLogin;
+    @Value("${io.sapl.server.allowOAuth2Login:#{false}}")
+    private boolean allowOAuth2Login;
 
     private final ApiKeaderHeaderAuthFilterService apiKeyAuthenticationFilterService;
 
@@ -144,7 +144,7 @@ public class HttpSecurityConfiguration extends VaadinWebSecurity {
         }
 
         // Enable OAuth2 Login with default setting and change the session creation policy to always for a proper login handling
-        if (allowKeycloakLogin){
+        if (allowOAuth2Login){
             http
                     .oauth2Login(withDefaults())
                     .logout(logout -> logout
@@ -177,7 +177,7 @@ public class HttpSecurityConfiguration extends VaadinWebSecurity {
         super.configure(http);
 
         // Set another LoginPage if OAuth2 is enabled
-        if (allowKeycloakLogin) {
+        if (allowOAuth2Login) {
             setOAuth2LoginPage(http, "/oauth2 ");
         } else {
             setLoginView(http, LoginView.class);

@@ -29,6 +29,7 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
+import io.sapl.server.ce.model.oauth2.OAuth2Provider;
 import io.sapl.server.ce.model.setup.condition.SetupFinishedCondition;
 import io.sapl.server.ce.security.AuthenticatedUser;
 import jakarta.annotation.PostConstruct;
@@ -53,8 +54,8 @@ public class OAuth2 extends VerticalLayout implements BeforeEnterObserver {
         Span description = new Span("Login with OAuth2 account");
 
         // Add a button to the that redirects to the Keycloak endpoint
-        Button loginButton = new Button("Login mit Keycloak",
-                click -> getUI().ifPresent(ui -> ui.getPage().setLocation("/oauth2/authorization/keycloak")));
+        Button loginButton = new Button("Login mit Keycloak", click -> getUI().ifPresent(
+                ui -> ui.getPage().setLocation("/oauth2/authorization/" + OAuth2Provider.KEYCLOAK.toString())));
 
         // Set the same theme to the button as for the LoginView
         loginButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
