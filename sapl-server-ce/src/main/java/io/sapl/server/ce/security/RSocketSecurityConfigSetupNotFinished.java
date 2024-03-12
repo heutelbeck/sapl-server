@@ -17,9 +17,6 @@
  */
 package io.sapl.server.ce.security;
 
-import io.sapl.server.ce.model.setup.condition.SetupNotFinishedCondition;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
@@ -28,7 +25,9 @@ import org.springframework.security.config.annotation.rsocket.EnableRSocketSecur
 import org.springframework.security.config.annotation.rsocket.RSocketSecurity;
 import org.springframework.security.rsocket.core.PayloadSocketAcceptorInterceptor;
 
-@Slf4j
+import io.sapl.server.ce.model.setup.condition.SetupNotFinishedCondition;
+import lombok.RequiredArgsConstructor;
+
 @Configuration
 @EnableRSocketSecurity
 @RequiredArgsConstructor
