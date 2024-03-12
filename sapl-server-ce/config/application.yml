@@ -39,7 +39,7 @@ io.sapl:
     allowOauth2Auth: False
 
     # Optional: configure Oauth2 Login with Keycloak
-    allowOAuth2Login: True
+    allowOAuth2Login: False
 
   pdp.embedded:
 # The following options enable or disable different levels of logging for decisions.
