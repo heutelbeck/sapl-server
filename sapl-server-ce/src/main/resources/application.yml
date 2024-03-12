@@ -10,6 +10,24 @@ spring:
   jpa:
     hibernate.ddl-auto: update
     open-in-view: false
+  cache:
+    jcache:
+      provider: com.github.benmanes.caffeine.jcache.spi.CaffeineCachingProvider
+    cache-names:
+      - buckets
+    caffeine:
+      spec: maximumSize=1000000,expireAfterAccess=3600s
+bucket4j:
+  enabled: true
+  filters:
+    - id: filter1
+      cache-name: buckets
+      url: .*
+      rate-limits:
+        - bandwidths:
+            - capacity: 1
+              time: 1
+              unit: minutes
 
 vaadin:
   allowed-packages:
