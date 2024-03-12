@@ -56,15 +56,15 @@ public class AdminUserSetupView extends VerticalLayout {
     private static final String ERROR_COLOR    = "var(--lumo-error-color)";
 
     private transient ApplicationConfigService applicationConfigService;
-    private final TextField                          username             = new TextField("Username");
-    private final PasswordField                      password             = new PasswordField("Password");
-    private final PasswordField                      passwordRepeat       = new PasswordField("Repeat Password");
-    private final Button                             pwdSaveConfig        = new Button("Save Admin-User Settings");
-    private final Icon                               pwdEqualCheckIcon    = VaadinIcon.CHECK.create();
-    private final Span                               passwordStrengthText = new Span();
-    private final Span                               passwordEqualText    = new Span();
+    private final TextField                    username             = new TextField("Username");
+    private final PasswordField                password             = new PasswordField("Password");
+    private final PasswordField                passwordRepeat       = new PasswordField("Repeat Password");
+    private final Button                       pwdSaveConfig        = new Button("Save Admin-User Settings");
+    private final Icon                         pwdEqualCheckIcon    = VaadinIcon.CHECK.create();
+    private final Span                         passwordStrengthText = new Span();
+    private final Span                         passwordEqualText    = new Span();
 
-    public AdminUserSetupView(@Autowired ApplicationConfigService applicationConfigService){
+    public AdminUserSetupView(@Autowired ApplicationConfigService applicationConfigService) {
         this.applicationConfigService = applicationConfigService;
     }
 

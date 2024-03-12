@@ -18,16 +18,6 @@
 
 package io.sapl.server.ce.model.setup;
 
-import io.sapl.server.ce.model.setup.condition.SetupNotFinishedCondition;
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.ObjectUtils;
-import org.springframework.context.annotation.Conditional;
-import org.springframework.core.env.ConfigurableEnvironment;
-import org.springframework.core.env.MutablePropertySources;
-import org.springframework.core.env.PropertySource;
-import org.springframework.stereotype.Service;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -39,9 +29,18 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.ObjectUtils;
+import org.springframework.context.annotation.Conditional;
+import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.MutablePropertySources;
+import org.springframework.core.env.PropertySource;
+import org.springframework.stereotype.Service;
+
+import io.sapl.server.ce.model.setup.condition.SetupNotFinishedCondition;
+import lombok.Getter;
+
 @Service
 @Conditional(SetupNotFinishedCondition.class)
-@Slf4j
 public class ApplicationConfigService {
 
     private static final String           PORT_PREFIX             = "${PORT:";
@@ -287,14 +286,12 @@ public class ApplicationConfigService {
     }
 
     private void initApiAuthenticationConfig() {
-        this.apiAuthenticationConfig
-                .setBasicAuthEnabled(this.getAtAsBoolean(ApiAuthenticationConfig.BASICAUTH_PATH));
-        this.apiAuthenticationConfig
-                .setApiKeyAuthEnabled(this.getAtAsBoolean(ApiAuthenticationConfig.APIKEYAUTH_PATH));
+        this.apiAuthenticationConfig.setBasicAuthEnabled(this.getAtAsBoolean(ApiAuthenticationConfig.BASICAUTH_PATH));
+        this.apiAuthenticationConfig.setApiKeyAuthEnabled(this.getAtAsBoolean(ApiAuthenticationConfig.APIKEYAUTH_PATH));
         this.apiAuthenticationConfig
                 .setApiKeyHeaderName(this.getAt(ApiAuthenticationConfig.APIKEYHEADERNAME_PATH, "").toString());
-        this.apiAuthenticationConfig.setApiKeyCachingEnabled(
-                this.getAtAsBoolean(ApiAuthenticationConfig.APIKEYCACHINGENABLED_PATH));
+        this.apiAuthenticationConfig
+                .setApiKeyCachingEnabled(this.getAtAsBoolean(ApiAuthenticationConfig.APIKEYCACHINGENABLED_PATH));
         this.apiAuthenticationConfig.setApiKeyCachingExpires(
                 Integer.parseInt(this.getAt(ApiAuthenticationConfig.APIKEYCACHINGEXPIRE_PATH, 0).toString()));
         this.apiAuthenticationConfig.setApiKeyCachingMaxSize(
@@ -327,9 +324,9 @@ public class ApplicationConfigService {
         }
     }
 
-    private boolean getAtAsBoolean(String path){
+    private boolean getAtAsBoolean(String path) {
         Object obj = this.getAt(path);
-        if(obj instanceof Boolean){
+        if (obj instanceof Boolean) {
             return (boolean) obj;
         }
         return false;

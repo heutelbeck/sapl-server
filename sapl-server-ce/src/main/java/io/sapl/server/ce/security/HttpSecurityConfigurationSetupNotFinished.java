@@ -17,17 +17,17 @@
  */
 package io.sapl.server.ce.security;
 
-import com.vaadin.flow.spring.security.VaadinWebSecurity;
-import io.sapl.server.ce.model.setup.condition.SetupNotFinishedCondition;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
-@Slf4j
+import com.vaadin.flow.spring.security.VaadinWebSecurity;
+
+import io.sapl.server.ce.model.setup.condition.SetupNotFinishedCondition;
+import lombok.RequiredArgsConstructor;
+
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
