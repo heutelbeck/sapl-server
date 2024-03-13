@@ -388,7 +388,6 @@
 								</launchCache>
 								<applicationDirectory>/sapl</applicationDirectory>
 								<env>
-									<BPE_SPRING_PROFILES_ACTIVE>docker</BPE_SPRING_PROFILES_ACTIVE>
 									<BPE_JAVA_SECURITY_EGD>file:/dev/./urandom/</BPE_JAVA_SECURITY_EGD>
 								</env>
 							</image>
