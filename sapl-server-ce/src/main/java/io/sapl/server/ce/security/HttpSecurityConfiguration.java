@@ -204,8 +204,8 @@ public class HttpSecurityConfiguration extends VaadinWebSecurity {
                     // Extract the roles from the REALM_ACCESS_CLAIM
                     Map<String, Object> realmAccess = userInfo.getClaimAsMap(REALM_ACCESS_CLAIM);
                     Collection<?>       rawRoles    = (Collection<?>) realmAccess.get(ROLES_CLAIM);
-                    Collection<String>  roles       = rawRoles.stream().filter(obj -> obj instanceof String)
-                            .map(obj -> (String) obj).toList();
+                    Collection<String>  roles       = rawRoles.stream().filter(String.class::isInstance)
+                            .map(String.class::cast).collect(Collectors.toList());
 
                     mappedAuthorities.addAll(generateAuthoritiesFromClaim(roles));
                 } else if (userInfo.hasClaim(GROUPS)) {
@@ -225,7 +225,7 @@ public class HttpSecurityConfiguration extends VaadinWebSecurity {
 
                     if (rawRoles instanceof Collection<?> rawRolesCollection) {
                         Collection<String> roles = rawRolesCollection.stream().filter(String.class::isInstance)
-                                .map(String.class::cast).collect(Collectors.toList());
+                                .map(String.class::cast).toList();
 
                         mappedAuthorities.addAll(generateAuthoritiesFromClaim(roles));
                     }

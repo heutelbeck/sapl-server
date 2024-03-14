@@ -54,27 +54,25 @@ public class AuthenticatedUser {
         if (authentication.getPrincipal() instanceof OAuth2User oauth2User) {
             return Optional.of(new OAuth2UserDetailsAdapter(oauth2User));
         } else if (authentication.getPrincipal() instanceof UserDetails userDetails) {
-            return Optional.of((UserDetails) authentication.getPrincipal());
+            return Optional.of(userDetails);
         }
         return Optional.empty();
     }
 
     public void logout() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication.getPrincipal() instanceof OAuth2User oauth2User) {
-            if (authentication.getPrincipal() instanceof OidcUser user) {
-                String endSessionEndpoint = keycloakIssuerUri + "/protocol/openid-connect/logout";
+        if (authentication.getPrincipal() instanceof OidcUser user) {
+            String endSessionEndpoint = keycloakIssuerUri + "/protocol/openid-connect/logout";
 
-                UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(endSessionEndpoint)
-                        .queryParam("id_token_hint", user.getIdToken().getTokenValue());
+            UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(endSessionEndpoint)
+                    .queryParam("id_token_hint", user.getIdToken().getTokenValue());
 
-                RestTemplate restTemplate = new RestTemplate();
-                try {
-                    RequestEntity<Void> requestEntity = RequestEntity.get(builder.build().toUri()).build();
-                    restTemplate.exchange(requestEntity, Void.class);
-                } catch (Exception e) {
-                    logger.error("Fehler beim Abmelden der Keycloak-Session");
-                }
+            RestTemplate restTemplate = new RestTemplate();
+            try {
+                RequestEntity<Void> requestEntity = RequestEntity.get(builder.build().toUri()).build();
+                restTemplate.exchange(requestEntity, Void.class);
+            } catch (Exception e) {
+                logger.error("Fehler beim Abmelden der Keycloak-Session");
             }
         }
         // Invalidate the session in Vaadin
