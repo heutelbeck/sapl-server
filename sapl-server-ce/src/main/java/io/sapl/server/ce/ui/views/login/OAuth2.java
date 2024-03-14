@@ -42,7 +42,7 @@ import org.springframework.context.annotation.Conditional;
 @RequiredArgsConstructor
 @Conditional(SetupFinishedCondition.class)
 public class OAuth2 extends VerticalLayout implements BeforeEnterObserver {
-    private transient AuthenticatedUser authenticatedUser;
+    private final AuthenticatedUser authenticatedUser;
 
     @PostConstruct
     void init() {
@@ -54,8 +54,8 @@ public class OAuth2 extends VerticalLayout implements BeforeEnterObserver {
         Span description = new Span("Login with OAuth2 account");
 
         // Add a button to the that redirects to the Keycloak endpoint
-        Button loginButton = new Button("Login mit Keycloak", click -> getUI().ifPresent(
-                ui -> ui.getPage().setLocation("/oauth2/authorization/" + OAuth2Provider.KEYCLOAK.toString())));
+        Button loginButton = new Button("Login mit Keycloak", click -> getUI()
+                .ifPresent(ui -> ui.getPage().setLocation("/oauth2/authorization/" + OAuth2Provider.KEYCLOAK)));
 
         // Set the same theme to the button as for the LoginView
         loginButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
@@ -67,11 +67,9 @@ public class OAuth2 extends VerticalLayout implements BeforeEnterObserver {
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
-        if (authenticatedUser != null) {
-            if (authenticatedUser.get().isPresent()) {
-                // Already logged in. Forward the user to the main page after login
-                event.forwardTo("/");
-            }
+        if (authenticatedUser.get().isPresent()) {
+            // Already logged in. Forward the user to the main page after login
+            event.forwardTo("/");
         }
     }
 }
