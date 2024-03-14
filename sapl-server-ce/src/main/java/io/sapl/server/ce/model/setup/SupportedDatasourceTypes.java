@@ -18,6 +18,39 @@
 
 package io.sapl.server.ce.model.setup;
 
+import lombok.Getter;
+
+@Getter
 public enum SupportedDatasourceTypes {
-    H2, MARIADB
+    H2("H2", "org.h2.Driver", "jdbc:h2:file:~/sapl/db"),
+    MARIADB("MariaDB", "org.mariadb.jdbc.Driver", "jdbc:mariadb://127.0.0.1:3306/saplserver");
+
+    private final String displayName;
+    private final String driverClassName;
+    private final String defaultUrl;
+
+    SupportedDatasourceTypes(String displayName, String driverClassName, String defaultUrl) {
+        this.displayName     = displayName;
+        this.driverClassName = driverClassName;
+        this.defaultUrl      = defaultUrl;
+    }
+
+    public static SupportedDatasourceTypes getByDisplayName(String displayName) {
+        for (SupportedDatasourceTypes datasourceTypes : SupportedDatasourceTypes.values()) {
+            if (datasourceTypes.displayName.equals(displayName)) {
+                return datasourceTypes;
+            }
+        }
+        return null;
+    }
+
+    public static SupportedDatasourceTypes getByDriverClassName(String driverClassName) {
+        for (SupportedDatasourceTypes datasourceTypes : SupportedDatasourceTypes.values()) {
+            if (datasourceTypes.driverClassName.equals(driverClassName)) {
+                return datasourceTypes;
+            }
+        }
+        return null;
+
+    }
 }

@@ -24,6 +24,7 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 import io.sapl.server.ce.model.setup.ApplicationConfigService;
 import io.sapl.server.ce.model.setup.condition.SetupNotFinishedCondition;
 import io.sapl.server.ce.ui.views.SetupLayout;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Conditional;
 
@@ -39,8 +40,9 @@ public class HttpEndpointSetupView extends EndpointSetupView {
 
     public static final String ROUTE = "/setup/http";
 
-    public HttpEndpointSetupView(@Autowired ApplicationConfigService applicationConfigService) {
-        super(applicationConfigService, applicationConfigService.getHttpEndpoint());
+    public HttpEndpointSetupView(@Autowired ApplicationConfigService applicationConfigService,
+            @Autowired HttpServletRequest httpServletRequest) {
+        super(applicationConfigService, applicationConfigService.getHttpEndpoint(), httpServletRequest);
     }
 
     @Override
