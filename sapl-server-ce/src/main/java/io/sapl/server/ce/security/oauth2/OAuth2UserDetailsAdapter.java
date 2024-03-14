@@ -24,7 +24,7 @@ import java.util.Collection;
 import java.util.Map;
 
 public class OAuth2UserDetailsAdapter implements OAuth2User, UserDetails {
-    private transient OAuth2User oauth2User;
+    private OAuth2User oauth2User;
 
     public OAuth2UserDetailsAdapter(OAuth2User oauth2User) {
         this.oauth2User = oauth2User;

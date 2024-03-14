@@ -20,7 +20,6 @@ package io.sapl.server.ce.security;
 import static org.springframework.security.config.Customizer.withDefaults;
 
 import java.util.*;
-import java.util.stream.Collectors;
 import io.sapl.server.ce.model.setup.condition.SetupFinishedCondition;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -205,7 +204,7 @@ public class HttpSecurityConfiguration extends VaadinWebSecurity {
                     Map<String, Object> realmAccess = userInfo.getClaimAsMap(REALM_ACCESS_CLAIM);
                     Collection<?>       rawRoles    = (Collection<?>) realmAccess.get(ROLES_CLAIM);
                     Collection<String>  roles       = rawRoles.stream().filter(String.class::isInstance)
-                            .map(String.class::cast).collect(Collectors.toList());
+                            .map(String.class::cast).toList();
 
                     mappedAuthorities.addAll(generateAuthoritiesFromClaim(roles));
                 } else if (userInfo.hasClaim(GROUPS)) {
