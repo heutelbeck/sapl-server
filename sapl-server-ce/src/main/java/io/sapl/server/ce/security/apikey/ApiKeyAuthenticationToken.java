@@ -28,6 +28,8 @@ import java.util.List;
  */
 public class ApiKeyAuthenticationToken extends AbstractAuthenticationToken {
 
+    private static final long serialVersionUID = 6833321566051922105L;
+
     public ApiKeyAuthenticationToken() {
         super(List.of(new SimpleGrantedAuthority(ClientDetailsService.CLIENT)));
         setAuthenticated(true);

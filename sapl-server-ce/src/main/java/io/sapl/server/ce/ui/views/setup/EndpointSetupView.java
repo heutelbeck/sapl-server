@@ -53,6 +53,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public abstract class EndpointSetupView extends VerticalLayout {
 
+    private static final long serialVersionUID = -6440212401598454078L;
+
     public static final String  ROUTE         = "/setup/rsocket";
     private static final String SUCCESS_COLOR = "var(--lumo-success-color)";
     private static final String WARNING_COLOR = "#e7c200";

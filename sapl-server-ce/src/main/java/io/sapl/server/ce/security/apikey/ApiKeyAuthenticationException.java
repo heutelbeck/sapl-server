@@ -22,4 +22,5 @@ import org.springframework.security.core.AuthenticationException;
 
 @StandardException
 public class ApiKeyAuthenticationException extends AuthenticationException {
+    private static final long serialVersionUID = 8564350307674608146L;
 }

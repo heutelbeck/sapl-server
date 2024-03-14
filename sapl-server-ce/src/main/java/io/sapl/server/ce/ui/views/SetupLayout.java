@@ -45,6 +45,8 @@ import org.vaadin.lineawesome.LineAwesomeIcon;
 @Conditional(SetupNotFinishedCondition.class)
 public class SetupLayout extends AppLayout {
 
+    private static final long serialVersionUID = 6412319275300609209L;
+
     private H2                            viewTitle;
     private final AccessAnnotationChecker accessChecker;
 

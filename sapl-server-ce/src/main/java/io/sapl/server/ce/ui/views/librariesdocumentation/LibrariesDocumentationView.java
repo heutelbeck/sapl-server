@@ -53,6 +53,8 @@ import org.springframework.context.annotation.Conditional;
 @Conditional(SetupFinishedCondition.class)
 public class LibrariesDocumentationView extends VerticalLayout {
 
+    private static final long serialVersionUID = 2722499676161796727L;
+
     public static final String ROUTE = "libraries";
 
     private final transient FunctionLibrariesDocumentation       functionLibrariesDocumentation;

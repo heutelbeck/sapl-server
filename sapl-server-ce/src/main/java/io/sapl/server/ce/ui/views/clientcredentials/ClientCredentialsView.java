@@ -58,6 +58,8 @@ import reactor.util.function.Tuple2;
 @Conditional(SetupFinishedCondition.class)
 public class ClientCredentialsView extends VerticalLayout {
 
+    private static final long serialVersionUID = 2715557908972556275L;
+
     public static final String ROUTE = "clients";
 
     private final transient ClientDetailsService clientCredentialsService;

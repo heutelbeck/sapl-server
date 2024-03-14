@@ -32,6 +32,8 @@ import org.springframework.context.ConfigurableApplicationContext;
 @Theme(value = "sapl", variant = Lumo.DARK)
 public class SaplServerCeApplication implements AppShellConfigurator {
 
+    private static final long serialVersionUID = 938505458991453526L;
+
     public static void main(String[] args) {
         context = SpringApplication.run(SaplServerCeApplication.class, args);
     }

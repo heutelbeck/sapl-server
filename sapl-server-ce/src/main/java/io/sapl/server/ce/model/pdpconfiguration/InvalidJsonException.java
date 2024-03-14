@@ -24,6 +24,8 @@ import lombok.NonNull;
  */
 public class InvalidJsonException extends Exception {
 
+    private static final long serialVersionUID = -5292763701167209282L;
+
     public InvalidJsonException(@NonNull String invalidJson) {
         this(invalidJson, null);
     }
