@@ -30,6 +30,7 @@ import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableEntryException;
 import java.security.cert.CertificateException;
 import java.util.*;
 
@@ -176,14 +177,22 @@ public class EndpointConfig {
         return Paths.get(keyStore);
     }
 
-    public boolean testKeystore()
-            throws CertificateException, KeyStoreException, NoSuchAlgorithmException, IOException {
-        char[]   pwdArray = keyStorePassword.toCharArray();
+    public boolean testKeystore() throws CertificateException, KeyStoreException, NoSuchAlgorithmException, IOException,
+            UnrecoverableEntryException {
+        this.validKeystoreConfig = false;
+        var      pwdArray = keyStorePassword.toCharArray();
         KeyStore ks       = KeyStore.getInstance(keyStoreType.name());
         try (InputStream is = Files.newInputStream(getKeyStorePath())) {
             ks.load(is, pwdArray);
+            if (!ks.containsAlias(keyAlias)) {
+                this.validKeystoreConfig = false;
+                return false;
+            }
+            var            keyPwdArray           = this.keyPassword.toCharArray();
+            var            keyPasswordProtection = new KeyStore.PasswordProtection(keyPwdArray);
+            KeyStore.Entry entry                 = ks.getEntry(this.keyAlias, keyPasswordProtection);
+            this.validKeystoreConfig = (entry != null);
         }
-        this.validKeystoreConfig = ks.containsAlias(keyAlias);
         return this.validKeystoreConfig;
     }
 

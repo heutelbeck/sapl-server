@@ -46,6 +46,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableEntryException;
 import java.security.cert.CertificateException;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -230,6 +231,8 @@ public abstract class EndpointSetupView extends VerticalLayout {
             }
             ConfirmUtils.inform("success", "Keystore settings valid");
             updateEndpointConfig();
+        } catch (UnrecoverableEntryException e) {
+            ErrorNotificationUtils.show("Key fault: " + e.getMessage());
         } catch (CertificateException e) {
             ErrorNotificationUtils.show("Certificate fault: " + e.getMessage());
         } catch (KeyStoreException e) {
