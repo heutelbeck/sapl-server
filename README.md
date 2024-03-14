@@ -408,4 +408,4 @@ spring.security.oauth2.client:
     user-info-uri: <User Info URI under userinfo_endpoint:>
 ```
 
-The last necessary step is to set the parameter `allowKeycloakLogin: True` in the application.yml. Now your SAPL Server CE will show an OAuth2 Login page.
+The last necessary step is to set the parameter `allowOAuth2Login: True` in the application.yml. Now your SAPL Server CE will show an OAuth2 Login page.
