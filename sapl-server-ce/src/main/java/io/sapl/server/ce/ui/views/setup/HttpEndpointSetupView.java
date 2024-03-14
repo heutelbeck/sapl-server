@@ -35,6 +35,9 @@ import java.io.IOException;
 @Route(value = HttpEndpointSetupView.ROUTE, layout = SetupLayout.class)
 @Conditional(SetupNotFinishedCondition.class)
 public class HttpEndpointSetupView extends EndpointSetupView {
+
+    private static final long serialVersionUID = -6481801958134247276L;
+
     public static final String ROUTE = "/setup/http";
 
     public HttpEndpointSetupView(@Autowired ApplicationConfigService applicationConfigService,

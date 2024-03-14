@@ -54,6 +54,8 @@ import org.springframework.context.annotation.Conditional;
 @Conditional(SetupFinishedCondition.class)
 public class PublishedPoliciesView extends VerticalLayout {
 
+    private static final long serialVersionUID = -7636099929196676322L;
+
     public static final String ROUTE = "published";
 
     private final transient SaplDocumentService saplDocumentService;

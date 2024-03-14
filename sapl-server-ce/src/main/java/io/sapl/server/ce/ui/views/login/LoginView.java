@@ -40,6 +40,8 @@ import org.springframework.context.annotation.Conditional;
 @Conditional(SetupFinishedCondition.class)
 public class LoginView extends LoginOverlay implements BeforeEnterObserver {
 
+    private static final long serialVersionUID = 1055410515181586609L;
+
     private final transient AuthenticatedUser authenticatedUser;
 
     @PostConstruct

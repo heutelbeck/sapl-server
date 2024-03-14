@@ -52,6 +52,9 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 @Table(name = "SaplDocument")
 public class SaplDocument implements Serializable {
+
+    private static final long serialVersionUID = -8255925525238378923L;
+
     /**
      * The unique identifier of the SAPL document.
      */

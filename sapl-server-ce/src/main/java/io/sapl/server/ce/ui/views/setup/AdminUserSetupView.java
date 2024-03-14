@@ -51,6 +51,8 @@ import java.io.IOException;
 @Conditional(SetupNotFinishedCondition.class)
 public class AdminUserSetupView extends VerticalLayout {
 
+    private static final long serialVersionUID = -3290402629817559718L;
+
     public static final String ROUTE = "/setup/admin";
 
     private static final String SUCCESS_COLOR  = "var(--lumo-success-color)";

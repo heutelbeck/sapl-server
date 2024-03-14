@@ -44,6 +44,8 @@ import lombok.experimental.Accessors;
 @Table(name = "Variable")
 public class Variable implements Serializable {
 
+    private static final long serialVersionUID = -7015650366442894676L;
+
     /**
      * The unique identifier of the variable.
      */

@@ -50,6 +50,9 @@ import java.io.IOException;
 @Route(value = ApiAuthenticationSetupView.ROUTE, layout = SetupLayout.class)
 @Conditional(SetupNotFinishedCondition.class)
 public class ApiAuthenticationSetupView extends VerticalLayout {
+
+    private static final long serialVersionUID = -8630199389314611354L;
+
     public static final String ROUTE = "/setup/apiauthentication";
 
     private transient ApplicationConfigService applicationConfigService;

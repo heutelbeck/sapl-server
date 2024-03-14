@@ -35,6 +35,9 @@ import java.io.IOException;
 @Route(value = RSocketEndpointSetupView.ROUTE, layout = SetupLayout.class)
 @Conditional(SetupNotFinishedCondition.class)
 public class RSocketEndpointSetupView extends EndpointSetupView {
+
+    private static final long serialVersionUID = 8384051875459830774L;
+
     public static final String ROUTE = "/setup/rsocket";
 
     public RSocketEndpointSetupView(@Autowired ApplicationConfigService applicationConfigService,

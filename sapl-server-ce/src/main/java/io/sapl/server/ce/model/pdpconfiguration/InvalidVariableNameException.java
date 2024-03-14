@@ -24,6 +24,8 @@ import lombok.NonNull;
  */
 public class InvalidVariableNameException extends Exception {
 
+    private static final long serialVersionUID = 4733185767503324801L;
+
     public InvalidVariableNameException(@NonNull String invalidName) {
         super(String.format("variable name \"%s\" is invalid", invalidName));
     }

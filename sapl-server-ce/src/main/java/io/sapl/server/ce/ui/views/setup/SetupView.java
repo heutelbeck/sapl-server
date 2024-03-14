@@ -40,6 +40,8 @@ import org.springframework.context.annotation.Conditional;
 @Conditional(SetupNotFinishedCondition.class)
 public class SetupView extends VerticalLayout {
 
+    private static final long serialVersionUID = -1512633093216042687L;
+
     public static final String           ROUTE = "";
     private transient HttpServletRequest httpServletRequest;
 

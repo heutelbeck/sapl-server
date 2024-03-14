@@ -54,6 +54,8 @@ import java.util.stream.Stream;
 @Conditional(SetupNotFinishedCondition.class)
 public class DbmsSetupView extends VerticalLayout {
 
+    private static final long serialVersionUID = 3999561555230814522L;
+
     public static final String                 ROUTE = "/setup/dbms";
     private transient ApplicationConfigService applicationConfigService;
     private transient HttpServletRequest       httpServletRequest;

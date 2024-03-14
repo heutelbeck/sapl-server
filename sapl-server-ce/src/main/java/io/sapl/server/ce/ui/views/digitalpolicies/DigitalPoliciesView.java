@@ -47,6 +47,8 @@ import org.springframework.context.annotation.Conditional;
 @Conditional(SetupFinishedCondition.class)
 public class DigitalPoliciesView extends VerticalLayout {
 
+    private static final long serialVersionUID = -7823981099018485902L;
+
     public static final String ROUTE = "";
 
     private final transient SaplDocumentService saplDocumentService;

@@ -47,6 +47,8 @@ import org.springframework.context.annotation.Conditional;
 @Conditional(SetupNotFinishedCondition.class)
 public class FinishSetupView extends VerticalLayout {
 
+    private static final long serialVersionUID = -8414848309886198296L;
+
     public static final String  ROUTE                  = "/setup/finish";
     private static final String THEME_BADGEERRORPILL   = "badge error pill";
     private static final String THEME_BADGESUCCESSPILL = "badge success pill";

@@ -59,6 +59,8 @@ import lombok.RequiredArgsConstructor;
 @Conditional(SetupFinishedCondition.class)
 public class MainLayout extends AppLayout {
 
+    private static final long serialVersionUID = -6896572653514109258L;
+
     private H2 viewTitle;
 
     private final transient AuthenticatedUser authenticatedUser;

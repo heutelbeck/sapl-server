@@ -52,6 +52,8 @@ import org.springframework.context.annotation.Conditional;
 @Conditional(SetupFinishedCondition.class)
 public class EditVariableView extends VerticalLayout implements HasUrlParameter<Long> {
 
+    private static final long serialVersionUID = -577412733944392951L;
+
     public static final String ROUTE = "pdp-config/edit-variable";
 
     private final transient VariablesService variableService;
