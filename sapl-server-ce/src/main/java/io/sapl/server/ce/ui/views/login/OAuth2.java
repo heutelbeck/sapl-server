@@ -42,7 +42,7 @@ import org.springframework.context.annotation.Conditional;
 @RequiredArgsConstructor
 @Conditional(SetupFinishedCondition.class)
 public class OAuth2 extends VerticalLayout implements BeforeEnterObserver {
-    private final AuthenticatedUser authenticatedUser;
+    private transient AuthenticatedUser authenticatedUser;
 
     @PostConstruct
     void init() {
@@ -67,9 +67,11 @@ public class OAuth2 extends VerticalLayout implements BeforeEnterObserver {
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
-        if (authenticatedUser.get().isPresent()) {
-            // Already logged in. Forward the user to the main page after login
-            event.forwardTo("/");
+        if (authenticatedUser != null) {
+            if (authenticatedUser.get().isPresent()) {
+                // Already logged in. Forward the user to the main page after login
+                event.forwardTo("/");
+            }
         }
     }
 }
