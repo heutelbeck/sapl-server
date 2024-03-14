@@ -18,17 +18,15 @@
 package io.sapl.server.ce.security;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
+import jakarta.annotation.Priority;
+import java.util.concurrent.TimeUnit;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.AutoConfigureAfter;
-import org.springframework.boot.autoconfigure.AutoConfigureBefore;
-import org.springframework.boot.autoconfigure.cache.CacheAutoConfiguration;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.caffeine.CaffeineCacheManager;
+import org.springframework.cache.jcache.JCacheCacheManager;
 import org.springframework.cache.support.NoOpCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import java.util.concurrent.TimeUnit;
 
 @Configuration
 public class AuthenticationCacheConfig {
@@ -42,31 +40,21 @@ public class AuthenticationCacheConfig {
     @Value("${io.sapl.server.apiKeyCaching.maxSize:#{300}}")
     private Integer apiKeyCachingMaxSize;
 
-//    @Bean
-//    @Primary
-//    CacheManager cacheManager() {
-//        CaffeineCacheManager cacheManager = new CaffeineCacheManager("buckets");
-//        cacheManager.setCaffeine(Caffeine.newBuilder().maximumSize(1000000).expireAfterAccess(3600, TimeUnit.SECONDS));
-//        return cacheManager;
-//    }
+    @Bean
+    Caffeine<Object, Object> caffeineConfig() {
+        return Caffeine.newBuilder().expireAfterAccess(apiKeyCachingExpireSeconds, TimeUnit.SECONDS).initialCapacity(10)
+                .maximumSize(apiKeyCachingMaxSize);
+    }
 
-//    @Bean
-//    Caffeine<Object, Object> caffeineConfig() {
-//        return Caffeine.newBuilder().expireAfterAccess(apiKeyCachingExpireSeconds, TimeUnit.SECONDS).initialCapacity(10)
-//                .maximumSize(apiKeyCachingMaxSize);
-//    }
-
-//    @Bean
-//    CacheManager apiKeyCacheManager() {
-//        if (apiKeyCachingEnabled) {
-//            CaffeineCacheManager caffeineCacheManager = new CaffeineCacheManager("ApiKeyCache");
-//            caffeineCacheManager
-//                    .setCaffeine(Caffeine.newBuilder().expireAfterAccess(apiKeyCachingExpireSeconds, TimeUnit.SECONDS)
-//                            .initialCapacity(10).maximumSize(apiKeyCachingMaxSize));
-//            return caffeineCacheManager;
-//        } else {
-//            return new NoOpCacheManager();
-//        }
-//    }
+    @Bean
+    CacheManager apiKeyCacheManager(Caffeine<Object, Object> caffeine) {
+        if (apiKeyCachingEnabled) {
+            CaffeineCacheManager caffeineCacheManager = new CaffeineCacheManager("ApiKeyCache");
+            caffeineCacheManager.setCaffeine(caffeine);
+            return caffeineCacheManager;
+        } else {
+            return new NoOpCacheManager();
+        }
+    }
 
 }
