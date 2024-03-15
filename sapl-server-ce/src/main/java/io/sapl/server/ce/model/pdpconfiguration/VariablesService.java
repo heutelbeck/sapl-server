@@ -20,7 +20,6 @@ package io.sapl.server.ce.model.pdpconfiguration;
 import java.util.Collection;
 import java.util.Optional;
 
-import io.sapl.server.ce.model.setup.condition.SetupFinishedCondition;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +27,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.sapl.server.ce.model.setup.condition.SetupFinishedCondition;
 import io.sapl.server.ce.pdp.PDPConfigurationPublisher;
 import jakarta.annotation.PostConstruct;
 import lombok.NonNull;

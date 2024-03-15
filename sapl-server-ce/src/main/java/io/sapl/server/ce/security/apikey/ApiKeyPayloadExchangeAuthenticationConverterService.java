@@ -19,7 +19,6 @@ package io.sapl.server.ce.security.apikey;
 
 import java.nio.charset.StandardCharsets;
 
-import io.sapl.server.ce.model.setup.condition.SetupFinishedCondition;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.rsocket.api.PayloadExchange;
@@ -29,6 +28,7 @@ import org.springframework.util.MimeType;
 
 import io.netty.buffer.ByteBuf;
 import io.rsocket.metadata.CompositeMetadata;
+import io.sapl.server.ce.model.setup.condition.SetupFinishedCondition;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 

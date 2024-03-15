@@ -18,6 +18,13 @@
 
 package io.sapl.server.ce.ui.views.setup;
 
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.stream.Stream;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Conditional;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
@@ -32,6 +39,7 @@ import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
+
 import io.sapl.server.ce.model.setup.ApplicationConfigService;
 import io.sapl.server.ce.model.setup.SupportedDatasourceTypes;
 import io.sapl.server.ce.model.setup.condition.SetupNotFinishedCondition;
@@ -41,12 +49,6 @@ import io.sapl.server.ce.ui.utils.ErrorNotificationUtils;
 import io.sapl.server.ce.ui.views.SetupLayout;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Conditional;
-
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.stream.Stream;
 
 @AnonymousAllowed
 @PageTitle("DBMS Setup")

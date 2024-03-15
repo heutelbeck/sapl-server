@@ -110,7 +110,6 @@
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-crypto</artifactId>
 		</dependency>
-        <!-- Utilities -->
 		<!-- Utilities -->
 		<dependency>
 			<groupId>com.heutelbeck</groupId>
@@ -121,11 +120,7 @@
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.github.ben-manes.caffeine</groupId>
-			<artifactId>caffeine</artifactId>
-		</dependency>
+		</dependency>	
 		<!-- bouncycastle holds a full Java-based implementation of the Argon2
 		algorithm -->
 		<dependency>

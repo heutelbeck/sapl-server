@@ -17,7 +17,6 @@
  */
 package io.sapl.server.ce.ui.views;
 
-import io.sapl.server.ce.model.setup.condition.SetupFinishedCondition;
 import org.springframework.context.annotation.Conditional;
 import org.vaadin.lineawesome.LineAwesomeIcon;
 
@@ -43,6 +42,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.server.auth.AccessAnnotationChecker;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 
+import io.sapl.server.ce.model.setup.condition.SetupFinishedCondition;
 import io.sapl.server.ce.security.AuthenticatedUser;
 import io.sapl.server.ce.ui.views.clientcredentials.ClientCredentialsView;
 import io.sapl.server.ce.ui.views.digitalpolicies.DigitalPoliciesView;

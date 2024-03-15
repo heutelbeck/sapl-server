@@ -17,14 +17,14 @@
  */
 package io.sapl.server.ce.security;
 
-import com.github.benmanes.caffeine.jcache.spi.CaffeineCachingProvider;
 import java.util.List;
 import java.util.Properties;
+
 import javax.cache.CacheManager;
 import javax.cache.Caching;
 import javax.cache.configuration.MutableConfiguration;
 import javax.cache.spi.CachingProvider;
-import lombok.Setter;
+
 import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
@@ -33,6 +33,10 @@ import org.springframework.cache.jcache.JCacheCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+
+import com.github.benmanes.caffeine.jcache.spi.CaffeineCachingProvider;
+
+import lombok.Setter;
 
 @Setter
 @Configuration(proxyBeanMethods = false)
@@ -50,13 +54,14 @@ public class RateLimiterCacheManagerConfig implements BeanClassLoaderAware {
     }
 
     @Bean
-    CacheManager jCacheCacheManager(ObjectProvider<javax.cache.configuration.Configuration<?, ?>> defaultCacheConfiguration) {
+    CacheManager jCacheCacheManager(
+            ObjectProvider<javax.cache.configuration.Configuration<?, ?>> defaultCacheConfiguration) {
         CacheManager jCacheCacheManager = createCacheManager();
-        List<String> cacheNames = List.of("buckets");
+        List<String> cacheNames         = List.of("buckets");
 
         for (String cacheName : cacheNames) {
             jCacheCacheManager.createCache(cacheName,
-                defaultCacheConfiguration.getIfAvailable(MutableConfiguration::new));
+                    defaultCacheConfiguration.getIfAvailable(MutableConfiguration::new));
         }
 
         return jCacheCacheManager;

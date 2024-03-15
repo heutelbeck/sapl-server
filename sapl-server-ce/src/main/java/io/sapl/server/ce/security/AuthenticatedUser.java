@@ -19,13 +19,13 @@ package io.sapl.server.ce.security;
 
 import java.util.Optional;
 
-import io.sapl.server.ce.model.setup.condition.SetupFinishedCondition;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import com.vaadin.flow.spring.security.AuthenticationContext;
 
+import io.sapl.server.ce.model.setup.condition.SetupFinishedCondition;
 import lombok.RequiredArgsConstructor;
 
 @Component

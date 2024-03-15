@@ -20,6 +20,8 @@ package io.sapl.server.ce.ui.views.digitalpolicies;
 import java.util.Collection;
 import java.util.Optional;
 
+import org.springframework.context.annotation.Conditional;
+
 import com.google.common.collect.Iterables;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -31,11 +33,11 @@ import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
-import io.sapl.server.ce.model.setup.condition.SetupFinishedCondition;
 import io.sapl.server.ce.model.sapldocument.PublishedDocumentNameCollisionException;
 import io.sapl.server.ce.model.sapldocument.SaplDocument;
 import io.sapl.server.ce.model.sapldocument.SaplDocumentService;
 import io.sapl.server.ce.model.sapldocument.SaplDocumentVersion;
+import io.sapl.server.ce.model.setup.condition.SetupFinishedCondition;
 import io.sapl.server.ce.ui.utils.ErrorNotificationUtils;
 import io.sapl.server.ce.ui.views.MainLayout;
 import io.sapl.vaadin.Issue;
@@ -45,7 +47,6 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Conditional;
 
 /**
  * View to edit a {@link SaplDocument}.

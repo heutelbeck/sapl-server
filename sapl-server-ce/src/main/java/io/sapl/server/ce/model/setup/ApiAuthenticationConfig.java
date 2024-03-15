@@ -17,12 +17,12 @@
  */
 package io.sapl.server.ce.model.setup;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter

@@ -18,10 +18,18 @@
 
 package io.sapl.server.ce.ui.views;
 
+import org.springframework.context.annotation.Conditional;
+import org.vaadin.lineawesome.LineAwesomeIcon;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
-import com.vaadin.flow.component.html.*;
+import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.html.Footer;
+import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Header;
+import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.Scroller;
@@ -30,12 +38,18 @@ import com.vaadin.flow.component.sidenav.SideNavItem;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.server.auth.AccessAnnotationChecker;
 import com.vaadin.flow.theme.lumo.LumoUtility;
+
 import io.sapl.server.ce.model.setup.condition.SetupNotFinishedCondition;
-import io.sapl.server.ce.ui.views.setup.*;
+import io.sapl.server.ce.ui.views.setup.AdminUserSetupView;
+import io.sapl.server.ce.ui.views.setup.ApiAuthenticationSetupView;
+import io.sapl.server.ce.ui.views.setup.DbmsSetupView;
+import io.sapl.server.ce.ui.views.setup.FinishSetupView;
+import io.sapl.server.ce.ui.views.setup.HttpEndpointSetupView;
+import io.sapl.server.ce.ui.views.setup.LoggingSetupView;
+import io.sapl.server.ce.ui.views.setup.RSocketEndpointSetupView;
+import io.sapl.server.ce.ui.views.setup.SetupView;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Conditional;
-import org.vaadin.lineawesome.LineAwesomeIcon;
 
 /**
  * The main view is a top-level placeholder for other views for the setup
@@ -46,7 +60,7 @@ import org.vaadin.lineawesome.LineAwesomeIcon;
 public class SetupLayout extends AppLayout {
 
     private static final long serialVersionUID = 6412319275300609209L;
-  
+
     public static final String INSECURE_CONNECTION_MESSAGE = "Warning: This connection is not secure. \nProceeding means that someone could potentially intercept the entered parameters such as usernames and passwords. It is recommended to either configure a secure TLS connection for the application in the application.yml file or to run the wizard locally and later transfer the generated application.yml file to the target system via a secure connection.";
 
     private H2                            viewTitle;

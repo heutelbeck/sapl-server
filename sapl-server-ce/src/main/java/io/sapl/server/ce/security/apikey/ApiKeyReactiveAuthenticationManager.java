@@ -19,6 +19,7 @@ package io.sapl.server.ce.security.apikey;
 
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.core.Authentication;
+
 import reactor.core.publisher.Mono;
 
 public class ApiKeyReactiveAuthenticationManager implements ReactiveAuthenticationManager {

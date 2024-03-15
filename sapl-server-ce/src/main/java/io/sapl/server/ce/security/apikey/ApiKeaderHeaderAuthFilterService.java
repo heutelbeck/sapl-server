@@ -19,13 +19,13 @@ package io.sapl.server.ce.security.apikey;
 
 import java.io.IOException;
 
-import io.sapl.server.ce.model.setup.condition.SetupFinishedCondition;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.GenericFilterBean;
 
+import io.sapl.server.ce.model.setup.condition.SetupFinishedCondition;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;

@@ -23,6 +23,8 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 
+import org.springframework.context.annotation.Conditional;
+
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.grid.GridVariant;
@@ -44,7 +46,6 @@ import io.sapl.spring.pdp.embedded.PolicyInformationPointsDocumentation;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Conditional;
 
 @RolesAllowed("ADMIN")
 @RequiredArgsConstructor

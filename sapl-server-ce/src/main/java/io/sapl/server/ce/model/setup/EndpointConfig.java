@@ -18,10 +18,6 @@
 
 package io.sapl.server.ce.model.setup;
 
-import com.google.common.net.InetAddresses;
-import lombok.Getter;
-import lombok.Setter;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -32,7 +28,13 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableEntryException;
 import java.security.cert.CertificateException;
-import java.util.*;
+import java.util.EnumSet;
+import java.util.Set;
+
+import com.google.common.net.InetAddresses;
+
+import lombok.Getter;
+import lombok.Setter;
 
 public class EndpointConfig {
 

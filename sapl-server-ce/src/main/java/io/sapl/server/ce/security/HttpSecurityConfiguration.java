@@ -21,7 +21,6 @@ import static org.springframework.security.config.Customizer.withDefaults;
 
 import java.util.List;
 
-import io.sapl.server.ce.model.setup.condition.SetupFinishedCondition;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
@@ -44,6 +43,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import com.vaadin.flow.spring.security.VaadinWebSecurity;
 
+import io.sapl.server.ce.model.setup.condition.SetupFinishedCondition;
 import io.sapl.server.ce.security.apikey.ApiKeaderHeaderAuthFilterService;
 import io.sapl.server.ce.ui.views.login.LoginView;
 import lombok.RequiredArgsConstructor;
