@@ -43,13 +43,13 @@ import java.util.Map;
 public class ApiKeyService {
     private final PasswordEncoder             passwordEncoder;
     private final ClientCredentialsRepository clientCredentialsRepository;
-    private final CacheManager                cacheManager;
+    private final CacheManager                apiKeyCacheManager;
 
     @Getter
     @Value("${io.sapl.server.apiKeyHeaderName:API_KEY}")
     private String apiKeyHeaderName;
 
-    @Cacheable(value = "ApiKeyCache", unless = "#result == false")
+    @Cacheable(cacheManager = "apiKeyCacheManager", value = "ApiKeyCache", unless = "#result == false")
     public boolean isValidApiKey(String apiKey) throws AuthenticationException {
         // extract client key from apiKey
         var apiKeyComponents = apiKey.split("\\.");
@@ -64,7 +64,7 @@ public class ApiKeyService {
     }
 
     public void removeFromCache(String cacheKey) {
-        CaffeineCache apiKeyCache = (CaffeineCache) cacheManager.getCache("ApiKeyCache");
+        CaffeineCache apiKeyCache = (CaffeineCache) apiKeyCacheManager.getCache("ApiKeyCache");
         if (apiKeyCache != null) {
             var nativeCache = apiKeyCache.getNativeCache();
             for (Map.Entry<Object, Object> entry : nativeCache.asMap().entrySet()) {

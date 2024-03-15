@@ -26,10 +26,12 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.ConfigurableApplicationContext;
 
-@SpringBootApplication(exclude = { DataSourceAutoConfiguration.class })
+@EnableCaching
 @Theme(value = "sapl", variant = Lumo.DARK)
+@SpringBootApplication(exclude = { DataSourceAutoConfiguration.class })
 public class SaplServerCeApplication implements AppShellConfigurator {
 
     private static final long serialVersionUID = 938505458991453526L;
