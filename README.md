@@ -268,8 +268,6 @@ Installed Kubernetes v1.28+
 
 ##### Deployment
 
-Upload the application.yaml and keystore.p12 from \\path\\to\\repository\\sapl-server-ce\\config\\ to the persistent volume.
-
 Create a Kubernetes namespace `sapl-server-ce`.
 
 ```shell
