@@ -18,6 +18,13 @@
 
 package io.sapl.server.ce.ui.views.setup;
 
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.stream.Stream;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Conditional;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
@@ -32,20 +39,16 @@ import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
+
 import io.sapl.server.ce.model.setup.ApplicationConfigService;
 import io.sapl.server.ce.model.setup.SupportedDatasourceTypes;
 import io.sapl.server.ce.model.setup.condition.SetupNotFinishedCondition;
 import io.sapl.server.ce.ui.utils.ConfirmUtils;
+import io.sapl.server.ce.ui.utils.ErrorComponentUtils;
 import io.sapl.server.ce.ui.utils.ErrorNotificationUtils;
 import io.sapl.server.ce.ui.views.SetupLayout;
 import jakarta.annotation.PostConstruct;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Conditional;
-
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
+import jakarta.servlet.http.HttpServletRequest;
 
 @AnonymousAllowed
 @PageTitle("DBMS Setup")
@@ -53,8 +56,11 @@ import java.util.List;
 @Conditional(SetupNotFinishedCondition.class)
 public class DbmsSetupView extends VerticalLayout {
 
+    private static final long serialVersionUID = 3999561555230814522L;
+
     public static final String                 ROUTE = "/setup/dbms";
     private transient ApplicationConfigService applicationConfigService;
+    private transient HttpServletRequest       httpServletRequest;
 
     private final RadioButtonGroup<String> dbms           = new RadioButtonGroup<>("DBMS");
     private final TextField                dbmsURL        = new TextField("DBMS URL");
@@ -63,26 +69,30 @@ public class DbmsSetupView extends VerticalLayout {
     private final Button                   dbmsTest       = new Button("Test connection");
     private final Button                   dbmsSaveConfig = new Button("Save DBMS-Configuration");
 
-    private final List<String> dbmsDisplayNames = new ArrayList<>();
-
-    public DbmsSetupView(@Autowired ApplicationConfigService applicationConfigService) {
+    public DbmsSetupView(@Autowired ApplicationConfigService applicationConfigService,
+            @Autowired HttpServletRequest httpServletRequest) {
         this.applicationConfigService = applicationConfigService;
+        this.httpServletRequest       = httpServletRequest;
     }
 
     @PostConstruct
     private void init() {
-        dbmsDisplayNames.add(SupportedDatasourceTypes.H2.ordinal(), "H2");
-        dbmsDisplayNames.add(SupportedDatasourceTypes.MARIADB.ordinal(), "MariaDB");
+        if (!httpServletRequest.isSecure()) {
+            add(ErrorComponentUtils.getErrorDiv(SetupLayout.INSECURE_CONNECTION_MESSAGE));
+        }
+
         add(getLayout());
     }
 
     private Component getLayout() {
-        dbms.setItems(dbmsDisplayNames);
-        dbms.setValue(dbmsDisplayNames.get(applicationConfigService.getDbmsConfig().getDbms().ordinal()));
+        dbms.setItems(Stream.of(SupportedDatasourceTypes.values()).map(SupportedDatasourceTypes::getDisplayName)
+                .toArray(String[]::new));
+        dbms.setValue(applicationConfigService.getDbmsConfig().getDbms().getDisplayName());
         dbms.addValueChangeListener(e -> {
             updateDbmsConfig();
+            applicationConfigService.getDbmsConfig().setDbms(SupportedDatasourceTypes.getByDisplayName(e.getValue()));
             applicationConfigService.getDbmsConfig()
-                    .setToDbmsDefaults(SupportedDatasourceTypes.values()[dbmsDisplayNames.indexOf(e.getValue())]);
+                    .setUrl(applicationConfigService.getDbmsConfig().getDbms().getDefaultUrl());
             dbmsURL.setValue(applicationConfigService.getDbmsConfig().getUrl());
         });
         dbmsURL.setValue(applicationConfigService.getDbmsConfig().getUrl());
@@ -159,8 +169,7 @@ public class DbmsSetupView extends VerticalLayout {
     }
 
     private void updateDbmsConfig() {
-        applicationConfigService.getDbmsConfig()
-                .setDbms(SupportedDatasourceTypes.values()[dbmsDisplayNames.indexOf(dbms.getValue())]);
+        applicationConfigService.getDbmsConfig().setDbms(SupportedDatasourceTypes.getByDisplayName(dbms.getValue()));
         applicationConfigService.getDbmsConfig().setUrl(dbmsURL.getValue());
         applicationConfigService.getDbmsConfig().setUsername(dbmsUsername.getValue());
         applicationConfigService.getDbmsConfig().setPassword(dbmsPwd.getValue());

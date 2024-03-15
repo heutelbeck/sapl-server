@@ -17,6 +17,8 @@
  */
 package io.sapl.server.ce.ui.views.pdpconfig;
 
+import org.springframework.context.annotation.Conditional;
+
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -30,12 +32,12 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
 import io.sapl.interpreter.combinators.PolicyDocumentCombiningAlgorithm;
-import io.sapl.server.ce.model.setup.condition.SetupFinishedCondition;
 import io.sapl.server.ce.model.pdpconfiguration.CombiningAlgorithmService;
 import io.sapl.server.ce.model.pdpconfiguration.DuplicatedVariableNameException;
 import io.sapl.server.ce.model.pdpconfiguration.InvalidVariableNameException;
 import io.sapl.server.ce.model.pdpconfiguration.Variable;
 import io.sapl.server.ce.model.pdpconfiguration.VariablesService;
+import io.sapl.server.ce.model.setup.condition.SetupFinishedCondition;
 import io.sapl.server.ce.ui.utils.ConfirmUtils;
 import io.sapl.server.ce.ui.utils.ErrorNotificationUtils;
 import io.sapl.server.ce.ui.views.MainLayout;
@@ -43,7 +45,6 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Conditional;
 
 @Slf4j
 @RolesAllowed("ADMIN")
@@ -52,6 +53,8 @@ import org.springframework.context.annotation.Conditional;
 @Route(value = PDPConfigView.ROUTE, layout = MainLayout.class)
 @Conditional(SetupFinishedCondition.class)
 public class PDPConfigView extends VerticalLayout {
+
+    private static final long serialVersionUID = -3376954897137500810L;
 
     public static final String ROUTE = "pdp-config";
 

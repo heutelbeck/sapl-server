@@ -17,20 +17,25 @@
  */
 package io.sapl.server;
 
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.context.ConfigurableApplicationContext;
+
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.page.AppShellConfigurator;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
-import org.springframework.boot.ApplicationArguments;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
-import org.springframework.context.ConfigurableApplicationContext;
 
-@SpringBootApplication(exclude = { DataSourceAutoConfiguration.class })
+@EnableCaching
 @Theme(value = "sapl", variant = Lumo.DARK)
+@SpringBootApplication(exclude = { DataSourceAutoConfiguration.class })
 public class SaplServerCeApplication implements AppShellConfigurator {
+
+    private static final long serialVersionUID = 938505458991453526L;
 
     public static void main(String[] args) {
         context = SpringApplication.run(SaplServerCeApplication.class, args);
@@ -38,8 +43,8 @@ public class SaplServerCeApplication implements AppShellConfigurator {
 
     private static ConfigurableApplicationContext context;
 
-    public static void restart() {
-        UI.getCurrent().getPage().setLocation("/");
+    public static void restart(String redirectUri) {
+        UI.getCurrent().getPage().setLocation(redirectUri);
         VaadinSession.getCurrent().getSession().invalidate();
         ApplicationArguments args   = context.getBean(ApplicationArguments.class);
         Thread               thread = new Thread(() -> {

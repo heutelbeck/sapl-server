@@ -39,7 +39,7 @@ io.sapl:
     allowOauth2Auth: False
 
     # Optional: configure Oauth2 Login with Keycloak
-    allowOAuth2Login: True
+    allowOAuth2Login: False
 
   pdp.embedded:
 # The following options enable or disable different levels of logging for decisions.
@@ -113,38 +113,21 @@ logging.level:
   "[io.sapl]": DEBUG
   "[io.sapl.server.ce]": DEBUG
 
-# If Keycloak Login is enabled, then configure the following settings
+
+# If Keycloak Login is enabled, then configure the following settings and comment them out
 #spring.security.oauth2.client:
 #  registration.keycloak:
-#    client-id: sapl-client
-#    client-secret: wv2l9NvuSowvr8PwkY8qLKPIDi0HZEHT
+#    client-id: <OAuth2 Client ID>
+#    client-secret: <OAuth2 Client Secret>
 #    client-authentication-method: client_secret_basic
 #    authorization-grant-type: authorization_code
 #    redirect-uri: "{baseUrl}/login/oauth2/code/keycloak"
 #    scope: openid, profile, email, roles
 #    provider: keycloak
 #  provider.keycloak:
-#    issuer-uri: http://localhost:9000/realms/SAPL
+#    issuer-uri: <Issuer URI>
 #    user-name-attribute: preferred_username
-#    jwk-set-uri: http://localhost:9000/realms/SAPL/protocol/openid-connect/certs
-#    authorization-uri: http://localhost:9000/realms/SAPL/protocol/openid-connect/auth
-#    token-uri: http://localhost:9000/realms/SAPL/protocol/openid-connect/token
-#    user-info-uri: http://localhost:9000/realms/SAPL/protocol/openid-connect/userinfo
-
-# If Keycloak Login is enabled, then configure the following settings
-spring.security.oauth2.client:
-  registration.keycloak:
-    client-id: sapl-client
-    client-secret: 4MltfWiFCSpepUb5kRhiRZ4VEGDflQ2W
-    client-authentication-method: client_secret_basic
-    authorization-grant-type: authorization_code
-    redirect-uri: "{baseUrl}/login/oauth2/code/keycloak"
-    scope: openid, profile, email, roles
-    provider: keycloak
-  provider.keycloak:
-    issuer-uri: http://localhost:9000/realms/MyRealm
-    user-name-attribute: preferred_username
-    jwk-set-uri: http://localhost:9000/realms/MyRealm/protocol/openid-connect/certs
-    authorization-uri: http://localhost:9000/realms/MyRealm/protocol/openid-connect/auth
-    token-uri: http://localhost:9000/realms/MyRealm/protocol/openid-connect/token
-    user-info-uri: http://localhost:9000/realms/MyRealm/protocol/openid-connect/userinfo
+#    jwk-set-uri: <JWK-Set URI>
+#    authorization-uri: <Authorization URI>
+#    token-uri: <Token URI>
+#    user-info-uri: <User-Info Uri>

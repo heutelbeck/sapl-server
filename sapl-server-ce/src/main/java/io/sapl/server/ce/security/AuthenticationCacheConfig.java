@@ -17,18 +17,17 @@
  */
 package io.sapl.server.ce.security;
 
-import com.github.benmanes.caffeine.cache.Caffeine;
+import java.util.concurrent.TimeUnit;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.caffeine.CaffeineCacheManager;
 import org.springframework.cache.support.NoOpCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.concurrent.TimeUnit;
+import com.github.benmanes.caffeine.cache.Caffeine;
 
-@EnableCaching
 @Configuration
 public class AuthenticationCacheConfig {
 
@@ -48,9 +47,9 @@ public class AuthenticationCacheConfig {
     }
 
     @Bean
-    CacheManager cacheManager(Caffeine<Object, Object> caffeine) {
+    CacheManager apiKeyCacheManager(Caffeine<Object, Object> caffeine) {
         if (apiKeyCachingEnabled) {
-            CaffeineCacheManager caffeineCacheManager = new CaffeineCacheManager();
+            CaffeineCacheManager caffeineCacheManager = new CaffeineCacheManager("ApiKeyCache");
             caffeineCacheManager.setCaffeine(caffeine);
             return caffeineCacheManager;
         } else {

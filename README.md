@@ -20,9 +20,7 @@ SAPL Server CE is a software product that follows secure information technology 
 
 It is a tool for users to implement Secure by Design systems by incorporating attribute-based access control (ABAC) into their own products and environments.
 
-SAPL adheres to the secure by default principle. SAPL Server CE comes with a pre-configured basic setup that includes the essential security controls to ensure compliance with Germany's Federal Office for Information Security (BSI) [BSI Baseline Protection Compendium Edition 2022](https://www.bsi.bund.de/SharedDocs/Downloads/EN/BSI/Grundschutz/International/bsi_it_gs_comp_2022.pdf).
-
-For SAPL Server CE, the binary software packages (OCI Container Images and Java applications delivered as a JAR) come with a strict configuration. Additional configuration is required for authentication and TLS to run the server. This documentation explains these configuration steps in detail.
+SAPL adheres to the secure by default principle. SAPL Server CE comes with a basic example configuration that includes the essential security controls to ensure compliance with Germany's Federal Office for Information Security (BSI) [BSI Baseline Protection Compendium Edition 2022](https://www.bsi.bund.de/SharedDocs/Downloads/EN/BSI/Grundschutz/International/bsi_it_gs_comp_2022.pdf).
 
 Application security is a top priority in the development of SAPL. The SAPL project also embraces radical transparency and accountability. Security issues are reported and shared using the GitHub advisory feature. For more details, see the [SAPL Security Policy](https://github.com/heutelbeck/sapl-policy-engine/blob/master/SECURITY.md).
 
@@ -36,19 +34,22 @@ Requirements for local installation.
 
 ## Prerequisites and download
 
-SAPL Server CE comes in two forms: an executable Java JAR file for OpenJDK 17 (or later) and an OCI container. The server's full source code is also available for building, running from source, and auditing.
+SAPL Server CE comes in two forms: as an OCI container or as full source code for building, running from source, and auditing.
 
-### Java OpenJDK
-
-#### Prerequisites
+### Prerequisites
 
 Before running SAPL Server CE on your system, make sure that you have installed [OpenJDK 17](https://openjdk.org/projects/jdk/17/) or a newer version. [Eclipse Temurin](https://adoptium.net/de/temurin/releases/) is one of the available distributions that provides binaries for different platforms.
 
 Ensure that the Java executables are added to the system path.
 
-#### Download
+### Download and running from source
+The source of the policy engine is found on the public GitHub repository: [https://github.com/heutelbeck/sapl-server](https://github.com/heutelbeck/sapl-server).
 
-To be done: setup download of release and snapshot via GitHub packages.
+You can either download the source as a ZIP file and unzip the archive, or clone the repository using git:
+
+```shell
+git clone https://github.com/heutelbeck/sapl-server.git
+```
 
 ## Configuration
 
@@ -64,6 +65,17 @@ To create a configuration for productive, we recommend using the setup wizard to
 From this point, the user can customize further settings in the application.yml.
 
 **Note:** The Setup Wizard is designed to work with yml-Files. .properties-files are not supported. 
+
+### Manually set username and password
+The admin username and password can be set in application.yml. The password has to be encoded with Argon2.
+The Argon2 parameters are:
+- salt length of 16 bytes
+- a hash length of 32 bytes
+- parallelism of 1
+- memory cost of 1 << 14
+- 2 iterations
+
+Alternatively you can use the setup wizard create the encoded password.
 
 ### Using Setup-Wizard
 
@@ -89,9 +101,12 @@ The keystore.p12 file must then be saved in a directory to which the SAPL Server
 The SAPL Server CE requires a database. It is possible to use an H2 or MariaDB.
 When using an H2 database, this can be configured and created by the setup wizard.
 
-When using a MariaDB, the url, username and password must be known for successful configuration in the setup wizard.
+When using a MariaDB, the url, username and password must be known to pass the connection test and successfully complete the database configuration.
 
 #### How to start the wizard
+
+**Warning:** When you run a SAPL Server CE Wizard over an unencrypted connection **you accept the risks** that someone could potentially intercept the entered parameters such as usernames and passwords. It is recommended to either configure a secure TLS connection for the application in the application.yml file or to run the wizard locally and later transfer the generated application.yml file to the target system via a secure connection.
+
 The options for starting the application are described below in the chapter `Running the Server CE`.
 When the application is started, the parameters in application.yml are checked. If the entry
 ```
@@ -160,16 +175,6 @@ If you need to write the logs to a file, refer to the [Spring documentation](htt
 
 ## Running the Server CE
 
-### JAVA OpenJDK
-
-**Note:** Failure to configure the server will prevent it from starting. This may seem inconvenient, but it is necessary for security reasons. The default configuration does not include any well-known public secrets that could compromise the deployment's security. Please refer to the [Configuration](#configuration) section for proper server setup instructions.
-
-Once configured, start the server using the following command:
-
-```shell
-java -jar sapl-server-ce-3.0.0-SNAPSHOT.jar
-```
-
 ### Running from Source
 
 **Note:** Running from source is not intended for production environments. If doing so, **you accept the risk** of running with publicly known credentials and TLS certificates if you accidentally use the development configuration of the server.
@@ -178,31 +183,33 @@ It is likely that you only need to run the server from the source if you are a c
 
 The source code includes a small development configuration of the server which contains some pre-configured credentials and a self-signed certificate for setting up TLS.
 
-#### Running the Server using Maven
+#### Running the Server from source using Maven
 
 Change the current directory to `sapl-server-ce/` and execute the following command:
 
 ```shell
-mvn spring-boot:run
+mvn -Pproduction
 ```
+Now you can open a browser and visit and visit https://localhost:8443/ .
+If started from this folder, the application will start with the demonstration configuration located in  `sapl-server-ce/config` which sets up TLS with a self-signed certificate.
+The credentials are demo/demo and the database will be created in ~\sapl
 
-If started from this folder, the application will start with a demonstration configuration located in  `sapl-server-ce/config` which sets up TLS with a self-signed certificate.
 
 #### Running the Server as a JAR
 
-After the build concludes an executable JAR will be available in the folder `sapl-server-ce/target`. This JAR can be used in the same way as a downloaded SAPL Server CE binary, as described under [Java OpenJDK](#java-openjdk).
+After the build concludes an executable JAR will be available in the folder `sapl-server-ce/target`.
 
 **Note:** If the JAR is executed from within the folder `sapl-server-ce/` using the command `java -jar target/sapl-server-ce-3.0.0-SNAPSHOT.jar` the server will pick up the same demonstration configuration as described above.
 
 ## Deploy via Docker Image
 
-This Docker Image uses a mounted directory to store access the configuration files as well as the Database if it is used as a standalone. In this Example a Windows directory 'C:\devkit\data\docker-sapl'. Copy the application.yml from sapl-server-ce\target\classes to the mounted directory. 
+The following Docker Image uses a mounted directory to store access the configuration files as well as the Database if it is used as a standalone. In this example a Windows directory 'C:\devkit\data\docker-sapl'. Copy the application.yml file to the mounted directory. 
 
 ```shell
 docker run "-p80:8080" "-v/c/devkit/data/docker-sapl:/sapl:rw" ghcr.io/heutelbeck/sapl-server-ce:3.0.0-snapshot
 ```
 
-Open a browser and visit http://localhost/ . The username and password are both demo, but can be changed in the application.yml. Use https://bcrypt-generator.com/ to create a bcrypt encoded password.
+Open a browser and visit http://localhost/ . The username and password are both demo.
 
 ## Kubernetes
 
@@ -409,3 +416,17 @@ spring.security.oauth2.client:
 ```
 
 The last necessary step is to set the parameter `allowOAuth2Login: True` in the application.yml. Now your SAPL Server CE will show an OAuth2 Login page.
+=======
+### Configure Bucket4j
+
+To configure `Bucket4j` in your application, you'll need to adjust some properties in your configuration file.
+
+Firstly, set `bucket4j.enabled=true` to activate Bucket4j's auto-configuration feature.
+
+Then set `bucket4j.cache-to-use=jcache`.
+
+Use `bucket4j.filters.url` to define the path expression where the rate limit should be applied. The property `bucket4j.filters.strategy=first` ensures that the rate limit stops at the first matching configuration encountered.
+et
+To retrieve the key, use Spring Expression Language (SpEL) with `bucket4j.filters.rate-limits.cache-key`. Then, determine whher to execute the rate limit using SpEL with `bucket4j.filters.rate-limits.execute-condition`.
+
+Lastly, define the rate limit parameters using `bucket4j.filters.rate-limits.bandwidths` to set up the Bucket4j rate limit. Adjust these settings according to your application's requirements.

@@ -18,13 +18,15 @@
 
 package io.sapl.server.ce.ui.views.setup;
 
-import com.vaadin.flow.component.Text;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Conditional;
+
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -32,13 +34,14 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
+
 import io.sapl.server.SaplServerCeApplication;
-import io.sapl.server.ce.model.setup.condition.SetupNotFinishedCondition;
 import io.sapl.server.ce.model.setup.ApplicationConfigService;
+import io.sapl.server.ce.model.setup.condition.SetupNotFinishedCondition;
+import io.sapl.server.ce.ui.utils.ErrorComponentUtils;
 import io.sapl.server.ce.ui.views.SetupLayout;
 import jakarta.annotation.PostConstruct;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Conditional;
+import jakarta.servlet.http.HttpServletRequest;
 
 @AnonymousAllowed
 @PageTitle("Finish Setup")
@@ -46,30 +49,41 @@ import org.springframework.context.annotation.Conditional;
 @Conditional(SetupNotFinishedCondition.class)
 public class FinishSetupView extends VerticalLayout {
 
+    private static final long serialVersionUID = -8414848309886198296L;
+
     public static final String  ROUTE                  = "/setup/finish";
     private static final String THEME_BADGEERRORPILL   = "badge error pill";
     private static final String THEME_BADGESUCCESSPILL = "badge success pill";
     private static final String PADDING_XS             = "var(--lumo-space-xs";
 
     private transient ApplicationConfigService applicationConfigService;
+    private transient HttpServletRequest       httpServletRequest;
 
-    public FinishSetupView(@Autowired ApplicationConfigService applicationConfigService) {
+    public FinishSetupView(@Autowired ApplicationConfigService applicationConfigService,
+            @Autowired HttpServletRequest httpServletRequest) {
         this.applicationConfigService = applicationConfigService;
+        this.httpServletRequest       = httpServletRequest;
     }
 
     @PostConstruct
     private void init() {
+        if (!httpServletRequest.isSecure()) {
+            add(ErrorComponentUtils.getErrorDiv(SetupLayout.INSECURE_CONNECTION_MESSAGE));
+        }
         add(getLayout());
     }
 
     private Component getLayout() {
         Button restart = new Button("Restart Server CE");
 
-        restart.addClickListener(e -> SaplServerCeApplication.restart());
+        restart.addClickListener(
+                e -> SaplServerCeApplication.restart(applicationConfigService.getHttpEndpoint().getUri()));
         restart.setEnabled(applicationConfigService.getDbmsConfig().isSaved()
                 && applicationConfigService.getAdminUserConfig().isSaved()
                 && applicationConfigService.getHttpEndpoint().isSaved()
-                && applicationConfigService.getRsocketEndpoint().isSaved());
+                && applicationConfigService.getRsocketEndpoint().isSaved()
+                && applicationConfigService.getApiAuthenticationConfig().isSaved()
+                && applicationConfigService.getLoggingConfig().isSaved());
 
         var  adminStateView = new Div();
         Icon adminStateIcon;
@@ -136,6 +150,19 @@ public class FinishSetupView extends VerticalLayout {
         }
         apiAuthenticationView.add(new Text("API Authentication setup finished "), apiAuthenticationIconState);
 
+        var  loggingView = new Div();
+        Icon loggingIconState;
+        if (applicationConfigService.getLoggingConfig().isSaved()) {
+            loggingIconState = VaadinIcon.CHECK_CIRCLE.create();
+            loggingIconState.getElement().getThemeList().add(THEME_BADGESUCCESSPILL);
+            loggingIconState.getStyle().setPadding(PADDING_XS);
+        } else {
+            loggingIconState = VaadinIcon.CLOSE.create();
+            loggingIconState.getElement().getThemeList().add(THEME_BADGEERRORPILL);
+            loggingIconState.getStyle().setPadding(PADDING_XS);
+        }
+        loggingView.add(new Text("Logging setup finished "), loggingIconState);
+
         VerticalLayout stateLayout = new VerticalLayout();
         stateLayout.setSpacing(false);
         stateLayout.getThemeList().add("spacing-l");
@@ -148,6 +175,7 @@ public class FinishSetupView extends VerticalLayout {
         stateLayout
                 .add(getTlsDisabledWarning("RSocket", !applicationConfigService.getRsocketEndpoint().getSslEnabled()));
         stateLayout.add(apiAuthenticationView);
+        stateLayout.add(loggingView);
 
         var hInfo = new H2(
                 "The following settings must be adjusted and saved before the application can be restarted and used.");
@@ -163,16 +191,15 @@ public class FinishSetupView extends VerticalLayout {
         return adminUserLayout;
     }
 
-    private Span getTlsDisabledWarning(String protocol, boolean visible) {
-        String warning            = "Note: Do not use the option \"Disable TLS\" for " + protocol + " in production.\n"
+    private Div getTlsDisabledWarning(String protocol, boolean visible) {
+        var warning = "Warning: You have not selected any TLS-protocol for  " + protocol
+                + ". Please do not use this configuration in production.\n"
                 + "This option may open the server to malicious probing and exfiltration attempts through "
                 + "the authorization endpoints, potentially resulting in unauthorized access to your "
                 + "organization's data, depending on your policies.";
-        Span   tlsDisabledWarning = new Span(warning);
-        tlsDisabledWarning.getStyle().set("color", "var(--lumo-error-text-color)");
-        tlsDisabledWarning.setVisible(visible);
-
-        return tlsDisabledWarning;
+        var div     = ErrorComponentUtils.getErrorDiv(warning);
+        div.setVisible(visible);
+        return div;
     }
 
 }

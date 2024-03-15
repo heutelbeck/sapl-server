@@ -21,7 +21,6 @@ import java.util.Comparator;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import io.sapl.server.ce.model.setup.condition.SetupFinishedCondition;
 import org.springframework.context.annotation.Conditional;
 import org.vaadin.lineawesome.LineAwesomeIcon;
 
@@ -41,6 +40,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
 import io.sapl.server.ce.model.clients.ClientCredentials;
+import io.sapl.server.ce.model.setup.condition.SetupFinishedCondition;
 import io.sapl.server.ce.security.ClientDetailsService;
 import io.sapl.server.ce.ui.utils.ConfirmUtils;
 import io.sapl.server.ce.ui.utils.ErrorNotificationUtils;
@@ -57,6 +57,8 @@ import reactor.util.function.Tuple2;
 @Route(value = ClientCredentialsView.ROUTE, layout = MainLayout.class)
 @Conditional(SetupFinishedCondition.class)
 public class ClientCredentialsView extends VerticalLayout {
+
+    private static final long serialVersionUID = 2715557908972556275L;
 
     public static final String ROUTE = "clients";
 

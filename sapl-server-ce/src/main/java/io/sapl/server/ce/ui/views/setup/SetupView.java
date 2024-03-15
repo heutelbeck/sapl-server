@@ -17,6 +17,9 @@
  */
 package io.sapl.server.ce.ui.views.setup;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Conditional;
+
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
@@ -26,23 +29,34 @@ import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
+
 import io.sapl.server.ce.model.setup.condition.SetupNotFinishedCondition;
+import io.sapl.server.ce.ui.utils.ErrorComponentUtils;
 import io.sapl.server.ce.ui.views.SetupLayout;
 import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Conditional;
+import jakarta.servlet.http.HttpServletRequest;
 
 @AnonymousAllowed
-@RequiredArgsConstructor
 @PageTitle("Setup Wizard")
 @Route(value = SetupView.ROUTE, layout = SetupLayout.class)
 @Conditional(SetupNotFinishedCondition.class)
 public class SetupView extends VerticalLayout {
 
-    public static final String ROUTE = "";
+    private static final long serialVersionUID = -1512633093216042687L;
+
+    public static final String           ROUTE = "";
+    private transient HttpServletRequest httpServletRequest;
+
+    public SetupView(@Autowired HttpServletRequest httpServletRequest) {
+        this.httpServletRequest = httpServletRequest;
+    }
 
     @PostConstruct
     private void init() {
+        if (!httpServletRequest.isSecure()) {
+            add(ErrorComponentUtils.getErrorDiv(SetupLayout.INSECURE_CONNECTION_MESSAGE));
+        }
+
         var hWelcome = new H1("Welcome to SAPL Server CE Setup Wizard");
 
         var hDesc = new H2("Description");
@@ -61,6 +75,8 @@ public class SetupView extends VerticalLayout {
                 pKeyFeatures.getText() + "3. Configure the HTTP and RSocket endpoints of the SAPL Server CE.\n");
         pKeyFeatures.setText(pKeyFeatures.getText()
                 + "4. Configure the basic authentication settings for accessing the API of SAPL Server CE.\n");
+        pKeyFeatures.setText(
+                pKeyFeatures.getText() + "5. Configure the logging settings of SAPL, SAPL Server CE and Spring.\n");
 
         var hUsage = new H2("Usage");
         var pUsage = new Paragraph();

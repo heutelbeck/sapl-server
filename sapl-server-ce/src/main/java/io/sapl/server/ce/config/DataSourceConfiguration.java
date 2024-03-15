@@ -18,14 +18,15 @@
 
 package io.sapl.server.ce.config;
 
-import io.sapl.server.ce.model.setup.condition.SetupFinishedCondition;
+import javax.sql.DataSource;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 
-import javax.sql.DataSource;
+import io.sapl.server.ce.model.setup.condition.SetupFinishedCondition;
 
 @Configuration
 @Conditional(SetupFinishedCondition.class)

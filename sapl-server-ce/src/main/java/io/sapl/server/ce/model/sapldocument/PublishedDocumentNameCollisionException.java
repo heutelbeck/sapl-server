@@ -25,6 +25,8 @@ import lombok.NonNull;
  */
 public class PublishedDocumentNameCollisionException extends Exception {
 
+    private static final long serialVersionUID = 370622817678646752L;
+
     /**
      * Creates a new instance of the {@link PublishedDocumentNameCollisionException}
      * class.

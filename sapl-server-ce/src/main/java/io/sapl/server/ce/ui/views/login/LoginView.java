@@ -17,6 +17,8 @@
  */
 package io.sapl.server.ce.ui.views.login;
 
+import org.springframework.context.annotation.Conditional;
+
 import com.vaadin.flow.component.login.LoginI18n;
 import com.vaadin.flow.component.login.LoginOverlay;
 import com.vaadin.flow.router.BeforeEnterEvent;
@@ -31,7 +33,6 @@ import io.sapl.server.ce.model.setup.condition.SetupFinishedCondition;
 import io.sapl.server.ce.security.AuthenticatedUser;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Conditional;
 
 @AnonymousAllowed
 @PageTitle("Login")
@@ -39,6 +40,8 @@ import org.springframework.context.annotation.Conditional;
 @RequiredArgsConstructor
 @Conditional(SetupFinishedCondition.class)
 public class LoginView extends LoginOverlay implements BeforeEnterObserver {
+
+    private static final long serialVersionUID = 1055410515181586609L;
 
     private final transient AuthenticatedUser authenticatedUser;
 

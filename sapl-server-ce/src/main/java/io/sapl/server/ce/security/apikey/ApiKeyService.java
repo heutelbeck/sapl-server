@@ -17,12 +17,8 @@
  */
 package io.sapl.server.ce.security.apikey;
 
-import io.sapl.server.ce.model.setup.condition.SetupFinishedCondition;
-import io.sapl.server.ce.model.clients.AuthType;
-import io.sapl.server.ce.model.clients.ClientCredentialsRepository;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
@@ -34,7 +30,12 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
+import io.sapl.server.ce.model.clients.AuthType;
+import io.sapl.server.ce.model.clients.ClientCredentialsRepository;
+import io.sapl.server.ce.model.setup.condition.SetupFinishedCondition;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -43,13 +44,13 @@ import java.util.Map;
 public class ApiKeyService {
     private final PasswordEncoder             passwordEncoder;
     private final ClientCredentialsRepository clientCredentialsRepository;
-    private final CacheManager                cacheManager;
+    private final CacheManager                apiKeyCacheManager;
 
     @Getter
     @Value("${io.sapl.server.apiKeyHeaderName:API_KEY}")
     private String apiKeyHeaderName;
 
-    @Cacheable(value = "ApiKeyCache", unless = "#result == false")
+    @Cacheable(cacheManager = "apiKeyCacheManager", value = "ApiKeyCache", unless = "#result == false")
     public boolean isValidApiKey(String apiKey) throws AuthenticationException {
         // extract client key from apiKey
         var apiKeyComponents = apiKey.split("\\.");
@@ -64,7 +65,7 @@ public class ApiKeyService {
     }
 
     public void removeFromCache(String cacheKey) {
-        CaffeineCache apiKeyCache = (CaffeineCache) cacheManager.getCache("ApiKeyCache");
+        CaffeineCache apiKeyCache = (CaffeineCache) apiKeyCacheManager.getCache("ApiKeyCache");
         if (apiKeyCache != null) {
             var nativeCache = apiKeyCache.getNativeCache();
             for (Map.Entry<Object, Object> entry : nativeCache.asMap().entrySet()) {

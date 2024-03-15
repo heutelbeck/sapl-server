@@ -17,6 +17,8 @@
  */
 package io.sapl.server.ce.ui.views.digitalpolicies;
 
+import org.springframework.context.annotation.Conditional;
+
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -27,14 +29,13 @@ import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
-import io.sapl.server.ce.model.setup.condition.SetupFinishedCondition;
 import io.sapl.server.ce.model.sapldocument.SaplDocument;
 import io.sapl.server.ce.model.sapldocument.SaplDocumentService;
+import io.sapl.server.ce.model.setup.condition.SetupFinishedCondition;
 import io.sapl.server.ce.ui.views.MainLayout;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Conditional;
 
 /**
  * View for listening and managing SAPL documents. A Designer generated
@@ -46,6 +47,8 @@ import org.springframework.context.annotation.Conditional;
 @Route(value = DigitalPoliciesView.ROUTE, layout = MainLayout.class)
 @Conditional(SetupFinishedCondition.class)
 public class DigitalPoliciesView extends VerticalLayout {
+
+    private static final long serialVersionUID = -7823981099018485902L;
 
     public static final String ROUTE = "";
 

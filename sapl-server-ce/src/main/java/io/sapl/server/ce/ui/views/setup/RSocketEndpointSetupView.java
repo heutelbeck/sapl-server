@@ -18,26 +18,33 @@
 
 package io.sapl.server.ce.ui.views.setup;
 
-import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.Route;
-import com.vaadin.flow.server.auth.AnonymousAllowed;
-import io.sapl.server.ce.model.setup.ApplicationConfigService;
-import io.sapl.server.ce.model.setup.condition.SetupNotFinishedCondition;
-import io.sapl.server.ce.ui.views.SetupLayout;
+import java.io.IOException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Conditional;
 
-import java.io.IOException;
+import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
+
+import io.sapl.server.ce.model.setup.ApplicationConfigService;
+import io.sapl.server.ce.model.setup.condition.SetupNotFinishedCondition;
+import io.sapl.server.ce.ui.views.SetupLayout;
+import jakarta.servlet.http.HttpServletRequest;
 
 @AnonymousAllowed
 @PageTitle("RSocket Endpoint Setup")
 @Route(value = RSocketEndpointSetupView.ROUTE, layout = SetupLayout.class)
 @Conditional(SetupNotFinishedCondition.class)
 public class RSocketEndpointSetupView extends EndpointSetupView {
+
+    private static final long serialVersionUID = 8384051875459830774L;
+
     public static final String ROUTE = "/setup/rsocket";
 
-    public RSocketEndpointSetupView(@Autowired ApplicationConfigService applicationConfigService) {
-        super(applicationConfigService, applicationConfigService.getRsocketEndpoint());
+    public RSocketEndpointSetupView(@Autowired ApplicationConfigService applicationConfigService,
+            @Autowired HttpServletRequest httpServletRequest) {
+        super(applicationConfigService, applicationConfigService.getRsocketEndpoint(), httpServletRequest);
     }
 
     @Override

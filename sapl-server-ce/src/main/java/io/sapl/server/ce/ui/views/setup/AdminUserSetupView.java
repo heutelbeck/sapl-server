@@ -18,6 +18,11 @@
 
 package io.sapl.server.ce.ui.views.setup;
 
+import java.io.IOException;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Conditional;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
@@ -33,21 +38,22 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
+
 import io.sapl.server.ce.model.setup.ApplicationConfigService;
 import io.sapl.server.ce.model.setup.condition.SetupNotFinishedCondition;
 import io.sapl.server.ce.ui.utils.ConfirmUtils;
+import io.sapl.server.ce.ui.utils.ErrorComponentUtils;
 import io.sapl.server.ce.ui.views.SetupLayout;
 import jakarta.annotation.PostConstruct;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Conditional;
-
-import java.io.IOException;
+import jakarta.servlet.http.HttpServletRequest;
 
 @AnonymousAllowed
 @PageTitle("Admin User Setup")
 @Route(value = AdminUserSetupView.ROUTE, layout = SetupLayout.class)
 @Conditional(SetupNotFinishedCondition.class)
 public class AdminUserSetupView extends VerticalLayout {
+
+    private static final long serialVersionUID = -3290402629817559718L;
 
     public static final String ROUTE = "/setup/admin";
 
@@ -56,20 +62,27 @@ public class AdminUserSetupView extends VerticalLayout {
     private static final String ERROR_COLOR    = "var(--lumo-error-color)";
 
     private transient ApplicationConfigService applicationConfigService;
-    private final TextField                    username             = new TextField("Username");
-    private final PasswordField                password             = new PasswordField("Password");
-    private final PasswordField                passwordRepeat       = new PasswordField("Repeat Password");
-    private final Button                       pwdSaveConfig        = new Button("Save Admin-User Settings");
-    private final Icon                         pwdEqualCheckIcon    = VaadinIcon.CHECK.create();
-    private final Span                         passwordStrengthText = new Span();
-    private final Span                         passwordEqualText    = new Span();
+    private transient HttpServletRequest       httpServletRequest;
 
-    public AdminUserSetupView(@Autowired ApplicationConfigService applicationConfigService) {
+    private final TextField     username             = new TextField("Username");
+    private final PasswordField password             = new PasswordField("Password");
+    private final PasswordField passwordRepeat       = new PasswordField("Repeat Password");
+    private final Button        pwdSaveConfig        = new Button("Save Admin-User Settings");
+    private final Icon          pwdEqualCheckIcon    = VaadinIcon.CHECK.create();
+    private final Span          passwordStrengthText = new Span();
+    private final Span          passwordEqualText    = new Span();
+
+    public AdminUserSetupView(@Autowired ApplicationConfigService applicationConfigService,
+            @Autowired HttpServletRequest httpServletRequest) {
         this.applicationConfigService = applicationConfigService;
+        this.httpServletRequest       = httpServletRequest;
     }
 
     @PostConstruct
     private void init() {
+        if (!httpServletRequest.isSecure()) {
+            add(ErrorComponentUtils.getErrorDiv(SetupLayout.INSECURE_CONNECTION_MESSAGE));
+        }
         add(getLayout());
 
     }

@@ -19,13 +19,13 @@ package io.sapl.server.ce.model.pdpconfiguration;
 
 import java.util.Collection;
 
-import io.sapl.server.ce.model.setup.condition.SetupFinishedCondition;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Iterables;
 
 import io.sapl.interpreter.combinators.PolicyDocumentCombiningAlgorithm;
+import io.sapl.server.ce.model.setup.condition.SetupFinishedCondition;
 import io.sapl.server.ce.pdp.PDPConfigurationPublisher;
 import jakarta.annotation.PostConstruct;
 import lombok.NonNull;

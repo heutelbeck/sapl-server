@@ -26,6 +26,8 @@ import lombok.Setter;
 
 public class CreateVariable extends VerticalLayout {
 
+    private static final long serialVersionUID = 4767283310383265152L;
+
     private final TextField nameTextField = new TextField("Variable Name");
     private final Button    createButton  = new Button("Create");
     private final Button    cancelButton  = new Button("Cancel");

@@ -17,16 +17,19 @@
  */
 package io.sapl.server.ce.security.apikey;
 
-import io.sapl.server.ce.security.ClientDetailsService;
+import java.util.List;
+
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-import java.util.List;
+import io.sapl.server.ce.security.ClientDetailsService;
 
 /**
  * Represents an authentication token within the example application.
  */
 public class ApiKeyAuthenticationToken extends AbstractAuthenticationToken {
+
+    private static final long serialVersionUID = 6833321566051922105L;
 
     public ApiKeyAuthenticationToken() {
         super(List.of(new SimpleGrantedAuthority(ClientDetailsService.CLIENT)));

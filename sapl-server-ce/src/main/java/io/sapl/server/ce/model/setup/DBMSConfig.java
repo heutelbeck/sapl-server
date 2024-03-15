@@ -18,13 +18,13 @@
 
 package io.sapl.server.ce.model.setup;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @NoArgsConstructor
@@ -33,9 +33,6 @@ public class DBMSConfig {
     static final String URL_PATH             = "spring.datasource.url";
     static final String USERNAME_PATH        = "spring.datasource.username";
     static final String PASSWORD_PATH        = "spring.datasource.password";
-
-    static final String DRIVERCLASSNAME_H2      = "org.h2.Driver";
-    static final String DRIVERCLASSNAME_MARIADB = "org.mariadb.jdbc.Driver";
 
     private SupportedDatasourceTypes dbms;
     private String                   url;
@@ -65,23 +62,6 @@ public class DBMSConfig {
         this.validConfig = false;
     }
 
-    public String getDriverClassName() {
-        return switch (dbms) {
-        case H2 -> DRIVERCLASSNAME_H2;
-        case MARIADB -> DRIVERCLASSNAME_MARIADB;
-        };
-    }
-
-    public void setToDbmsDefaults(SupportedDatasourceTypes dbms) {
-        this.setDbms(dbms);
-        if (this.dbms == SupportedDatasourceTypes.H2) {
-            this.url = "jdbc:h2:file:~/sapl/db";
-        } else if (this.dbms == SupportedDatasourceTypes.MARIADB) {
-            this.url = "jdbc:mariadb://127.0.0.1:3306/saplserver";
-        }
-
-    }
-
     public void testConnection(boolean createDbFileForSupportedDbms) throws SQLException {
         this.validConfig = false;
         Connection connection;
@@ -94,11 +74,4 @@ public class DBMSConfig {
         this.validConfig = true;
     }
 
-    public static SupportedDatasourceTypes getDatasourceTypeFromDriverClassName(String driverClassName) {
-        return switch (driverClassName) {
-        case DRIVERCLASSNAME_H2 -> SupportedDatasourceTypes.H2;
-        case DRIVERCLASSNAME_MARIADB -> SupportedDatasourceTypes.MARIADB;
-        default -> null;
-        };
-    }
 }
