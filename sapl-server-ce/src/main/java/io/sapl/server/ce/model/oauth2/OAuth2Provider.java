@@ -22,8 +22,7 @@ package io.sapl.server.ce.model.oauth2;
 public enum OAuth2Provider {
     KEYCLOAK, GITHUB, GOOGLE;
 
-
-    // Used to give the right link location under /oauth2/authorization/{provider}
+    // Used to give the right link location for the give OAuth2 provider
     @Override
     public String toString() {
         return this.name().toLowerCase();

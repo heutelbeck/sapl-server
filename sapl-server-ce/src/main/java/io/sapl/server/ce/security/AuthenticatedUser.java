@@ -41,7 +41,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Conditional(SetupFinishedCondition.class)
 public class AuthenticatedUser {
 
-    // In a multi-provider scenarion this parameter has to be replaced by a more generic
+    // In a multi-provider scenarion this parameter has to be replaced by a more
+    // generic
     @Value("${spring.security.oauth2.client.provider.keycloak.issuer-uri:#{null}}")
     private String keycloakIssuerUri;
 

@@ -184,7 +184,8 @@ public class HttpSecurityConfiguration extends VaadinWebSecurity {
         }
     }
 
-    // Important to extract the OAuth2 roles so that the Role admin is identified correctly
+    // Important to extract the OAuth2 roles so that the Role admin is identified
+    // correctly
     @Bean
     public GrantedAuthoritiesMapper userAuthoritiesMapperForKeycloak2() {
         return authorities -> {
