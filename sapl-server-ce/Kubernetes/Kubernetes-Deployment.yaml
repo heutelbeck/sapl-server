@@ -20,7 +20,7 @@ kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
   name: sapl-server-ce-pv-claim
-  namespace: sapl
+  namespace: sapl-server-ce
 spec:
   accessModes:
     - ReadWriteOnce
@@ -35,7 +35,7 @@ kind: Deployment
 apiVersion: apps/v1
 metadata:
   name: sapl-server-ce
-  namespace: sapl
+  namespace: sapl-server-ce
   labels:
     app: sapl-server-ce
 spec:
@@ -81,7 +81,7 @@ kind: Service
 apiVersion: v1
 metadata:
   name: sapl-server-ce
-  namespace: sapl
+  namespace: sapl-server-ce
 spec:
   ports:
     - name: http
