@@ -18,7 +18,6 @@
 package io.sapl.server.ce.security;
 
 import java.util.Optional;
-
 import com.vaadin.flow.server.VaadinServletRequest;
 import io.sapl.server.ce.model.setup.condition.SetupFinishedCondition;
 import org.slf4j.Logger;
@@ -42,6 +41,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Conditional(SetupFinishedCondition.class)
 public class AuthenticatedUser {
 
+    // In a multi-provider scenarion this parameter has to be replaced by a more generic
     @Value("${spring.security.oauth2.client.provider.keycloak.issuer-uri:#{null}}")
     private String keycloakIssuerUri;
 
