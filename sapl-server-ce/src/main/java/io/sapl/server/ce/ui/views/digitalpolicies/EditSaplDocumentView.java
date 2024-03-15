@@ -58,6 +58,8 @@ import org.springframework.context.annotation.Conditional;
 @Conditional(SetupFinishedCondition.class)
 public class EditSaplDocumentView extends VerticalLayout implements HasUrlParameter<Long> {
 
+    private static final long serialVersionUID = 8805787089243106341L;
+
     public static final String  ROUTE                       = "documents";
     private static final String NEW_VERSION_SELECTION_ENTRY = "New Version";
 

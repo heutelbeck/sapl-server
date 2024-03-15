@@ -15,22 +15,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.sapl.server.ce.model.pdpconfiguration;
 
-import lombok.NonNull;
+package io.sapl.server.ce.model.setup;
 
-/**
- * Exception thrown if a provided JSON value is invalid.
- */
-public class InvalidJsonException extends Exception {
+public enum SupportedKeystoreTypes {
+    PKCS12, JCEKS, JKS;
 
-    private static final long serialVersionUID = -5292763701167209282L;
-
-    public InvalidJsonException(@NonNull String invalidJson) {
-        this(invalidJson, null);
+    public static SupportedKeystoreTypes getByName(String name) {
+        for (SupportedKeystoreTypes keystore : SupportedKeystoreTypes.values()) {
+            if (keystore.name().equals(name)) {
+                return keystore;
+            }
+        }
+        return null;
     }
 
-    public InvalidJsonException(@NonNull String invalidJson, Throwable innerEx) {
-        super(String.format("the provided JSON is invalid: %s", invalidJson));
-    }
 }

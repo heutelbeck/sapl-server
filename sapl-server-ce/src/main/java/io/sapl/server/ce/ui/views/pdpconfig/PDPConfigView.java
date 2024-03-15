@@ -53,6 +53,8 @@ import org.springframework.context.annotation.Conditional;
 @Conditional(SetupFinishedCondition.class)
 public class PDPConfigView extends VerticalLayout {
 
+    private static final long serialVersionUID = -3376954897137500810L;
+
     public static final String ROUTE = "pdp-config";
 
     private final transient CombiningAlgorithmService combiningAlgorithmService;

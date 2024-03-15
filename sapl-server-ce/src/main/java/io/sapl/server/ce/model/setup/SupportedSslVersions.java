@@ -15,22 +15,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.sapl.server.ce.model.pdpconfiguration;
 
-import lombok.NonNull;
+package io.sapl.server.ce.model.setup;
 
-/**
- * Exception thrown if a provided JSON value is invalid.
- */
-public class InvalidJsonException extends Exception {
+import lombok.Getter;
 
-    private static final long serialVersionUID = -5292763701167209282L;
+@Getter
+public enum SupportedSslVersions {
+    TLSV1_2("TLSv1.2"), TLSV1_3("TLSv1.3");
 
-    public InvalidJsonException(@NonNull String invalidJson) {
-        this(invalidJson, null);
+    private final String displayName;
+
+    SupportedSslVersions(String displayName) {
+        this.displayName = displayName;
     }
 
-    public InvalidJsonException(@NonNull String invalidJson, Throwable innerEx) {
-        super(String.format("the provided JSON is invalid: %s", invalidJson));
+    public static SupportedSslVersions getByDisplayName(String displayName) {
+        for (SupportedSslVersions tlsVersions : SupportedSslVersions.values()) {
+            if (tlsVersions.displayName.equals(displayName)) {
+                return tlsVersions;
+            }
+        }
+        return null;
     }
 }

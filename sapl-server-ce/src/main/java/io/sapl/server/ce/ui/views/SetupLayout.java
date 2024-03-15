@@ -45,6 +45,10 @@ import org.vaadin.lineawesome.LineAwesomeIcon;
 @Conditional(SetupNotFinishedCondition.class)
 public class SetupLayout extends AppLayout {
 
+    private static final long serialVersionUID = 6412319275300609209L;
+  
+    public static final String INSECURE_CONNECTION_MESSAGE = "Warning: This connection is not secure. \nProceeding means that someone could potentially intercept the entered parameters such as usernames and passwords. It is recommended to either configure a secure TLS connection for the application in the application.yml file or to run the wizard locally and later transfer the generated application.yml file to the target system via a secure connection.";
+
     private H2                            viewTitle;
     private final AccessAnnotationChecker accessChecker;
 
@@ -93,6 +97,7 @@ public class SetupLayout extends AppLayout {
         addItem(nav, "HTTP Endpoint Setup", HttpEndpointSetupView.class, LineAwesomeIcon.SERVER_SOLID);
         addItem(nav, "RSocket Endpoint Setup", RSocketEndpointSetupView.class, LineAwesomeIcon.SERVER_SOLID);
         addItem(nav, "API Authentication Setup", ApiAuthenticationSetupView.class, LineAwesomeIcon.NETWORK_WIRED_SOLID);
+        addItem(nav, "Logging Setup", LoggingSetupView.class, LineAwesomeIcon.FILE_ALT_SOLID);
         addItem(nav, "Finish Setup", FinishSetupView.class, LineAwesomeIcon.CHECK_SQUARE_SOLID);
         return nav;
     }

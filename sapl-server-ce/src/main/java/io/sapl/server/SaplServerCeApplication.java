@@ -34,14 +34,16 @@ import org.springframework.context.ConfigurableApplicationContext;
 @SpringBootApplication(exclude = { DataSourceAutoConfiguration.class })
 public class SaplServerCeApplication implements AppShellConfigurator {
 
+    private static final long serialVersionUID = 938505458991453526L;
+
     public static void main(String[] args) {
         context = SpringApplication.run(SaplServerCeApplication.class, args);
     }
 
     private static ConfigurableApplicationContext context;
 
-    public static void restart() {
-        UI.getCurrent().getPage().setLocation("/");
+    public static void restart(String redirectUri) {
+        UI.getCurrent().getPage().setLocation(redirectUri);
         VaadinSession.getCurrent().getSession().invalidate();
         ApplicationArguments args   = context.getBean(ApplicationArguments.class);
         Thread               thread = new Thread(() -> {

@@ -30,15 +30,11 @@ import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableEntryException;
 import java.security.cert.CertificateException;
 import java.util.*;
 
 public class EndpointConfig {
-    public static final String TLS_V1_3_PROTOCOL     = "TLSv1.3";
-    public static final String TLS_V1_2_PROTOCOL     = "TLSv1.2";
-    public static final String KEY_STORE_TYPE_PKCS12 = "PKCS12";
-    public static final String KEY_STORE_TYPE_JCEKS  = "JCEKS";
-    public static final String KEY_STORE_TYPE_JKS    = "JKS";
 
     private static final String FILEPATH_PREFIX = "file:";
 
@@ -57,37 +53,30 @@ public class EndpointConfig {
 
     @Getter
     @Setter
-    private boolean               saved               = false;
+    private boolean                   saved               = false;
     @Setter
     @Getter
-    private String                address             = "";
+    private String                    address             = "";
     @Setter
     @Getter
-    private int                   port;
-    @Getter
-    @Setter
-    private boolean               tls12Enabled        = false;
-    @Getter
-    @Setter
-    private boolean               tls13Enabled        = false;
+    private int                       port;
     @Setter
     @Getter
-    private Set<String>           enabledSslProtocols = new HashSet<>();
+    private Set<SupportedSslVersions> enabledSslProtocols = EnumSet.allOf(SupportedSslVersions.class);
     @Getter
-    private String                keyStoreType        = "";
+    private SupportedKeystoreTypes    keyStoreType        = SupportedKeystoreTypes.PKCS12;
     @Getter
-    private String                keyStore            = "";
+    private String                    keyStore            = "";
     @Getter
-    private String                keyPassword         = "";
+    private String                    keyPassword         = "";
     @Getter
-    private String                keyStorePassword    = "";
+    private String                    keyStorePassword    = "";
     @Getter
-    private String                keyAlias            = "";
+    private String                    keyAlias            = "";
     @Setter
     @Getter
-    private Set<SupportedCiphers> ciphers             = new HashSet<>(
-            Set.of(SupportedCiphers.TLS_AES_128_GCM_SHA256, SupportedCiphers.TLS_AES_256_GCM_SHA384));
-    private boolean               validKeystoreConfig = false;
+    private Set<SupportedCiphers>     ciphers             = EnumSet.allOf(SupportedCiphers.class);
+    private boolean                   validKeystoreConfig = false;
 
     public EndpointConfig(String prefix, int port) {
 
@@ -108,13 +97,11 @@ public class EndpointConfig {
         this.port = port;
     }
 
-    public void setKeyStoreType(String keyStoreType) {
+    public void setKeyStoreType(SupportedKeystoreTypes keyStoreType) {
         if (!keyStoreType.equals(this.keyStoreType)) {
             this.validKeystoreConfig = false;
             this.keyStoreType        = keyStoreType;
         }
-        if (this.keyStoreType.isEmpty())
-            this.keyStoreType = KEY_STORE_TYPE_PKCS12;
     }
 
     public void setKeyStore(String keyStore) {
@@ -149,18 +136,18 @@ public class EndpointConfig {
         return !enabledSslProtocols.isEmpty();
     }
 
-    public String getPrimarySslProtocol() {
-        if (enabledSslProtocols.contains(TLS_V1_3_PROTOCOL)) {
-            return TLS_V1_3_PROTOCOL;
+    public SupportedSslVersions getPrimarySslProtocol() {
+        if (enabledSslProtocols.contains(SupportedSslVersions.TLSV1_3)) {
+            return SupportedSslVersions.TLSV1_3;
         }
-        if (enabledSslProtocols.contains(TLS_V1_2_PROTOCOL)) {
-            return TLS_V1_2_PROTOCOL;
+        if (enabledSslProtocols.contains(SupportedSslVersions.TLSV1_2)) {
+            return SupportedSslVersions.TLSV1_2;
         }
         return null;
     }
 
     public boolean isValidConfig() {
-        return isValidPort() && isValidProtocolConfig();
+        return isValidPort() && portAndProtocolsMatch() && isValidProtocolConfig();
     }
 
     public boolean isValidURI() {
@@ -190,15 +177,28 @@ public class EndpointConfig {
         return Paths.get(keyStore);
     }
 
-    public boolean testKeystore()
-            throws CertificateException, KeyStoreException, NoSuchAlgorithmException, IOException {
-        char[]   pwdArray = keyStorePassword.toCharArray();
-        KeyStore ks       = KeyStore.getInstance(keyStoreType);
+    public boolean testKeystore() throws CertificateException, KeyStoreException, NoSuchAlgorithmException, IOException,
+            UnrecoverableEntryException {
+        this.validKeystoreConfig = false;
+        var      pwdArray = keyStorePassword.toCharArray();
+        KeyStore ks       = KeyStore.getInstance(keyStoreType.name());
         try (InputStream is = Files.newInputStream(getKeyStorePath())) {
             ks.load(is, pwdArray);
+            if (!ks.containsAlias(keyAlias)) {
+                this.validKeystoreConfig = false;
+                return false;
+            }
+            var            keyPwdArray           = this.keyPassword.toCharArray();
+            var            keyPasswordProtection = new KeyStore.PasswordProtection(keyPwdArray);
+            KeyStore.Entry entry                 = ks.getEntry(this.keyAlias, keyPasswordProtection);
+            this.validKeystoreConfig = (entry != null);
         }
-        this.validKeystoreConfig = ks.containsAlias(keyAlias);
         return this.validKeystoreConfig;
+    }
+
+    public String getUri() {
+        String uri = this.address + ":" + this.port;
+        return (getSslEnabled()) ? "https://" + uri : "http://" + uri;
     }
 
 }
