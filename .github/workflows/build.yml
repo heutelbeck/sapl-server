@@ -145,7 +145,7 @@ jobs:
         
     - name: Push Server LT Image to ghcr.io
       run: |
-        docker push ghcr.io/heutelbeck/sapl-server-lt:${{ steps.get-version.outputs.VERSION }}
+        docker push ghcr.io/heutelbeck/sapl-server-ce:${{ steps.get-version.outputs.VERSION }}
 
 # This step an be activated as soon as unit tests exist.
 #    - name: Publish Test Report
