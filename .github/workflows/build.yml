@@ -145,7 +145,7 @@ jobs:
         VERSION=$( mvn help:evaluate -Dexpression=project.version -q -DforceStdout )
         echo "version=$VERSION" >> $GITHUB_OUTPUT        
         
-    - name: Push Server LT Image to ghcr.io
+    - name: Push Server CE Image to ghcr.io
       if: ${{ github.ref == 'refs/heads/main' }}
       run: |
         docker push ghcr.io/heutelbeck/sapl-server-ce:${{ steps.get-version.outputs.VERSION }}
