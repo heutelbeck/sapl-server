@@ -138,12 +138,14 @@ jobs:
         password: ${{ secrets.GHUB_ACCESS_TOKEN }}
 
     - name: Get Version
+      if: ${{ github.ref == 'refs/heads/main' }}
       id: get-version
       run: |
         VERSION=$( mvn help:evaluate -Dexpression=project.version -q -DforceStdout )
         echo "version=$VERSION" >> $GITHUB_OUTPUT        
         
     - name: Push Server LT Image to ghcr.io
+      if: ${{ github.ref == 'refs/heads/main' }}
       run: |
         docker push ghcr.io/heutelbeck/sapl-server-ce:${{ steps.get-version.outputs.VERSION }}
 
