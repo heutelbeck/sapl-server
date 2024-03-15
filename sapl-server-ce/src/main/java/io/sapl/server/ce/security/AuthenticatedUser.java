@@ -17,13 +17,10 @@
  */
 package io.sapl.server.ce.security;
 
+import java.io.Serializable;
 import java.util.Optional;
-import com.vaadin.flow.server.VaadinServletRequest;
-import io.sapl.server.ce.model.setup.condition.SetupFinishedCondition;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.springframework.beans.factory.annotation.Value;
-import io.sapl.server.ce.security.oauth2.OAuth2UserDetailsAdapter;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.http.RequestEntity;
 import org.springframework.security.core.Authentication;
@@ -32,21 +29,28 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Component;
-import lombok.RequiredArgsConstructor;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import com.vaadin.flow.server.VaadinServletRequest;
+
+import io.sapl.server.ce.model.setup.condition.SetupFinishedCondition;
+import io.sapl.server.ce.security.oauth2.OAuth2UserDetailsAdapter;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Component
 @RequiredArgsConstructor
 @Conditional(SetupFinishedCondition.class)
-public class AuthenticatedUser {
+public class AuthenticatedUser implements Serializable {
 
-    // In a multi-provider scenarion this parameter has to be replaced by a more
+    private static final long serialVersionUID = 1074340640694624737L;
+
+    // In a multi-provider scenario this parameter has to be replaced by a more
     // generic
     @Value("${spring.security.oauth2.client.provider.keycloak.issuer-uri:#{null}}")
     private String keycloakIssuerUri;
-
-    private static final Logger logger = LoggerFactory.getLogger(AuthenticatedUser.class);
 
     public Optional<UserDetails> get() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -73,7 +77,7 @@ public class AuthenticatedUser {
                 RequestEntity<Void> requestEntity = RequestEntity.get(builder.build().toUri()).build();
                 restTemplate.exchange(requestEntity, Void.class);
             } catch (Exception e) {
-                logger.error("Fehler beim Abmelden der Keycloak-Session");
+                log.error("Error during closing of Keycloak-Session", e);
             }
         }
         // Invalidate the session in Vaadin

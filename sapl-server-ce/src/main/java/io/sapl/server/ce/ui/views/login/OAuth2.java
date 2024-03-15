@@ -18,6 +18,8 @@
 
 package io.sapl.server.ce.ui.views.login;
 
+import org.springframework.context.annotation.Conditional;
+
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.H1;
@@ -29,12 +31,12 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
+
 import io.sapl.server.ce.model.oauth2.OAuth2Provider;
 import io.sapl.server.ce.model.setup.condition.SetupFinishedCondition;
 import io.sapl.server.ce.security.AuthenticatedUser;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Conditional;
 
 @Route("oauth2")
 @PageTitle("OAuth2 Login")
@@ -42,6 +44,9 @@ import org.springframework.context.annotation.Conditional;
 @RequiredArgsConstructor
 @Conditional(SetupFinishedCondition.class)
 public class OAuth2 extends VerticalLayout implements BeforeEnterObserver {
+
+    private static final long serialVersionUID = -591060236244969651L;
+
     private final AuthenticatedUser authenticatedUser;
 
     @PostConstruct

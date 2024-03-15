@@ -19,9 +19,13 @@ package io.sapl.server.ce.security;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
-import java.util.*;
-import io.sapl.server.ce.model.setup.condition.SetupFinishedCondition;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
@@ -46,7 +50,10 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.header.HeaderWriterFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+
 import com.vaadin.flow.spring.security.VaadinWebSecurity;
+
+import io.sapl.server.ce.model.setup.condition.SetupFinishedCondition;
 import io.sapl.server.ce.security.apikey.ApiKeaderHeaderAuthFilterService;
 import io.sapl.server.ce.ui.views.login.LoginView;
 import lombok.RequiredArgsConstructor;
@@ -187,7 +194,7 @@ public class HttpSecurityConfiguration extends VaadinWebSecurity {
     // Important to extract the OAuth2 roles so that the Role admin is identified
     // correctly
     @Bean
-    public GrantedAuthoritiesMapper userAuthoritiesMapperForKeycloak2() {
+    GrantedAuthoritiesMapper userAuthoritiesMapperForKeycloak2() {
         return authorities -> {
             Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
             GrantedAuthority      authority         = authorities.iterator().next();
@@ -217,7 +224,8 @@ public class HttpSecurityConfiguration extends VaadinWebSecurity {
             } else {
                 OAuth2UserAuthority oAuth2UserAuthority = (OAuth2UserAuthority) authority;
                 Map<String, Object> userAttributes      = oAuth2UserAuthority.getAttributes();
-                Map<String, Object> realmAccess         = (Map<String, Object>) userAttributes.get(REALM_ACCESS_CLAIM);
+                Map<String, Object> realmAccess         = convertAttributeToMapIfPossible(
+                        userAttributes.get(REALM_ACCESS_CLAIM));
 
                 if (realmAccess != null) {
                     Object rawRoles = realmAccess.get(ROLES_CLAIM);
@@ -232,6 +240,18 @@ public class HttpSecurityConfiguration extends VaadinWebSecurity {
             }
             return mappedAuthorities;
         };
+    }
+
+    private Map<String, Object> convertAttributeToMapIfPossible(Object suspectedMap) {
+        var newMap = new HashMap<String, Object>();
+        if (suspectedMap instanceof Map<?, ?> claimsMap) {
+            for (var entry : claimsMap.entrySet()) {
+                if (entry.getKey() instanceof String key) {
+                    newMap.put(key, entry.getValue());
+                }
+            }
+        }
+        return newMap;
     }
 
     Collection<SimpleGrantedAuthority> generateAuthoritiesFromClaim(Collection<String> roles) {
