@@ -59,10 +59,16 @@ spec:
             - name: http
               containerPort: 8080
               protocol: TCP
+            - name: https
+              containerPort: 8443
+              protocol: TCP
+            - name: rsocket
+              containerPort: 7000
+              protocol: TCP
           resources: {}
           volumeMounts:
             - name: sapl-server-ce-pv-storage
-              mountPath: /sapl
+              mountPath: /sapl/config
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File
           imagePullPolicy: Always
@@ -82,6 +88,14 @@ spec:
       protocol: TCP
       port: 8080
       targetPort: 8080
+    - name: https
+      protocol: TCP
+      port: 8443
+      targetPort: 8443
+    - name: rsocket
+      protocol: TCP
+      port: 7000
+      targetPort: 7000
   selector:
     app: sapl-server-ce
   type: ClusterIP
