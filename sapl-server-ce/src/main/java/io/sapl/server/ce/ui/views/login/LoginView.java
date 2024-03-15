@@ -43,7 +43,7 @@ public class LoginView extends LoginOverlay implements BeforeEnterObserver {
 
     private static final long serialVersionUID = 1055410515181586609L;
 
-    private final transient AuthenticatedUser authenticatedUser;
+    private final AuthenticatedUser authenticatedUser;
 
     @PostConstruct
     void init() {
