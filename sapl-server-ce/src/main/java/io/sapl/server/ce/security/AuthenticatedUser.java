@@ -18,12 +18,14 @@
 package io.sapl.server.ce.security;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.http.RequestEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
@@ -31,11 +33,8 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
-
 import com.vaadin.flow.server.VaadinServletRequest;
-
 import io.sapl.server.ce.model.setup.condition.SetupFinishedCondition;
-import io.sapl.server.ce.security.oauth2.OAuth2UserDetailsAdapter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -57,7 +56,42 @@ public class AuthenticatedUser implements Serializable {
 
         // Check if the user need an OAuth2 implementation
         if (authentication.getPrincipal() instanceof OAuth2User oauth2User) {
-            return Optional.of(new OAuth2UserDetailsAdapter(oauth2User));
+            return Optional.of(new UserDetails() {
+                @Override
+                public Collection<? extends GrantedAuthority> getAuthorities() {
+                    return oauth2User.getAuthorities();
+                }
+
+                @Override
+                public String getPassword() {
+                    return null;
+                }
+
+                @Override
+                public String getUsername() {
+                    return oauth2User.getName();
+                }
+
+                @Override
+                public boolean isAccountNonExpired() {
+                    return true;
+                }
+
+                @Override
+                public boolean isAccountNonLocked() {
+                    return true;
+                }
+
+                @Override
+                public boolean isCredentialsNonExpired() {
+                    return true;
+                }
+
+                @Override
+                public boolean isEnabled() {
+                    return true;
+                }
+            });
         } else if (authentication.getPrincipal() instanceof UserDetails userDetails) {
             return Optional.of(userDetails);
         }
