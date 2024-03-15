@@ -270,10 +270,10 @@ Installed Kubernetes v1.28+
 
 Upload the application.yaml and keystore.p12 from \\path\\to\\repository\\sapl-server-ce\\config\\ to the persistent volume.
 
-Create a Kubernetes namespace `sapl`.
+Create a Kubernetes namespace `sapl-server-ce`.
 
 ```shell
-kubectl create namespace sapl
+kubectl create namespace sapl-server-ce
 ```
 
 Create a persistent volume using the tool of your choice and set the `storageClassName` to `saplcepv`. Ensure that the size specified in the `pvclaim.yaml` matches the size of the volume. 
@@ -281,7 +281,7 @@ Create a persistent volume using the tool of your choice and set the `storageCla
 The persistent volume can alternatively be configured using the `sapl-server-ce-pv.yaml`. In this configuration, the local path `\sapl` is selected as the host path. If you do not wish to modify the path, you can create the persistent volume using the example configuration with the following command.
 
 ```
-kubectl apply -f https://raw.githubusercontent.com/heutelbeck/sapl-server/main/sapl-server-ce/Kubernetes/sapl-server-ce-pv.yaml -n sapl
+kubectl apply -f https://raw.githubusercontent.com/heutelbeck/sapl-server/main/sapl-server-ce/Kubernetes/sapl-server-ce-pv.yaml -n sapl-server-ce
 ```
 
 Use the following commands to save the file locally and adjust the path.
@@ -309,33 +309,33 @@ Invoke-WebRequest -Uri "https://raw.githubusercontent.com/heutelbeck/sapl-server
 After modifying the `path` in `hostPath`, create the persistent volume.
 
 ```
-kubectl apply -f sapl-server-ce-pv.yaml -n sapl
+kubectl apply -f sapl-server-ce-pv.yaml -n sapl-server-ce
 ```
 
-Create a SAPL Server CE in the Kubernetes namespace `sapl` by using the `Kubernetes-Deployment.yaml` resource. The server will have persistent storage and a service that allows access to it.
+Create a SAPL Server CE in the Kubernetes namespace `sapl-server-ce` by using the `Kubernetes-Deployment.yaml` resource. The server will have persistent storage and a service that allows access to it.
 
 ```shell
-kubectl apply -f https://raw.githubusercontent.com/heutelbeck/sapl-server/main/sapl-server-ce/Kubernetes/Kubernetes-Deployment.yaml -n sapl
+kubectl apply -f https://raw.githubusercontent.com/heutelbeck/sapl-server/main/sapl-server-ce/Kubernetes/Kubernetes-Deployment.yaml -n sapl-server-ce
 ```
 
-For testing purposes, the service can be changed to `NodePort`. To accomplish this, begin by outputting the services located in the Kubernetes namespace `sapl`.
+For testing purposes, the service can be changed to `NodePort`. To accomplish this, begin by outputting the services located in the Kubernetes namespace `sapl-server-ce`.
 
 ```
-kubectl get service -n sapl
+kubectl get service -n sapl-server-ce
 ```
 
 The output should be a service called `sapl-server-ce` of type `ClusterIP`. The following steps are intended to change this to the `NodePort` type in order to test the SAPL Server CE locally. Edit the `sapl-server-ce` service using the following command.
 
 ```
-kubectl edit service sapl-server-ce -n sapl
+kubectl edit service sapl-server-ce -n sapl-server-ce
 ```
 
 Change the type in the spec from `ClusterIP` to `NodePort`, save the file, and close it.
 
-Check the services in the Kubernetes namespace `sapl` again to confirm that the `sapl-server-ce`\` service is now of type `NodePort` and verify the ports.
+Check the services in the Kubernetes namespace `sapl-server-ce` again to confirm that the `sapl-server-ce`\` service is now of type `NodePort` and verify the ports.
 
 ```shell
-kubectl get service -n sapl
+kubectl get service -n sapl-server-ce
 ```
 
 The port column could look like this:
@@ -353,7 +353,7 @@ To access the server from a different computer, replace localhost with the serve
 **Note:** Remember to change the type back to ClusterIP.
 
 ```shell
-kubectl edit service sapl-server-ce -n sapl
+kubectl edit service sapl-server-ce -n sapl-server-ce
 ```
 
 ##### Deployment with MariaDB
@@ -361,7 +361,7 @@ kubectl edit service sapl-server-ce -n sapl
 You can run the SAPL Server CE with MariaDB. To achieve that, use the following steps BEFORE applying the `Kubernetes-Deployment.yaml` or restart the pod after finishing the steps.
 
 ```
-kubectl create namespace sapl
+kubectl create namespace sapl-server-ce
 helm repo add bitnami https://charts.bitnami.com/bitnami
 helm install sapl-ce-mariadb --set auth.rootPassword=Q8g7SvwDso5svlebNLQO,auth.username=saplce,auth.password=cvm72OadXaOGgbQ5F9ao,primary.persistence.storageClass=saplcedb bitnami/mariadb -n sapl-server-ce
 ```
@@ -426,7 +426,7 @@ Invoke-WebRequest -Uri "https://raw.githubusercontent.com/heutelbeck/sapl-server
 Apply the Persistent Volume yaml (or create persistent volumes with the storageclassnames detailed in the yaml file according to your preferred Method)
 
 ```shell
-kubectl apply -f https://raw.githubusercontent.com/heutelbeck/sapl-server/main/sapl-server-ce/Kubernetes/sapl-server-ce-pv.yml -n sapl
+kubectl apply -f https://raw.githubusercontent.com/heutelbeck/sapl-server/main/sapl-server-ce/Kubernetes/sapl-server-ce-pv.yml -n sapl-server-ce
 ```
 
 Download the Config Files from the Kubernetes/config folder and copy them to the config directory specified in the config-section of sapl-server-ce-pv.yml `/data/sapl-server-ce/conf`
@@ -465,7 +465,7 @@ change the URL in the Ingress section
 then apply the yaml file
 
 ```shell
-kubectl apply -f sapl-server-ce-ingress-sample.yml -n sapl
+kubectl apply -f sapl-server-ce-ingress-sample.yml -n sapl-server-ce
 ```
 
 ## Configuring Keycloak
