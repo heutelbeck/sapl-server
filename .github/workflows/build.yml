@@ -126,9 +126,26 @@ jobs:
           .git
         retention-days: 1
 
-    - name: Build and Publish SAPL Server CE Docker Image
+    - name: Build SAPL Server CE Docker Image
       if: ${{ github.ref == 'refs/heads/main' }}
-      run: mvn -B clean spring-boot:build-image -pl sapl-server-ce -P production -DskipTests -Dspring-boot.build-image.publish=true -Ddocker.credentials.username=${{ secrets.GHUB_USERNAME }} -Ddocker.credentials.password=${{ secrets.GHUB_ACCESS_TOKEN }}
+      run: mvn -B clean spring-boot:build-image -pl sapl-server-ce -P production -DskipTests
+
+    - name: Log in to the Container Registry
+      uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GHUB_ACCESS_TOKEN }}
+
+    - name: Get Version
+      id: get-version
+      run: |
+        VERSION=$( mvn help:evaluate -Dexpression=project.version -q -DforceStdout )
+        echo "version=$VERSION" >> $GITHUB_OUTPUT        
+        
+    - name: Push Server LT Image to ghcr.io
+      run: |
+        docker push ghcr.io/heutelbeck/sapl-server-lt:${{ steps.get-version.outputs.VERSION }}
 
 # This step an be activated as soon as unit tests exist.
 #    - name: Publish Test Report
