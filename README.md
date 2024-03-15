@@ -347,7 +347,8 @@ kubectl apply -f sapl-server-ce-ingress-sample.yml -n sapl-server-ce
 The SAPL Server CE can also be used with its own Keycloak realm. This means that existing users can be used for login.
 Keycloak still needs to be set up so that Keycloak can be used for the SAPL Server CE. The following steps show the necessary configurations for using OAuth2 with Keycloak.
 
-In most cases, a Keycloak realm in which the SAPL client is to be created will already exist. If not, then the realm must first be created in Keycloak via 'Create Realm'.
+In most cases, a Keycloak realm in which the SAPL client is to be created will already exist. If not, then the realm must first be created in Keycloak via 'Create Realm' and
+then choose a name for the realm.
 
 The first step is to create the role 'ADMIN' so that the users have access to the server CE's pages. The following steps are necessary to create the role:
 
