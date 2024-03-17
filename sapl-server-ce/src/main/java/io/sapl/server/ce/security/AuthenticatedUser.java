@@ -33,7 +33,9 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+
 import com.vaadin.flow.server.VaadinServletRequest;
+
 import io.sapl.server.ce.model.setup.condition.SetupFinishedCondition;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -57,6 +59,9 @@ public class AuthenticatedUser implements Serializable {
         // Check if the user need an OAuth2 implementation
         if (authentication.getPrincipal() instanceof OAuth2User oauth2User) {
             return Optional.of(new UserDetails() {
+
+                private static final long serialVersionUID = 172015643654124086L;
+
                 @Override
                 public Collection<? extends GrantedAuthority> getAuthorities() {
                     return oauth2User.getAuthorities();
