@@ -315,8 +315,6 @@ public class ApplicationConfigService {
         this.apiAuthenticationConfig
                 .setApiKeyAuthEnabled(this.getAtAsBoolean(ApiAuthenticationConfig.APIKEYAUTHENABLED_PATH, false));
         this.apiAuthenticationConfig
-                .setApiKeyHeaderName(this.getAt(ApiAuthenticationConfig.APIKEYHEADERNAME_PATH, "API_KEY").toString());
-        this.apiAuthenticationConfig
                 .setApiKeyCachingEnabled(this.getAtAsBoolean(ApiAuthenticationConfig.APIKEYCACHINGENABLED_PATH, false));
         this.apiAuthenticationConfig.setApiKeyCachingExpires(
                 Integer.parseInt(this.getAt(ApiAuthenticationConfig.APIKEYCACHINGEXPIRE_PATH, 300).toString()));
@@ -332,7 +330,6 @@ public class ApplicationConfigService {
     public void persistApiAuthenticationConfig() throws IOException {
         this.setAt(ApiAuthenticationConfig.BASICAUTHENABLED_PATH, this.apiAuthenticationConfig.isBasicAuthEnabled());
         this.setAt(ApiAuthenticationConfig.APIKEYAUTHENABLED_PATH, this.apiAuthenticationConfig.isApiKeyAuthEnabled());
-        this.setAt(ApiAuthenticationConfig.APIKEYHEADERNAME_PATH, this.apiAuthenticationConfig.getApiKeyHeaderName());
         this.setAt(ApiAuthenticationConfig.APIKEYCACHINGENABLED_PATH,
                 this.apiAuthenticationConfig.isApiKeyCachingEnabled());
         this.setAt(ApiAuthenticationConfig.APIKEYCACHINGEXPIRE_PATH,

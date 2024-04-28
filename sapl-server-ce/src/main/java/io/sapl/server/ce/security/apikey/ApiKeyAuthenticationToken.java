@@ -30,19 +30,21 @@ import io.sapl.server.ce.security.ClientDetailsService;
 public class ApiKeyAuthenticationToken extends AbstractAuthenticationToken {
 
     private static final long serialVersionUID = 6833321566051922105L;
+    private final String principal;
 
-    public ApiKeyAuthenticationToken() {
+    public ApiKeyAuthenticationToken(String principal) {
         super(List.of(new SimpleGrantedAuthority(ClientDetailsService.CLIENT)));
+        this.principal = principal;
         setAuthenticated(true);
     }
 
     @Override
     public Object getCredentials() {
-        return null;
+        return principal;
     }
 
     @Override
     public Object getPrincipal() {
-        return null;
+        return principal;
     }
 }

@@ -62,7 +62,6 @@ public class ApiAuthenticationSetupView extends VerticalLayout {
 
     private final Checkbox     allowBasicAuth        = new Checkbox("Basic Auth");
     private final Checkbox     allowApiKeyAuth       = new Checkbox("API Key Auth");
-    private final TextField    apiKeyHeader          = new TextField("API Key Header");
     private final Checkbox     allowApiKeyCaching    = new Checkbox("API Key Caching");
     private final IntegerField apiKeyCacheExpires    = new IntegerField("Cache expires (seconds)");
     private final IntegerField apiKeyCacheMaxSize    = new IntegerField("Max Size");
@@ -96,12 +95,6 @@ public class ApiAuthenticationSetupView extends VerticalLayout {
         allowApiKeyAuth.setValue(applicationConfigService.getApiAuthenticationConfig().isApiKeyAuthEnabled());
         allowApiKeyAuth.getStyle().setAlignItems(Style.AlignItems.START);
 
-        apiKeyHeader.setValueChangeMode(ValueChangeMode.EAGER);
-        apiKeyHeader.setRequiredIndicatorVisible(true);
-        apiKeyHeader.setRequired(true);
-        apiKeyHeader.setValue(applicationConfigService.getApiAuthenticationConfig().getApiKeyHeaderName());
-        apiKeyHeader.getStyle().setAlignItems(Style.AlignItems.START);
-
         allowApiKeyCaching.setValue(applicationConfigService.getApiAuthenticationConfig().isApiKeyCachingEnabled());
 
         apiKeyCacheExpires.setValueChangeMode(ValueChangeMode.EAGER);
@@ -121,7 +114,7 @@ public class ApiAuthenticationSetupView extends VerticalLayout {
         var apiKeyLayout = new VerticalLayout();
         apiKeyLayout.setAlignItems(FlexComponent.Alignment.STRETCH);
         apiKeyLayout.setPadding(false);
-        apiKeyLayout.add(allowApiKeyAuth, apiKeyHeader, allowApiKeyCaching, apiKeyCacheExpires, apiKeyCacheMaxSize);
+        apiKeyLayout.add(allowApiKeyAuth, allowApiKeyCaching, apiKeyCacheExpires, apiKeyCacheMaxSize);
 
         allowOAuth2Auth.setValue(applicationConfigService.getApiAuthenticationConfig().isOAuth2AuthEnabled());
 
@@ -140,7 +133,6 @@ public class ApiAuthenticationSetupView extends VerticalLayout {
 
         allowBasicAuth.addValueChangeListener(e -> updateApiAuthenticationConfig());
         allowApiKeyAuth.addValueChangeListener(e -> updateApiAuthenticationConfig());
-        apiKeyHeader.addValueChangeListener(e -> updateApiAuthenticationConfig());
         allowApiKeyCaching.addValueChangeListener(e -> updateApiAuthenticationConfig());
         apiKeyCacheExpires.addValueChangeListener(e -> updateApiAuthenticationConfig());
         apiKeyCacheMaxSize.addValueChangeListener(e -> updateApiAuthenticationConfig());
@@ -160,7 +152,6 @@ public class ApiAuthenticationSetupView extends VerticalLayout {
     }
 
     private void setVisibility() {
-        apiKeyHeader.setVisible(applicationConfigService.getApiAuthenticationConfig().isApiKeyAuthEnabled());
         allowApiKeyCaching.setVisible(applicationConfigService.getApiAuthenticationConfig().isApiKeyAuthEnabled());
         apiKeyCacheExpires.setVisible(applicationConfigService.getApiAuthenticationConfig().isApiKeyAuthEnabled()
                 && applicationConfigService.getApiAuthenticationConfig().isApiKeyCachingEnabled());
@@ -185,7 +176,6 @@ public class ApiAuthenticationSetupView extends VerticalLayout {
     private void updateApiAuthenticationConfig() {
         applicationConfigService.getApiAuthenticationConfig().setBasicAuthEnabled(allowBasicAuth.getValue());
         applicationConfigService.getApiAuthenticationConfig().setApiKeyAuthEnabled(allowApiKeyAuth.getValue());
-        applicationConfigService.getApiAuthenticationConfig().setApiKeyHeaderName(apiKeyHeader.getValue());
         applicationConfigService.getApiAuthenticationConfig().setApiKeyCachingEnabled(allowApiKeyCaching.getValue());
         if (apiKeyCacheExpires.getValue() == null) {
             applicationConfigService.getApiAuthenticationConfig().setApiKeyCachingExpires(0);

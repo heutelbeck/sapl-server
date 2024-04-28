@@ -17,20 +17,20 @@
  */
 package io.sapl.server.ce.security.apikey;
 
-import java.nio.charset.StandardCharsets;
-
+import io.netty.buffer.ByteBuf;
+import io.rsocket.metadata.CompositeMetadata;
+import io.sapl.server.ce.model.setup.condition.SetupFinishedCondition;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.rsocket.api.PayloadExchange;
 import org.springframework.security.rsocket.authentication.PayloadExchangeAuthenticationConverter;
 import org.springframework.stereotype.Component;
 import org.springframework.util.MimeType;
-
-import io.netty.buffer.ByteBuf;
-import io.rsocket.metadata.CompositeMetadata;
-import io.sapl.server.ce.model.setup.condition.SetupFinishedCondition;
-import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
+import java.nio.charset.StandardCharsets;
+
+import static io.sapl.server.ce.security.apikey.ApiKeyService.RSOCKET_METADATA_MIME_TPYE;
 
 @Component
 @RequiredArgsConstructor
@@ -38,20 +38,20 @@ import reactor.core.publisher.Mono;
 public class ApiKeyPayloadExchangeAuthenticationConverterService implements PayloadExchangeAuthenticationConverter {
     private final ApiKeyService apiKeyService;
 
+    /**
+     * This Method enabled the Api-Key authentication for RSocket requests. Api
+     * tokens are recognized when a Metadata field with the mime type
+     * "messaging/Bearer" is presented.
+     */
     @Override
     public Mono<Authentication> convert(PayloadExchange exchange) {
-        var               apiKeyMimeTypeValue = String
-                .valueOf(MimeType.valueOf("messaging/" + apiKeyService.getApiKeyHeaderName()));
+        var               apiKeyMimeTypeValue = String.valueOf(MimeType.valueOf(RSOCKET_METADATA_MIME_TPYE));
         ByteBuf           metadata            = exchange.getPayload().metadata();
         CompositeMetadata compositeMetadata   = new CompositeMetadata(metadata, false);
         for (CompositeMetadata.Entry entry : compositeMetadata) {
             if (apiKeyMimeTypeValue.equals(entry.getMimeType())) {
                 String apikey = entry.getContent().toString(StandardCharsets.UTF_8);
-                if (apiKeyService.isValidApiKey(apikey)) {
-                    return Mono.just(new ApiKeyAuthenticationToken());
-                } else {
-                    return Mono.error(() -> new ApiKeyAuthenticationException("ApiKey not authorized"));
-                }
+                return Mono.just(apiKeyService.checkApiKey(apikey));
             }
         }
         return Mono.empty();
