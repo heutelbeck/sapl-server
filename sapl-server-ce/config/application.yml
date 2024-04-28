@@ -94,7 +94,7 @@ server:
 
 # Set the time between keep-alive frames in seconds. These messages are required to avoid that an inactive tcp connection
 # is dropped by a firewall or other network components. The default value 0 disables keep-alive messages.
-# io.sapl.server.keep-alive: 15
+io.sapl.server.keep-alive: 20
 
 # Rsocket configuration
 spring.rsocket.server:
