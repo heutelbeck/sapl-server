@@ -116,8 +116,8 @@ public class ClientDetailsService implements UserDetailsService {
 
     public String createApiKeyDefault() {
         // apiKey needs to be a combination of <key>_<secret> to identify the client in
-        // the authentication process
-        var key    = Base64Id.randomID().replace("_", "-");
+        // the authentication process. We need to avoid underscores in the key value.
+        var key    = Base64Id.randomID().replace('_', '-');
         var apiKey = "sapl_" + key + "_" + generateSecret();
         clientCredentialsRepository.save(new ClientCredentials(key, AuthType.APIKEY, encodeSecret(apiKey)));
         return apiKey;
