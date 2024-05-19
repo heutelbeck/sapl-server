@@ -19,7 +19,7 @@ package io.sapl.server.ce.security;
 
 import com.vaadin.flow.spring.security.VaadinWebSecurity;
 import io.sapl.server.ce.model.setup.condition.SetupFinishedCondition;
-import io.sapl.server.ce.security.apikey.ApiHeaderAuthFilterService;
+import io.sapl.server.ce.security.apikey.ApiKeyHeaderAuthFilterService;
 import io.sapl.server.ce.security.apikey.ApiKeyService;
 import io.sapl.server.ce.ui.views.login.LoginView;
 import jakarta.servlet.http.HttpServletRequest;
@@ -78,7 +78,7 @@ public class HttpSecurityConfiguration extends VaadinWebSecurity {
     @Value("${io.sapl.server.allowOAuth2Login:#{false}}")
     private boolean allowOAuth2Login;
 
-    private final ApiHeaderAuthFilterService apiKeyAuthenticationFilterService;
+    private final ApiKeyHeaderAuthFilterService apiKeyAuthenticationFilterService;
 
     private static final String GROUPS             = "groups";
     private static final String REALM_ACCESS_CLAIM = "realm_access";

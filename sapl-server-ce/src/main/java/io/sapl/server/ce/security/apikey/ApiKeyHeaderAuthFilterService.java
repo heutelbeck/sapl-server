@@ -34,7 +34,7 @@ import java.io.IOException;
 @Component
 @RequiredArgsConstructor
 @Conditional(SetupFinishedCondition.class)
-public class ApiHeaderAuthFilterService extends GenericFilterBean {
+public class ApiKeyHeaderAuthFilterService extends GenericFilterBean {
     private final ApiKeyService apiKeyService;
 
     /**
@@ -47,12 +47,11 @@ public class ApiHeaderAuthFilterService extends GenericFilterBean {
             throws IOException, ServletException {
         // checking apiKey Header only if the request is not yet authorized
         if (SecurityContextHolder.getContext().getAuthentication() == null) {
-            var request  = (HttpServletRequest) servletRequest;
+            var request     = (HttpServletRequest) servletRequest;
             var apikeyToken = ApiKeyService.getApiKeyToken(request);
             // if header token is not valid, send un-authorized error
             if (apikeyToken != null) {
-                SecurityContextHolder.getContext()
-                        .setAuthentication(apiKeyService.checkApiKey(apikeyToken));
+                SecurityContextHolder.getContext().setAuthentication(apiKeyService.checkApiKey(apikeyToken));
             }
         }
         filterChain.doFilter(servletRequest, servletResponse);

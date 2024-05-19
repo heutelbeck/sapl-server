@@ -36,7 +36,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -50,17 +49,15 @@ public class ApiKeyService {
     static final String                       SAPL_TOKEN_PREFIX          = "sapl_";
     static final String                       RSOCKET_METADATA_MIME_TPYE = "messaging/Bearer";
 
-
     @Cacheable(cacheManager = "apiKeyCacheManager", value = "ApiKeyCache", unless = "#result == null")
     public ApiKeyAuthenticationToken checkApiKey(String apiKey) throws AuthenticationException {
         if (apiKey.startsWith(SAPL_TOKEN_PREFIX)) {
             var key = apiKey.split("_")[1];
             // get record matching key part of the apikey token
-            var c   = clientCredentialsRepository.findByKey(key)
+            var c = clientCredentialsRepository.findByKey(key)
                     .orElseThrow(() -> new UsernameNotFoundException("Provided apiKey client credentials not found"));
             // check type and encoded passwortd of the token entry
-            if (c.getAuthType().equals(AuthType.APIKEY)
-                    && passwordEncoder.matches(apiKey, c.getEncodedSecret())){
+            if (c.getAuthType().equals(AuthType.APIKEY) && passwordEncoder.matches(apiKey, c.getEncodedSecret())) {
                 return new ApiKeyAuthenticationToken(key);
             } else {
                 throw new ApiKeyAuthenticationException("ApiKey not authorized");
