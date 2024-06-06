@@ -17,44 +17,41 @@
  */
 package io.sapl.server.ce.security.apikey;
 
-import java.io.IOException;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.context.annotation.Conditional;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
-import org.springframework.web.filter.GenericFilterBean;
-
 import io.sapl.server.ce.model.setup.condition.SetupFinishedCondition;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Conditional;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+import org.springframework.web.filter.GenericFilterBean;
+
+import java.io.IOException;
 
 @Component
 @RequiredArgsConstructor
 @Conditional(SetupFinishedCondition.class)
-public class ApiKeaderHeaderAuthFilterService extends GenericFilterBean {
+public class ApiKeyHeaderAuthFilterService extends GenericFilterBean {
     private final ApiKeyService apiKeyService;
 
+    /**
+     * This Method enabled the Api-Key authentication for HTTP requests. Api tokens
+     * are recognized by when a sapl_ Bearer Token is present in the Authentication
+     * header.
+     */
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
             throws IOException, ServletException {
         // checking apiKey Header only if the request is not yet authorized
         if (SecurityContextHolder.getContext().getAuthentication() == null) {
-            var request  = (HttpServletRequest) servletRequest;
-            var response = (HttpServletResponse) servletResponse;
-            // if header token is not valid, send un-authorized error back
-            String apiKey = request.getHeader(apiKeyService.getApiKeyHeaderName());
-            if (StringUtils.isNotEmpty(apiKey)) {
-                if (apiKeyService.isValidApiKey(apiKey)) {
-                    SecurityContextHolder.getContext().setAuthentication(new ApiKeyAuthenticationToken());
-                } else {
-                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                }
+            var request     = (HttpServletRequest) servletRequest;
+            var apikeyToken = ApiKeyService.getApiKeyToken(request);
+            // if header token is not valid, send un-authorized error
+            if (apikeyToken != null) {
+                SecurityContextHolder.getContext().setAuthentication(apiKeyService.checkApiKey(apikeyToken));
             }
         }
         filterChain.doFilter(servletRequest, servletResponse);
